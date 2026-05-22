@@ -1,5 +1,6 @@
 # Local workspace settings
-.github/
+# Note: .github/ は CI/CD ワークフロー (.github/workflows/*.yml) や CODEOWNERS の
+# 正式管理のため、追跡対象に含めます。除外したい場合はパス単位で指定してください。
 .vscode/
 
 # Local verification / scratch area
