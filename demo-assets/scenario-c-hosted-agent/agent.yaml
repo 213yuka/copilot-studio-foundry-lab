@@ -1,0 +1,38 @@
+# Foundry Hosted agent デプロイ マニフェスト
+# 公式リファレンス:
+#   - https://learn.microsoft.com/en-us/azure/ai-foundry/agents/how-to/deploy-hosted-agent
+#   - https://learn.microsoft.com/en-us/azure/ai-foundry/agents/quickstarts/quickstart-hosted-agent
+#   - https://github.com/microsoft-foundry/foundry-samples/tree/main/samples/python/hosted-agents/agent-framework/responses/01-basic
+#
+# 用途:
+#   `azd ai agent init` / `azd deploy` フローで利用する場合に本ファイルを参照します。
+#   SDK 経由 (`scripts/register_hosted_agent.py`) で登録する場合は本ファイルは不要です。
+#
+# 注意:
+#   plataforma が自動注入する環境変数 (FOUNDRY_PROJECT_ENDPOINT / FOUNDRY_PROJECT_ARM_ID /
+#   FOUNDRY_AGENT_NAME / FOUNDRY_AGENT_VERSION / FOUNDRY_AGENT_SESSION_ID /
+#   APPLICATIONINSIGHTS_CONNECTION_STRING) を environment_variables に再宣言しないでください
+#   (重複で登録エラー)。
+# yaml-language-server: $schema=https://raw.githubusercontent.com/microsoft/AgentSchema/refs/heads/main/schemas/v1.0/ContainerAgent.yaml
+kind: hosted
+name: helpdesk-hosted
+
+protocols:
+  - protocol: responses
+    version: 1.0.0
+
+# CPU / メモリの許容範囲: 0.25 vCPU / 0.5 GiB 〜 2 vCPU / 4 GiB
+# 公式: concepts/hosted-agents (Sandbox sizes)
+resources:
+  cpu: "0.25"
+  memory: "0.5Gi"
+
+# モデル名は AZURE_AI_MODEL_DEPLOYMENT_NAME が優先。
+# Vector Store ID は KNOWLEDGE_VECTOR_STORE_ID が指定された場合のみ File Search を有効化。
+environment_variables:
+  - name: AZURE_AI_MODEL_DEPLOYMENT_NAME
+    value: ${AZURE_AI_MODEL_DEPLOYMENT_NAME=gpt-4.1-mini}
+  - name: FOUNDRY_MODEL_NAME
+    value: ${FOUNDRY_MODEL_NAME=gpt-4.1-mini}
+  - name: KNOWLEDGE_VECTOR_STORE_ID
+    value: ${KNOWLEDGE_VECTOR_STORE_ID=}

@@ -311,8 +311,63 @@ CreateTicket を呼ぶ場合:
 
 公式: <https://learn.microsoft.com/en-us/azure/ai-foundry/observability/concepts/trace-agent-concept>
 
+> ⚠️ **Tracing は Prompt agent のみ GA。Workflow / Hosted / Custom agents は Preview** です。公式 verbatim: _"Tracing is generally available for prompt agents only. Workflow, hosted, and custom agents are in preview."_  
+> 本シナリオ B (Workflow agent) の Tracing は **Preview** であり、SLA 対象外・課金とサンプリングの挙動が将来変更される可能性があります。
+
+設定要件:
+
+1. **Application Insights リソース** を Project と同じリージョンに用意 (新規 or 既存)
+2. Foundry portal → **Observability → Tracing** → **Connect Application Insights**
+3. Project Managed Identity に Application Insights `Monitoring Metrics Publisher` ロールを付与
+4. SDK 経由で実行する場合は `azure.monitor.opentelemetry.configure_azure_monitor()` で接続文字列を渡す
+
+確認手順:
+
 - Run 後、project の **Observability → Tracing** で実行ログを確認
 - どのノードでどの agent が呼ばれたかタイムライン表示
+- Application Insights 側でも `traces` / `dependencies` テーブルにエクスポートされる
+
+---
+
+## 6.4 Phase 6: Agent Application として Publish (本番展開)
+
+公式 (`concepts/development-lifecycle`) verbatim:
+
+> _"**Permissions assigned to the project identity don't automatically transfer to the published agent.** When you publish an agent as an Agent Application, the application receives its own Entra agent identity, and you must explicitly re-grant any RBAC roles (e.g., Foundry User on dependent projects, Storage Blob Data Reader on knowledge stores) to that new identity."_
+
+### 6.4.1 公開フロー
+
+1. Foundry portal → 対象 Workflow agent の右上 **Publish** → **As Agent Application**
+2. **Agent Application 名** と **Scope** (Project / Workspace / Tenant) を選択
+3. 公開後、ARM リソース `Microsoft.CognitiveServices/.../agentApplications/<name>` が作成される
+4. 自動で **Entra Agent Identity** が割り当てられる (Object ID を控える)
+
+### 6.4.2 RBAC 再割当て (必須)
+
+```powershell
+$APP_OBJ_ID = "<Agent Application の Entra Object ID>"
+$ACCT_SCOPE = "/subscriptions/$SUB/resourceGroups/$RG/providers/Microsoft.CognitiveServices/accounts/$ACCT"
+
+# Foundry User を Agent Application identity に付与
+az role assignment create --assignee-object-id $APP_OBJ_ID --assignee-principal-type ServicePrincipal `
+  --role "53ca6127-db72-4b80-b1b0-d745d6d5456d" --scope $ACCT_SCOPE
+
+# Storage / 子 agent / OpenAPI tool で参照するリソースにも同様に再割当て
+```
+
+### 6.4.3 認証 Credential の選択
+
+公式 (`agent-framework/user-guide/workflows/orchestrations/sequential`) verbatim:
+
+> _"`DefaultAzureCredential` is intended for **development scenarios only**. For production-grade applications, use `ManagedIdentityCredential` (when running in Azure) or `ClientSecretCredential` / `WorkloadIdentityCredential` (when running outside Azure)."_
+
+本番ホスト側 (Agent Application / Hosted agent / 外部呼出元) では `ManagedIdentityCredential` を使用してください。
+
+### 6.4.4 既知の落とし穴
+
+- Publish 後、Project ID と Agent Application の URL は **別物** です。クライアント側 SDK の endpoint を切り替える必要があります。
+- Publish 後の Workflow YAML 変更は **新 version** を作成して Publish 再実行 (既存 version はイミュータブル)。
+- Workflow agent は同一 Agent Application で **複数 version を保持可能**。`Version selector` (FixedRatio / Header-based) でロールアウト管理。
 
 ---
 

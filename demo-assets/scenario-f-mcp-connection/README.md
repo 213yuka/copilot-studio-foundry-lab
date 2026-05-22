@@ -1,7 +1,7 @@
 # シナリオ F: Microsoft Copilot Studio × Microsoft Foundry **MCP (Model Context Protocol) 連携**
 
 > **位置付け**: Microsoft Copilot Studio エージェントに **MCP server を tool として接続**し、Microsoft Foundry agent や任意の外部システムを **標準プロトコル (MCP)** 経由で呼び出す連携パターン。
-> **状態**: ✅ **GA** (Microsoft Copilot Studio の MCP 接続機能、2025 年中に GA)
+> **状態**: ✅ **GA (一般提供開始済み)** (Microsoft Copilot Studio の MCP 接続機能)
 > **想定工数**: 0.5 人日 (既存 MCP server を繋ぐ場合) 〜 3 人日 (MCP server を自作する場合)
 > **公式ガイド (一次資料)**:
 >  - <https://learn.microsoft.com/en-us/microsoft-copilot-studio/agent-extend-action-mcp>
@@ -67,7 +67,8 @@
 | Maker 権限 | agent author + Power Platform Connection 作成権限 |
 | ポータル | <https://copilotstudio.microsoft.com> |
 | **Generative orchestration** | **ON 必須** (MCP tool は orchestration が選ぶため) |
-| 対応 transport | **Streamable HTTP のみ** (SSE は 2025-08 以降サポート終了) |
+| 対応 transport | **Streamable HTTP のみ**。公式 (`mcp-add-existing-server-to-agent`) verbatim: _"SSE transport is deprecated, Copilot Studio no longer supports SSE for MCP after August 2025."_ ※これは旧 HTTP+SSE transport (`modelcontextprotocol.io/specification/2024-11-05/...`) の廃止であり、Streamable HTTP 内での SSE ストリーミング自体は引き続き利用可能 |
+| **MCP 機能対応範囲** | ✅ **Tools** ・ ✅ **Resources** ・ ❌ **Prompts (未対応)**。公式 (`agent-extend-action-mcp`) verbatim: _"Copilot Studio currently supports MCP tools and resources."_ ← Prompts は明示的に列挙されていない |
 
 📖 まだ Microsoft Copilot Studio エージェントが無い場合は `..\00-create-cs-agent.md` を先に実施。
 
@@ -110,6 +111,15 @@
 | 公式 Lab | <https://aka.ms/mcsmcp/lab/blog> |
 
 ### 3.2 パターン B: Microsoft Foundry の Hosted agent を MCP server 化する
+
+> ⚠️ **免責**: 本節 (パターン B) は **Microsoft 公式ドキュメントに記載された手順ではなく、カスタム実装例** です。Foundry Hosted agent コンテナ内に MCP server を同梱する公式パターンは 2026-05 時点では確認できていません。FastMCP の API シグネチャ (`run_streamable_http(...)`) も SDK バージョンによって変動するため、必ず PyPI の最新版で再確認してください。
+>
+> 公式の MCP server 実装サンプルは Microsoft 公式リポジトリを参照することを推奨します:
+>
+> - <https://github.com/microsoft/CopilotStudioSamples/tree/main/extensibility/mcp>
+> - サンプル一覧: `search-species-resources-typescript` / `pass-resources-as-inputs` / `dynamic-mcp-routing-typescript` / `order-management-enhanced-tc`
+>
+> シナリオ C と本パターンを併用する場合は、それぞれ別コンテナ (Hosted agent / MCP server) に分けて Azure Container Apps 等にデプロイし、Copilot Studio から MCP server に直接接続する構成を推奨します。
 
 シナリオ C の Hosted agent コンテナに MCP server endpoint を追加する例 (Python / FastMCP):
 

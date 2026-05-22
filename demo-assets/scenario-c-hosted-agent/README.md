@@ -238,13 +238,25 @@ agent = Agent(
 
 ### 5.2 requirements.txt
 
+本シナリオでは依存関係を **2 ファイルに分離** しています。本番コンテナには管理スクリプト用の依存関係 (`azure-ai-projects` 等) を含めません。
+
+📄 `requirements.txt` (Hosted agent コンテナの本番ランタイム用):
+
 ```
 agent-framework>=1.2.2
 agent-framework-foundry-hosting
-azure-ai-projects>=2.1.0
 azure-identity>=1.19.0
 httpx>=0.27.0
 ```
+
+📄 `scripts/requirements-scripts.txt` (`register_hosted_agent.py` 等、管理スクリプト用):
+
+```
+azure-ai-projects>=2.1.0
+azure-identity>=1.19.0
+```
+
+管理スクリプトを実行する場合は `pip install -r scripts/requirements-scripts.txt` を別途実施してください。
 
 ### 5.3 Dockerfile
 
@@ -273,7 +285,11 @@ CMD ["python", "src/agent.py"]
 
 ### 5.4 agent.yaml — azd デプロイ マニフェスト
 
-> 📄 本シナリオは **SDK 経由 (`scripts\register_hosted_agent.py`) を正式手順**としており、`agent.yaml` は **同梱していません**。`azd ai agent init` / `azd deploy` ベースで運用する場合のみ、下記サンプルを `scenario-c-hosted-agent\agent.yaml` として配置してください。
+> 📄 同梱: `agent.yaml` (リポジトリ ルートの `demo-assets/scenario-c-hosted-agent/agent.yaml`)
+>
+> 本シナリオは **SDK 経由 (`scripts\register_hosted_agent.py`) と `azd deploy` の両方を正式手順** として用意しています。SDK 経由のみで利用する場合は `agent.yaml` / `azure.yaml` を参照しなくても動作します。
+
+下記は同梱版の概要です (詳細は実ファイルを参照):
 
 ```yaml
 # yaml-language-server: $schema=https://raw.githubusercontent.com/microsoft/AgentSchema/refs/heads/main/schemas/v1.0/ContainerAgent.yaml
@@ -583,9 +599,12 @@ az monitor app-insights query `
 |---|---|
 | `README.md` | 本ファイル |
 | `Dockerfile` | コンテナ イメージ ビルド (linux/amd64 想定) |
-| `requirements.txt` | Python 依存関係 |
+| `requirements.txt` | Hosted agent コンテナの本番ランタイム用 依存関係 (最小化) |
+| `agent.yaml` | `azd deploy` 用 Hosted agent マニフェスト (kind: hosted / protocols / resources / environment_variables) |
+| `azure.yaml` | Azure Developer CLI (azd) サービス定義 (`host: ai.agent`) |
 | `src\agent.py` | Hosted Agent 本体 (Responses Protocol を expose) |
-| `scripts\register_hosted_agent.py` | ACR の イメージを Foundry に Hosted Agent として登録 |
+| `scripts\register_hosted_agent.py` | ACR の イメージを Foundry に Hosted Agent として登録 (バージョン active までポーリング) |
+| `scripts\requirements-scripts.txt` | 管理スクリプト専用の依存関係 (`azure-ai-projects` 等、本番コンテナ非同梱) |
 | `tools\create-ticket.openapi.yaml` | `..\common\tools\` のコピー (Docker ビルド コンテキスト用) |
 
 実行コマンドは §5〜§7 を順に実行。

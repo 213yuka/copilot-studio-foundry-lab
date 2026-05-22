@@ -1,0 +1,5 @@
+# 管理スクリプト (scripts/ 配下) 専用の依存関係
+# - 本番コンテナでは使用しないため、Dockerfile からは除外しています。
+# - register_hosted_agent.py 等、Foundry SDK 経由で hosted agent を登録するために必要。
+azure-ai-projects>=2.1.0
+azure-identity>=1.19.0

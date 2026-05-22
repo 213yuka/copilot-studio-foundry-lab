@@ -8,18 +8,22 @@ servers:
 paths:
   /post:
     post:
-      operationId: CreateTicket
+      # operationId は letters / "-" / "_" のみ使用可 (公式: how-to/tools/openapi-spec)
+      # snake_case を推奨。Instructions 側からも同じ表記で参照する。
+      operationId: create_ticket
       summary: ユーザーが問題を報告したときにチケットを作成する
       description: |
         ユーザーが申告した IT 問題から、件名・優先度・カテゴリーを抽出してチケットを起票します。
         ナレッジでセルフサービス手順が見つからなかった場合、または手順実行後も解決しなかった場合のみ呼び出してください。
+        ユーザーから明示的な起票同意 (user_consent=true) を得てから呼び出してください。
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: object
-              required: [summary, priority, category]
+              # Instructions の「同意必須」要求に合わせて user_consent も required に含める。
+              required: [summary, priority, category, user_consent]
               properties:
                 summary:
                   type: string
@@ -36,7 +40,10 @@ paths:
                   description: 問題カテゴリ
                 user_consent:
                   type: boolean
-                  description: ユーザーがチケット起票に同意したかどうか (true 必須)
+                  description: |
+                    ユーザーがチケット起票に同意したかどうか。
+                    必ず true で呼び出し、false の場合は呼び出さないこと。
+                  enum: [true]
       responses:
         "200":
           description: チケット起票成功
@@ -53,3 +60,4 @@ paths:
           description: 入力不正
         "401":
           description: 認証失敗
+

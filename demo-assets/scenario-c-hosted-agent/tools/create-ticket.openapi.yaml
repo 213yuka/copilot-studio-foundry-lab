@@ -1,4 +1,7 @@
 openapi: 3.0.1
+# 注意: 本ファイルは ../common/tools/create-ticket.openapi.yaml のコピーです
+# (Windows で symlink が使えないため、Docker ビルド コンテキスト用に複製しています)。
+# 変更時は必ず両方を同じ内容に更新してください。
 info:
   title: TicketAPI
   description: ユーザーが報告した IT 問題のチケットを起票する社内 API (デモ用に httpbin.org を流用)
@@ -8,18 +11,19 @@ servers:
 paths:
   /post:
     post:
-      operationId: CreateTicket
+      operationId: create_ticket
       summary: ユーザーが問題を報告したときにチケットを作成する
       description: |
         ユーザーが申告した IT 問題から、件名・優先度・カテゴリーを抽出してチケットを起票します。
         ナレッジでセルフサービス手順が見つからなかった場合、または手順実行後も解決しなかった場合のみ呼び出してください。
+        ユーザーから明示的な起票同意 (user_consent=true) を得てから呼び出してください。
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: object
-              required: [summary, priority, category]
+              required: [summary, priority, category, user_consent]
               properties:
                 summary:
                   type: string
@@ -36,7 +40,10 @@ paths:
                   description: 問題カテゴリ
                 user_consent:
                   type: boolean
-                  description: ユーザーがチケット起票に同意したかどうか (true 必須)
+                  description: |
+                    ユーザーがチケット起票に同意したかどうか。
+                    必ず true で呼び出し、false の場合は呼び出さないこと。
+                  enum: [true]
       responses:
         "200":
           description: チケット起票成功
@@ -53,3 +60,4 @@ paths:
           description: 入力不正
         "401":
           description: 認証失敗
+

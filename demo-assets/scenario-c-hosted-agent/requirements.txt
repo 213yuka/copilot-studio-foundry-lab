@@ -1,5 +1,14 @@
-azure-ai-projects>=2.1.0
-azure-identity>=1.19.0
+# Hosted agent コンテナの本番ランタイム用 依存関係 (最小化)
+# 公式参照:
+#   https://github.com/microsoft-foundry/foundry-samples/tree/main/samples/python/hosted-agents/agent-framework/responses/01-basic
+#
+# 注意:
+# - azure-ai-projects は管理スクリプト (scripts/register_hosted_agent.py) でのみ必要。
+#   本番コンテナには同梱しないため、`scripts/requirements-scripts.txt` を別途用意しています。
+# - agent-framework / agent-framework-foundry-hosting / azure-identity / httpx は
+#   src/agent.py の実行に必要。
 agent-framework>=1.2.2
 agent-framework-foundry-hosting
+azure-identity>=1.19.0
 httpx>=0.27.0
+

@@ -1,0 +1,25 @@
+# Azure Developer CLI (azd) サービス定義
+# 公式: https://learn.microsoft.com/en-us/azure/ai-foundry/agents/quickstarts/quickstart-hosted-agent
+#
+# 使い方:
+#   azd init    # 初回のみ
+#   azd up      # プロビジョン + デプロイ
+#   azd deploy  # デプロイのみ
+#
+# 注意:
+#   - `host: ai.agent` は Hosted agent 専用のホスト タイプ。
+#   - `project` に agent.yaml への相対パスを指定。
+#   - `startupCommand` はコンテナ起動コマンド。Dockerfile の CMD と同等であれば省略可。
+# yaml-language-server: $schema=https://raw.githubusercontent.com/Azure/azure-dev/main/schemas/v1.0/azure.yaml.json
+name: helpdesk-hosted-agent
+metadata:
+  template: copilot-studio-foundry-lab-hosted-agent@0.1.0
+
+services:
+  helpdesk-hosted:
+    project: ./agent.yaml
+    host: ai.agent
+    language: py
+    docker:
+      path: ./Dockerfile
+      context: .

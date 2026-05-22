@@ -298,7 +298,11 @@ Copilot Studio 側を **Publish** すれば、Foundry 接続もそのまま公�
 | Agent Id 変更 | 接続後も詳細画面から変更可能 |
 | Fabric Data agent への redirect | **非サポート** (Foundry agent は OK) |
 | 接続上限 | 公式に明示なし |
+| **二重親共有** | 公式 (`authoring-add-other-agents`) verbatim: _"The same connected agent can't be shared across multiple parent agents."_ — 同一 Foundry agent を複数の Copilot Studio 親エージェントに同時接続することは不可。共有したい場合は親ごとに別接続を作成 |
+| **Citations 欠落** | 公式 (`authoring-add-other-agents`) verbatim: _"Citations from connected agents may not be displayed in the parent agent's response."_ — Foundry 側の File Search 引用が Copilot Studio 側のチャネルで脱落することがある。プレーン テキストで根拠 URL を返す Instructions を併用すること |
+| **Use general knowledge 継承** | 公式 (`authoring-add-other-agents`) verbatim: _"The 'Use general knowledge' setting on the parent agent is inherited by connected agents."_ — 親側で「一般知識を使用」を OFF にすると、接続済み Foundry agent もブロックされる。Foundry 側で個別 ON にできない |
 | 将来の置き換え | Copilot Studio 完全置き換えする際は、シナリオ A / B / C に切り替え可能 (Copilot Studio Topic を削除して Foundry agent を直接公開) |
+| 逆方向公開 (Foundry → M365) | **Early Access Preview** で対応。詳細は [`reverse-publish-foundry-to-m365.md`](./reverse-publish-foundry-to-m365.md) (シナリオ G として独立して整理) |
 
 ---
 
@@ -325,7 +329,8 @@ Copilot Studio のみ    →    Copilot Studio が司令塔         Copilot Stud
 |---|---|
 | `README.md` | 本ファイル |
 | `cs-connection-notes.md` | Copilot Studio 接続時に必要な Foundry 側情報を控えるテンプレ |
-| `topic-route-to-foundry.md` | Copilot Studio の Trigger Phrase / Description 設計サンプル |
+| `topic-route-to-foundry.md` | Copilot Studio の Trigger Phrase / Description / **サブエージェント Instructions** 設計サンプル |
+| `reverse-publish-foundry-to-m365.md` | **シナリオ G**: Foundry → M365 Copilot / Teams 逆方向公開 (Early Access Preview) |
 
 > ℹ️ Foundry agent 本体 (A / B / C) は `..\scenario-a-prompt-agent\` 等のものを流用してください。本フォルダは **接続レイヤ・運用設計**のみを扱います。
 

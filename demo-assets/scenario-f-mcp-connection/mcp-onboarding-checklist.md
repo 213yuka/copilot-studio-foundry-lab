@@ -54,11 +54,13 @@
 
 - [ ] **Tools** タブに MCP server がツールとして表示される
 - [ ] MCP server をクリックすると **Tools** タブと **Resources** タブで公開機能が一覧できる
+- [ ] **MCP Prompts は表示されない** (公式 verbatim: _"Copilot Studio currently supports MCP tools and resources."_ — Prompts は未対応のため、tool/resource として再設計する必要あり)
 - [ ] 不要な tool は **Allow all** を OFF にして個別に無効化済 (運用上の最小権限)
 - [ ] Test pane で MCP tool を呼ぶ会話を流し、想定通り tool が選ばれることを確認
 - [ ] **Track between topics** をオンにして orchestration の判断ログを確認
 - [ ] MCP server 側のログに Microsoft Copilot Studio からのリクエストが到達していることを確認
 - [ ] (OAuth の場合) ユーザーがチャットで初回呼出時に consent card に応答する動作を確認
+- [ ] **既知の不具合** (`mcp-troubleshooting`) を確認: `exclusiveMinimum` integer の `System.FormatException` / tool definition の複数 type 配列で truncate / Reference type input フィルタ / enum input が string 解釈 などの SDK 由来の問題に該当しないか確認
 
 ## D. 運用前 (ガバナンス)
 
@@ -68,3 +70,4 @@
 - [ ] データ レジデンシー: ユーザー入力が MCP server ホスト地域に流れることを確認・社内承認済
 - [ ] MCP server の Description と各 tool description を **業務語彙で具体的に**書き、orchestration の誤呼出を防止
 - [ ] 公式注記の取扱 (verbatim): 「When you connect to a non-Microsoft product, including an external MCP server, you're responsible for the tools and resources you access from within Copilot Studio.」を関係者に共有
+- [ ] **DLP と MCP の連鎖** (公式 `admin-data-loss-prevention` verbatim): _"Blocking Power Platform connectors also blocks access to tools in connected MCP servers."_ — Power Platform 管理センターで Power Platform connector を Block すると、その connector を経由する MCP server tool もブロックされることを認識・関係者に共有

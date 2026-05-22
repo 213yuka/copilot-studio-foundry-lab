@@ -1,9 +1,10 @@
 # シナリオ E: Microsoft Copilot Studio → Microsoft Foundry **モデル持ち込み (BYOM, GA)** 連携
 
 > **位置付け**: Microsoft Copilot Studio エージェント本体は **そのまま温存**し、**プロンプト ノードで利用する LLM だけ** Microsoft Foundry のモデルカタログから差し替える、最小工数・最小リスクの連携パターン。
-> **状態**: ✅ **GA** (Power Platform の "Azure AI Foundry" コネクタ経由)
+> **状態**: ✅ **GA (2025-09-15 一般提供開始)** (Power Platform の "Azure AI Foundry" コネクタ経由)。Public Preview は 2025-05-15 開始。
 > **想定工数**: 0.5 人日 (Foundry リソース・モデルが既に存在する場合)
 > **公式ガイド (一次資料)**: <https://learn.microsoft.com/en-us/microsoft-copilot-studio/bring-your-own-model-prompts>
+> **Release Plan**: <https://learn.microsoft.com/en-us/power-platform/release-plan/2025wave1/ai-builder/use-own-generative-ai-model-azure-ai-foundry-prompt-builder>
 
 シナリオ A〜D は **エージェント (agent)** レイヤーの選択肢でしたが、本シナリオ E は **モデル (model)** レイヤーの選択肢です。Microsoft Copilot Studio の Topic / Action / Knowledge 構造は何も変えず、**Prompt ツール (= Power Platform AI Builder Prompt)** が呼び出す LLM だけを Microsoft Foundry 側に切り替えます。
 
@@ -94,15 +95,29 @@
 
 公式: <https://learn.microsoft.com/en-us/azure/ai-foundry/how-to/deploy-models-openai>
 
-1. <https://ai.azure.com> にサインイン → **New Foundry** トグル ON
+> ⚠️ **ポータル切替の重要な分岐 (必読)**:
+> 
+> | 用途 | ポータル |
+> |---|---|
+> | 通常のモデル デプロイ (本シナリオ §3 の手順) | **New Foundry portal** (<https://ai.azure.com> で `New Foundry` トグル **ON**) |
+> | **Fine-tuning (Managed Compute)** | **Foundry (classic) portal** (`New Foundry` トグル **OFF**) |
+> 
+> 公式 (`how-to/fine-tune-managed-compute`) verbatim:
+> 
+> > _"Make sure the **New Foundry toggle is off**. These steps refer to Foundry (classic)."_
+> 
+> Fine-tuning メニューは New Foundry portal には現時点で存在しません。Fine-tune モデルを使う場合は §3.1 の手順前に portal を classic に切り替えてください。切替後も `Models + Endpoints` のメニュー名・操作フローが異なる場合があります。
+
+1. <https://ai.azure.com> にサインイン → **New Foundry** トグル ON (通常デプロイの場合)
 2. 既存 project を開く (無ければ `+ Create a project`)
 3. 左メニュー **Models + Endpoints** → **+ Deploy model**
 4. モデルカタログから選択 (例):
    - `gpt-4o` (マルチモーダル / image 対応)
    - `gpt-4o-mini` (高速・低コスト)
    - `Meta-Llama-3.3-70B-Instruct`
+   - `Llama-4-Scout-17B-16E-Instruct` / `Llama-4-Maverick-17B-128E-Instruct` (multimodal)
    - `DeepSeek-R1`
-   - `Phi-3.5-vision-instruct` (image 対応)
+   - `Phi-3.5-vision-instruct` / `Phi-4-multimodal-instruct` (image 対応)
 5. **Deployment name** を控える (例: `gpt-4o-japaneast-prod`)
 6. **Base model name** を控える (例: `gpt-4o`)
 
@@ -112,9 +127,13 @@
 
 公式: <https://learn.microsoft.com/en-us/azure/ai-foundry/how-to/fine-tune-managed-compute>
 
-1. Foundry portal → **Fine-tuning** で base model にファインチューンを実行
-2. 完了後、上記同様 **Models + Endpoints** にデプロイ
-3. Deployment name はファインチューン後のもの、Base model name は元の base model 名
+> ⚠️ **Fine-tuning は New Foundry portal では実行できません。Foundry (classic) portal に切り替えてから操作してください。**
+
+1. <https://ai.azure.com> で **New Foundry** トグルを **OFF** にして Foundry (classic) portal を開く
+2. Foundry (classic) portal → **Fine-tuning** で base model にファインチューンを実行
+3. 完了後、**Models + Endpoints** にデプロイ (classic portal で完結)
+4. Deployment name はファインチューン後のもの、Base model name は元の base model 名
+5. Copilot Studio から呼び出す際の手順は §4 と同じ (deployment name / base model name の指定方法は両 portal 共通)
 
 ---
 
@@ -165,9 +184,15 @@ Prompt に **画像入力**を追加すると、ドロップダウンには **�
 - `GPT-4.5-preview`
 
 > ⚠️ 公式 Note (verbatim 引用):
-> 「Copilot Studio doesn't natively support image generation or expose Azure AI Foundry models directly in the user interface. The **Add an AI model** catalog currently includes AI Builder models and selected Azure AI Services, but no text-to-image models.」
+> 「Copilot Studio doesn't natively support image generation or expose Azure AI Foundry models directly in the user interface. The **Add an AI model** catalog currently includes AI Builder models and selected Azure AI Services, but no text-to-image models. **However, you can still call image-generation models (for example DALL·E 3) from Copilot Studio by exposing them as a custom plugin / connector, or via an HTTP Request node that calls the Foundry inference endpoint, and rendering the resulting image URL inside an Adaptive Card or image control.**」
 >
-> 画像 **生成** (DALL·E 3 等) は本 BYOM 機能では UI から直接呼べないため、プラグイン / カスタム アクション (REST API 呼び出し) で実装します。
+> 画像 **生成** (DALL·E 3 等) は本 BYOM 機能では UI から直接呼べないため、以下のいずれかで実装します:
+>
+> 1. **カスタム コネクタ / Custom plugin** で Foundry 推論エンドポイント (`POST /openai/deployments/{deployment}/images/generations`) を REST API として登録し、生成された URL を取得 → Adaptive Card / image control で表示
+> 2. **Power Automate Flow** から HTTP リクエストを発行し、Copilot Studio Topic に変数として戻す
+> 3. シナリオ C (Hosted agent) を併用し、コンテナ内で画像生成 → 結果 URL を Responses API のレスポンスとして返却
+>
+> 詳細は公式 `bring-your-own-model-prompts` の Image generation セクションを参照。
 
 ---
 

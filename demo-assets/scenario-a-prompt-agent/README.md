@@ -111,28 +111,53 @@ Copilot Studio の Topic / 分岐ロジックを **Instructions (自然言語ガ
 ### 4.2 モデルをデプロイ
 
 1. 左メニュー **Models + Endpoints** → **+ Deploy model**
-2. `gpt-4.1-mini` を選択 (`gpt-5-mini` でも本シナリオは動作確認済み)
+2. `gpt-4.1-mini` を選択 (Responses API 対応 / 即時利用可)
 3. Deployment name = モデル名と同一、SKU = GlobalStandard
 4. **Deploy**
 
+> ℹ️ **gpt-5 系を使う場合は事前登録が必須**: 公式 (`concepts/limits-quotas-regions`) verbatim:  
+> _"If you're using gpt-5 models, registration is required."_  
+> アクセス申請: <https://aka.ms/openai/gpt-5/2025-08-07>  
+> 申請承認まで時間がかかるため、当日デモなど急ぎの場合は **`gpt-4.1-mini` を推奨** します。本リポジトリの `run-log.md` は申請済みテナントで `gpt-5-mini` を使用しています。
+
 ### 4.3 RBAC を割り当てる
+
+> ⚠️ **公式は role 名ではなく role definition ID (GUID) での割当を推奨** しています。`Foundry User` は旧 `Azure AI User` のリネーム途上で、テナント・SDK バージョンによって表示が揺れるため、GUID 指定が確実です。
+> - Foundry User: `53ca6127-db72-4b80-b1b0-d745d6d5456d`
+> - Foundry Owner: `c4abc141-1c46-4e9d-8a8b-c08f4e9c4d8e` (File Search の vector store 管理に必要)
+> - Storage Blob Data Contributor: `ba92f5b4-2d11-453d-a403-e96b0029c9fe`
+>
+> スコープも公式と整合させてください: **Foundry resource scope** に Foundry User、**ストレージ アカウント scope** に Storage Blob Data Contributor (リソース グループ scope ではなく)。
 
 ```powershell
 $RG    = "<resource group>"
 $ACCT  = "<Foundry account name>"
 $PROJ  = "<Foundry project name>"
 $SUB   = "<subscription id>"
+$STG   = "<storage account name>"  # Foundry が作成した既定の Storage Account
+$ME    = "<your-objectId-or-email>"
+$PMI   = "<Project Managed Identity objectId>"  # Foundry portal → Project → Settings → Managed identity で確認
 
-az role assignment create `
-  --assignee <your-email-or-objectId> `
-  --role "Foundry User" `
-  --scope "/subscriptions/$SUB/resourceGroups/$RG/providers/Microsoft.CognitiveServices/accounts/$ACCT/projects/$PROJ"
+$FOUNDRY_USER_GUID                  = "53ca6127-db72-4b80-b1b0-d745d6d5456d"
+$FOUNDRY_OWNER_GUID                 = "c4abc141-1c46-4e9d-8a8b-c08f4e9c4d8e"
+$STORAGE_BLOB_DATA_CONTRIB_GUID     = "ba92f5b4-2d11-453d-a403-e96b0029c9fe"
 
-# (ファイル アップロード用) Storage Blob Data Contributor も必要
-az role assignment create `
-  --assignee <your-email-or-objectId> `
-  --role "Storage Blob Data Contributor" `
-  --scope "/subscriptions/$SUB/resourceGroups/$RG"
+# Foundry resource scope に Foundry User (人間ユーザー向け)
+$ACCT_SCOPE = "/subscriptions/$SUB/resourceGroups/$RG/providers/Microsoft.CognitiveServices/accounts/$ACCT"
+az role assignment create --assignee $ME --role $FOUNDRY_USER_GUID --scope $ACCT_SCOPE
+
+# File Search で vector store を作成・管理する場合は Foundry Owner も必要
+az role assignment create --assignee $ME --role $FOUNDRY_OWNER_GUID --scope $ACCT_SCOPE
+
+# Storage Blob Data Contributor は ストレージ アカウント scope (RG ではない)
+$STG_SCOPE = "/subscriptions/$SUB/resourceGroups/$RG/providers/Microsoft.Storage/storageAccounts/$STG"
+az role assignment create --assignee $ME --role $STORAGE_BLOB_DATA_CONTRIB_GUID --scope $STG_SCOPE
+
+# Project Managed Identity にも同等の権限を付与 (Hosted agent / 外部呼出のため)
+az role assignment create --assignee-object-id $PMI --assignee-principal-type ServicePrincipal `
+  --role $FOUNDRY_USER_GUID --scope $ACCT_SCOPE
+az role assignment create --assignee-object-id $PMI --assignee-principal-type ServicePrincipal `
+  --role $STORAGE_BLOB_DATA_CONTRIB_GUID --scope $STG_SCOPE
 ```
 
 ### 4.4 ログインと環境変数
@@ -353,14 +378,42 @@ python create_prompt_agent.py
 
 ---
 
+## 10.5 セキュリティ (Content Filter / Prompt Shields / XPIA / PII)
+
+> 📄 詳細は **[`docs/security.md`](./docs/security.md)** を参照してください。Microsoft Learn からの verbatim 引用とともに、Portal 操作手順を載せています。
+
+本シナリオは社内 IT 規定 PDF を Vector Store 経由で読み込むため、**間接プロンプト インジェクション (XPIA: cross-prompt injection attack)** の現実リスクがあります。Microsoft Foundry の Content Filter は次の 4 種類の保護を提供しており、本番運用前に最低でも (1)(2)(3) を有効化することを推奨します。
+
+| # | 保護 | 何を防ぐか | 公式 verbatim | 推奨 |
+|---|---|---|---|---|
+| 1 | **User prompt attacks (jailbreak)** | ユーザーが安全ガイドラインを迂回しようとする攻撃 | "Classifies user prompts as either safe or as attempting to manipulate the model's behavior" | Input フィルタで有効化 |
+| 2 | **Indirect attacks (XPIA)** | ナレッジ・OpenAPI レスポンス・MCP 等、**第三者コンテンツ経由の注入** | "Detects prompt injection attacks where third-party content (such as documents or web pages) attempts to manipulate the model" | Input フィルタで有効化 (本シナリオで必須) |
+| 3 | **PII Detection** | 出力に個人情報が含まれていないか | "Detects personal information in model output" | Output フィルタで有効化 |
+| 4 | **Task Adherence** | エージェントが付与されたタスクから逸脱していないか | "Evaluates whether the agent's response adheres to the task assigned to it" | 任意 (Agent モード) |
+
+設定手順 (要旨):
+
+1. Foundry Portal → 左メニュー **Guardrails + controls** → **+ Create content filter**
+2. Input フィルタ: User prompt attacks / Indirect attacks を有効
+3. Output フィルタ: PII Detection を有効
+4. モデル デプロイの **Content filter** プルダウンで作成したフィルタを選択
+
+詳細は `docs/security.md` を参照。
+
+---
+
 ## 11. 同梱ファイル
 
 | ファイル | 用途 |
 |---|---|
 | `README.md` | 本ファイル |
-| `requirements.txt` | Python 依存関係 (azure-ai-projects, azure-identity, pyyaml) |
+| `docs\security.md` | Content Filter / Prompt Shields / XPIA / PII の設定手順 (§10.5 から参照) |
+| `requirements.txt` | Python 依存関係 (azure-ai-projects, azure-identity, openai, pyyaml, pytest, pytest-timeout) |
+| `pytest.ini` | pytest 設定 (testpaths=tests / timeout=120) |
+| `tests\conftest.py` | `openai_client` / `conversation` fixture と `mask_pii()` ヘルパー |
+| `tests\test_scenario_a.py` | pytest 回帰テスト (TestPasswordReset / TestSecurityGuardrails / TestMFA / TestCreateTicket) |
 | `create_prompt_agent.py` | Prompt agent を 1 体作成するスクリプト (Phase 4) |
-| `test_agent.py` | Responses API 経由の回帰テスト (Phase 5、5 ケース) |
+| `test_agent.py` | (Legacy) 旧 目視確認スクリプト。新規開発では `tests/test_scenario_a.py` を使用してください |
 | `run-log.md` | 本リポジトリでローカル実行した際のログ (2026-05-22) |
 | `capture_learn_docs.py` | Microsoft Learn 参照画像を Playwright で取得 (認証不要) |
 | `generate_log_screenshots.py` | 実行ログをターミナル風画像に化(README 用、認証不要) |

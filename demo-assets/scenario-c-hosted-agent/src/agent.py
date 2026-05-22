@@ -27,7 +27,10 @@ MODEL = os.environ.get(
     os.environ.get("FOUNDRY_MODEL_NAME", "gpt-4.1-mini"),
 )
 VS_ID = os.environ.get("KNOWLEDGE_VECTOR_STORE_ID")
-PORT = int(os.environ.get("PORT", 8088))
+# PORT はプラットフォーム側で自動管理 (Foundry Hosted agent は内部で 8088 を listen)。
+# 公式サンプル (microsoft-foundry/foundry-samples/.../responses/01-basic/main.py) は
+# server.run() を引数なしで呼び出している。引数を渡すと SDK バージョンによっては
+# TypeError が発生するため、明示指定はしない。
 
 
 INSTRUCTIONS = """
@@ -89,7 +92,9 @@ def main() -> None:
     agent = Agent(**agent_kwargs)
 
     server = ResponsesHostServer(agent)
-    server.run(host="0.0.0.0", port=PORT)
+    # 公式サンプル準拠: server.run() に host / port を渡さない。
+    # ローカル動作確認では既定で localhost:8088 で listen される。
+    server.run()
 
 
 if __name__ == "__main__":

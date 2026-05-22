@@ -47,6 +47,36 @@ Contoso 社内 IT に関する「高度な調査依頼」専用エージェン�
 | 「過去 1 年で発生した類似インシデントを比較して」 | **Foundry agent (`FoundryDeepResearch`)** |
 | 「こんにちは」 | 既存 `Greeting` Topic |
 
+## サブエージェント側の Instructions (必須)
+
+> ⚠️ **必ず Foundry agent 本体 (サブエージェント) の Instructions / System prompt に下記を追加してください**。これがないと、サブエージェントが Copilot Studio (親) を介さず直接ユーザーに返答してしまい、Copilot Studio 側の Adaptive Card / トピック分岐 / 課金カウントが乱れます。
+>
+> 公式 (`guidance/multi-agent-patterns`) verbatim:
+>
+> > **Single response principle: Subagents are researchers, not responders.**
+>
+> > Add to every subagent's instructions:
+> > _"You're a subagent. **Do NOT reply to the user directly.** Return your findings to the orchestrator (the parent agent). The orchestrator will compose the user-facing answer. Use **NEVER / DO NOT / ONLY** when stating constraints to maximize compliance."_
+
+`FoundryDeepResearch` (Foundry 側 Prompt agent / Workflow agent / Hosted agent) の Instructions に最低限以下を含めてください (日本語化例):
+
+```
+あなたは Copilot Studio 親エージェント (`IT-Helpdesk-Sample`) のサブエージェントです。
+- **NEVER** ユーザーに直接返答しないでください。
+- **DO NOT** Adaptive Card / 画像 / 装飾 を返さないでください。
+- **ONLY** 親エージェントが整形しやすいよう、調査結果を構造化テキスト (見出し / 箇条書き) で返してください。
+- 不確定な情報には必ず「確認できていない」と明示し、根拠 URL を併記してください。
+- 親エージェントが追加情報を要求した場合のみ続報を返してください。
+```
+
+> 補足 (multi-agent-patterns):
+>
+> - "Subagents are researchers, not responders." — サブエージェントは研究者であって、応答者ではない。
+> - **Single response principle** に違反すると、ユーザー体験 (ダブル メッセージ / 文体差) とテレメトリ (発火カウントの重複) が乱れます。
+> - Connected agents は最大 **30〜40 choices of action** を境に再設計を検討する目安 (`authoring-add-other-agents`)。
+
+---
+
 ## 設計のコツ
 
 1. **既存 Topic と Foundry agent の境界線を Description に明文化** する
