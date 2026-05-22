@@ -1,5 +1,7 @@
 # シナリオ G: Microsoft Foundry → Microsoft 365 Copilot / Microsoft Teams **逆方向公開** (Early Access Preview)
 
+> ⚠️ **作業中・検証中のドラフトです (確定版ではありません)。本番採用前に公式ドキュメントで最終確認してください。**
+
 > **位置付け**: シナリオ D の **逆方向**。Microsoft Foundry で作成した Prompt agent / Workflow agent / Hosted agent を、Microsoft Copilot Studio を経由せずに **Azure Bot Service 経由で Microsoft 365 Copilot / Microsoft Teams へ直接公開** するシナリオ。
 >
 > **状態**: **Early Access Preview** (2026 年時点)。本番運用にあたっては Microsoft Learn の最新情報を必ず確認してください。SLA 対象外。

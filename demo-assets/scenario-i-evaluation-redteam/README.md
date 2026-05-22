@@ -1,5 +1,7 @@
 # シナリオ I: Microsoft Foundry **Evaluation + AI Red Teaming** による品質・安全評価パイプライン
 
+> ⚠️ **作業中・検証中のドラフトです (確定版ではありません)。本番採用前に公式ドキュメントで最終確認してください。**
+
 > **位置付け**: シナリオ A〜D で構築した Microsoft Foundry agent / Microsoft Copilot Studio エージェントの **品質・安全ゲートを自動化** し、CI/CD に評価ステップを組み込む **本番ローンチ前の最終関門**シナリオ。
 >
 > **状態**: 評価フレームワーク本体 **GA** / **Agent 専用評価器 (Task Adherence / Task Completion / Intent Resolution / Task Navigation Efficiency)** は **Preview** / **AI Red Teaming Agent (PyRIT)** は **Preview** / **Continuous monitoring / Scheduled evaluation** は **Preview**。

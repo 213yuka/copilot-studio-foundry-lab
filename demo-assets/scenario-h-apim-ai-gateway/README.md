@@ -1,5 +1,7 @@
 # シナリオ H: Azure API Management を **AI Gateway** として使う Microsoft Foundry / Microsoft Copilot Studio 統合
 
+> ⚠️ **作業中・検証中のドラフトです (確定版ではありません)。本番採用前に公式ドキュメントで最終確認してください。**
+
 > **位置付け**: Microsoft Foundry endpoint / MCP server / A2A agent API / Microsoft Copilot Studio が呼び出すツールを **単一の Azure API Management (APIM) インスタンス** で集約し、トークン レート制御・セマンティック キャッシュ・ロード バランス・コンテンツ セーフティ・コスト可視化を一元的に提供する **ガバナンス & FinOps シナリオ**。
 >
 > **状態**: APIM 本体は **GA** / **AI Gateway policies (LLM token limit / semantic cache / llm-emit-token-metric / MCP expose / MCP export)** は **GA + Preview の混在** (機能ごとに差あり)。Microsoft Foundry portal からの **APIM 自動連携 (Connect API Management)** は **Public Preview**。

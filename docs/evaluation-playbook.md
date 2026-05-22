@@ -1,5 +1,7 @@
 # Evaluation Playbook: Microsoft Foundry Built-in Evaluators + AI Red Teaming + CI/CD ゲート
 
+> ⚠️ **作業中・検証中のドラフトです (確定版ではありません)。本番採用前に公式ドキュメントで最終確認してください。**
+
 > **目的**: シナリオ I (Evaluation + Red Teaming) を **すぐ実行できる "コピペ可能" な手順書** として整理し、Built-in evaluator の選定基準・Red Teaming 実行手順・CI/CD ゲート組込・本番 Continuous monitoring までを 1 ファイルで提供する。
 >
 > **対象読者**: ML / AI エンジニア / QA エンジニア / プラットフォーム SRE。

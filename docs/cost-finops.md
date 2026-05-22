@@ -1,5 +1,7 @@
 # 横断 FinOps: Microsoft Foundry token / Microsoft Copilot Studio Credits / APIM token metric
 
+> ⚠️ **作業中・検証中のドラフトです (確定版ではありません)。本番採用前に公式ドキュメントで最終確認してください。**
+
 > **目的**: シナリオ A〜I で発生する **AI 関連コストを 1 ファイルで俯瞰** し、見積・予算アラート・最適化アクションをまとめる。
 >
 > **対象読者**: アーキテクト / 営業エンジニア / FinOps 担当 / プロジェクト マネージャー。
