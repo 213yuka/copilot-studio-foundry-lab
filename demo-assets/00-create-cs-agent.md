@@ -393,14 +393,18 @@ Flow / 環境変数 / カスタム コネクタも含めて移行したい場合
 
 ## 9. 抽出した YAML を Foundry へ — シナリオ別に分岐
 
-ここから先はシナリオによって受け皿が変わります:
+ここから先はシナリオによって受け皿が変わります。Microsoft Foundry agent を作るルート (A〜C / D)、Microsoft Copilot Studio を温存しつつモデル / MCP だけ Microsoft Foundry に頼るルート (E / F) の **6 通り** が用意されています:
 
-| シナリオ | Foundry での受け皿 | YAML の使い方 | 詳細 README |
-|---|---|---|---|
-| **A** | Prompt agent (GA) | Instructions / Knowledge 接続 / Action OpenAPI を Python SDK で 1 体登録 | [`scenario-a-prompt-agent\README.md`](scenario-a-prompt-agent/README.md) |
-| **B** | Workflow agent (Preview) | Topic ダイアログ ツリーを Workflow YAML / ビジュアル ビルダーに変換 | [`scenario-b-workflow-agent\README.md`](scenario-b-workflow-agent/README.md) |
-| **C** | Hosted agent (Preview) | コードで再実装し、コンテナとして ACR → Foundry 登録 | [`scenario-c-hosted-agent\README.md`](scenario-c-hosted-agent/README.md) |
-| **D** | Copilot Studio + Foundry 併用 (Preview) | Copilot Studio をそのまま残し、Foundry agent (= A/B/C) を Add an agent で接続 | [`scenario-d-cs-plus-foundry\README.md`](scenario-d-cs-plus-foundry/README.md) |
+| シナリオ | レイヤー | Foundry での受け皿 | YAML / 抽出物の使い方 | 状態 | 詳細 README |
+|---|---|---|---|---|---|
+| **A** | エージェント本体 (移行) | Prompt agent | Instructions / Knowledge 接続 / Action OpenAPI を Python SDK で 1 体登録 | ✅ GA | [`scenario-a-prompt-agent\README.md`](scenario-a-prompt-agent/README.md) |
+| **B** | エージェント本体 (移行) | Workflow agent | Topic ダイアログ ツリーを Workflow YAML / ビジュアル ビルダーに変換 | ⚠️ Preview | [`scenario-b-workflow-agent\README.md`](scenario-b-workflow-agent/README.md) |
+| **C** | エージェント本体 (移行) | Hosted agent | コードで再実装し、コンテナとして ACR → Foundry 登録 | ⚠️ Preview | [`scenario-c-hosted-agent\README.md`](scenario-c-hosted-agent/README.md) |
+| **D** | エージェント間連携 | Foundry agent を `Add an agent` で接続 | Microsoft Copilot Studio をそのまま残し、Foundry agent (= A/B/C) を `Add an agent → Microsoft Foundry` で接続 | ⚠️ Preview | [`scenario-d-cs-plus-foundry\README.md`](scenario-d-cs-plus-foundry/README.md) |
+| **E** | モデル / ツール単位 | Foundry モデル デプロイ (BYOM) | Microsoft Copilot Studio の Prompt ツールの **Model** に Foundry モデルを接続 (YAML は使わず、Prompt Instructions を新規作成) | ✅ GA | [`scenario-e-byom-foundry-model\README.md`](scenario-e-byom-foundry-model/README.md) |
+| **F** | モデル / ツール単位 | MCP server (Foundry / 任意ホスト) | Microsoft Copilot Studio の Tools に `Model Context Protocol` で接続 (YAML は使わず、MCP server 側の tool 定義を利用) | ✅ GA | [`scenario-f-mcp-connection\README.md`](scenario-f-mcp-connection/README.md) |
+
+> 💡 **シナリオ A〜D は `pac copilot extract-template` の YAML が設計インプット**になります。E / F は Microsoft Copilot Studio エージェント本体を変更しない (Prompt / Tool を追加するだけ) ため、YAML 抽出は必須ではありません (構成変更後の差分管理用に取得しておくのは推奨)。
 
 ---
 
