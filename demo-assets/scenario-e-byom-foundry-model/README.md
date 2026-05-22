@@ -285,3 +285,16 @@ Generative orchestration が ON の場合、Prompt の **Description** をオー
 | **E + A/B/C** | Microsoft Copilot Studio を残しつつ、別に Foundry agent (A/B/C) を作って D の方式で接続。Prompt 単位の差し替え (E) も併用 → 段階的移行戦略 |
 
 > 💡 **おすすめの最初の一歩**: いきなりエージェント全体を移行 (A〜C) せず、まず E で **「Foundry のモデル品質が業務シナリオに合うか」**を Prompt 1 本で検証 → OK なら D で agent 接続 → 全面移行が必要になったら A〜C へ、という段階移行が低リスクです。
+
+---
+
+## 11. 関連シナリオ G/H/I・補助ドキュメント
+
+| ドキュメント | 何が補強されるか |
+|---|---|
+| [`../scenario-g-foundry-to-m365/README.md`](../scenario-g-foundry-to-m365/README.md) | (本シナリオ E は Microsoft Copilot Studio 側で完結のため直接の関係性は弱いが) **モデル品質の検証後にエージェント全体を Microsoft 365 Copilot / Teams へ公開** したい場合の上位パス |
+| [`../scenario-h-apim-ai-gateway/README.md`](../scenario-h-apim-ai-gateway/README.md) | Microsoft Copilot Studio が呼ぶ **Foundry モデル endpoint を APIM 経由化** → 複数モデルの A/B テスト / PTU フォールバック / token metric 取得 |
+| [`../scenario-i-evaluation-redteam/README.md`](../scenario-i-evaluation-redteam/README.md) | BYOM モデル + Prompt の品質を **Built-in evaluator (Relevance / Coherence / Groundedness)** で継続評価。モデル変更時の回帰検証に必須 |
+| [`../../docs/governance.md`](../../docs/governance.md) | Power Platform 環境 Maker + Foundry Reader の RBAC 設計、Microsoft Copilot Studio DLP の Foundry connector 分類 |
+| [`../../docs/cost-finops.md`](../../docs/cost-finops.md) | BYOM の **Copilot Credits + Foundry 従量課金** の二重課金 + Copilot Credits 推定ツールの活用 |
+| [`../../docs/evaluation-playbook.md`](../../docs/evaluation-playbook.md) | BYOM Prompt 向け evaluator セット (Relevance / Coherence / Fluency + Safety 一式) と CI ゲート組込 |

@@ -30,9 +30,11 @@ screenshots/
         └── ref-06-rbac-foundry.png
 ```
 
-各シナリオ (B / C / D / E / F) のスクリーンショットを追加する場合は、同様に `scenario-b/`, `scenario-c/`, `scenario-d/`, `scenario-e/`, `scenario-f/` を切ってください。
+各シナリオ (B / C / D / E / F / **G / H / I**) のスクリーンショットを追加する場合は、同様に `scenario-b/`, `scenario-c/`, `scenario-d/`, `scenario-e/`, `scenario-f/`, `scenario-g/`, `scenario-h/`, `scenario-i/` を切ってください。
 
 > 💡 シナリオ E (BYOM) は Microsoft Copilot Studio 側の Prompt ツール画面と Microsoft Foundry の Models + Endpoints 画面が、シナリオ F (MCP) は Microsoft Copilot Studio 側の Tools タブの MCP onboarding wizard と接続後の Tools / Resources 一覧が主要な撮影ポイントになります。
+>
+> シナリオ G は Foundry portal の **Publish → Microsoft 365 Copilot / Teams** ダイアログと、Azure portal で自動生成された **`Microsoft.BotService`** リソース、シナリオ H は **APIM portal の AI Gateway ポリシー編集画面 + Application Insights の `genai` メトリック**、シナリオ I は **Foundry portal の Evaluations / Red teaming タブ + GitHub Actions のゲート ログ** が主要な撮影ポイントになります。
 
 ## 再生成スクリプト (シナリオ A)
 

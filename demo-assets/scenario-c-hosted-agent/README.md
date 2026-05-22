@@ -626,3 +626,18 @@ az monitor app-insights query `
 | Microsoft Agent Framework | <https://github.com/microsoft/agent-framework> |
 | Bicep infrastructure samples | <https://github.com/azure-ai-foundry/foundry-samples/tree/main/infrastructure> |
 | RBAC | <https://learn.microsoft.com/en-us/azure/ai-foundry/concepts/rbac-foundry> |
+
+---
+
+## 14. 関連シナリオ G/H/I・補助ドキュメント
+
+| ドキュメント | 何が補強されるか |
+|---|---|
+| [`../scenario-d-cs-plus-foundry/README.md`](../scenario-d-cs-plus-foundry/README.md) | Microsoft Copilot Studio を温存して Hosted agent を **Add an agent** で接続 (Preview) |
+| [`../scenario-f-mcp-connection/README.md`](../scenario-f-mcp-connection/README.md) | Hosted agent コンテナに **MCP server を同梱**し Microsoft Copilot Studio から 1 接続で複数 tool を利用可能に |
+| [`../scenario-g-foundry-to-m365/README.md`](../scenario-g-foundry-to-m365/README.md) | Hosted agent を **Activity Protocol 経由で Microsoft 365 Copilot / Microsoft Teams へ直接公開** (Early Access Preview)。Bot Service が自動構成 |
+| [`../scenario-h-apim-ai-gateway/README.md`](../scenario-h-apim-ai-gateway/README.md) | Hosted agent コンテナ内の `OPENAI_BASE_URL` を **APIM endpoint に差替え** → コール単位で metric / circuit breaker / PTU フォールバック |
+| [`../scenario-i-evaluation-redteam/README.md`](../scenario-i-evaluation-redteam/README.md) | Agent Framework 5 パターン (Sequential / Concurrent / Handoff / Group Chat / Magentic) を **Agent 評価器 + Red Teaming Agent** で網羅検証 |
+| [`../../docs/governance.md`](../../docs/governance.md) | Project Managed Identity への AcrPull 割当・Hosted agent の per-session VM のリテンション |
+| [`../../docs/cost-finops.md`](../../docs/cost-finops.md) | Hosted Compute SKU 別 ($/hour) + Hosted agent シナリオの月額試算 + 削減アクション |
+| [`../../docs/evaluation-playbook.md`](../../docs/evaluation-playbook.md) | Hosted agent (multi-step) 向け evaluator セット (TaskCompletion + ResponseCompleteness + CodeVulnerability 等) |

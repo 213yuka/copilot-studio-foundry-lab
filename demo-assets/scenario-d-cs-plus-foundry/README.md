@@ -330,7 +330,7 @@ Copilot Studio のみ    →    Copilot Studio が司令塔         Copilot Stud
 | `README.md` | 本ファイル |
 | `cs-connection-notes.md` | Copilot Studio 接続時に必要な Foundry 側情報を控えるテンプレ |
 | `topic-route-to-foundry.md` | Copilot Studio の Trigger Phrase / Description / **サブエージェント Instructions** 設計サンプル |
-| `reverse-publish-foundry-to-m365.md` | **シナリオ G**: Foundry → M365 Copilot / Teams 逆方向公開 (Early Access Preview) |
+| `reverse-publish-foundry-to-m365.md` | Foundry → M365 Copilot / Teams 逆方向公開の **初期検討メモ** (Early Access Preview)。独立シナリオとして整理した正式版は [`../scenario-g-foundry-to-m365/README.md`](../scenario-g-foundry-to-m365/README.md) を参照 |
 
 > ℹ️ Foundry agent 本体 (A / B / C) は `..\scenario-a-prompt-agent\` 等のものを流用してください。本フォルダは **接続レイヤ・運用設計**のみを扱います。
 
@@ -350,3 +350,16 @@ Copilot Studio のみ    →    Copilot Studio が司令塔         Copilot Stud
 | Foundry RBAC | <https://learn.microsoft.com/en-us/azure/ai-foundry/concepts/rbac-foundry> |
 | Foundry agent FAQ | <https://learn.microsoft.com/en-us/azure/ai-foundry/agents/faq> |
 | Preview 利用規約 | <https://azure.microsoft.com/support/legal/preview-supplemental-terms/> |
+
+---
+
+## 13. 関連シナリオ G/H/I・補助ドキュメント
+
+| ドキュメント | 何が補強されるか |
+|---|---|
+| [`../scenario-g-foundry-to-m365/README.md`](../scenario-g-foundry-to-m365/README.md) | 本シナリオ D の **逆方向**。Microsoft Copilot Studio を経由せず Microsoft Foundry agent を直接 Microsoft 365 Copilot / Microsoft Teams へ公開 (Early Access Preview)。本フォルダの `reverse-publish-foundry-to-m365.md` の正式版 |
+| [`../scenario-h-apim-ai-gateway/README.md`](../scenario-h-apim-ai-gateway/README.md) | Microsoft Copilot Studio → Foundry agent の通信を **APIM 経由化** し、DLP の補強 + テナント単位 token quota + Content Safety 集中強制を実現 |
+| [`../scenario-i-evaluation-redteam/README.md`](../scenario-i-evaluation-redteam/README.md) | Foundry agent 側 (A〜C いずれか) を Built-in evaluator で品質ゲート化。Microsoft Copilot Studio 側は Generative answers moderation が担当する切り分けを `governance.md` で整理 |
+| [`../../docs/governance.md`](../../docs/governance.md) | Microsoft Copilot Studio DLP + Microsoft Foundry RBAC の二重設計、Entra Agent Identity OBO フロー |
+| [`../../docs/cost-finops.md`](../../docs/cost-finops.md) | Copilot Credits 5 / Agent action + Foundry token の **二重課金** の月額試算 + 削減アクション |
+| [`../../docs/evaluation-playbook.md`](../../docs/evaluation-playbook.md) | シナリオ D 経由で Foundry agent を評価する場合の data set 設計 |

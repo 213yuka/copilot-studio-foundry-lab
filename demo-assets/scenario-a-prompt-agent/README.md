@@ -436,3 +436,17 @@ python create_prompt_agent.py
 | 環境セットアップ | <https://learn.microsoft.com/en-us/azure/ai-foundry/agents/environment-setup> |
 | Limits / Quotas / Regions | <https://learn.microsoft.com/en-us/azure/ai-foundry/agents/concepts/limits-quotas-regions> |
 | Python SDK | <https://pypi.org/project/azure-ai-projects/> |
+
+---
+
+## 13. 関連シナリオ G/H/I・補助ドキュメント
+
+| ドキュメント | 何が補強されるか |
+|---|---|
+| [`../scenario-d-cs-plus-foundry/README.md`](../scenario-d-cs-plus-foundry/README.md) | Microsoft Copilot Studio を温存して本シナリオ A の Prompt agent を **Add an agent** で接続する (Preview) |
+| [`../scenario-g-foundry-to-m365/README.md`](../scenario-g-foundry-to-m365/README.md) | 本シナリオで作成した Prompt agent を **Microsoft 365 Copilot / Microsoft Teams に直接公開** (Early Access Preview)。Copilot Studio を介さない最短公開ルート |
+| [`../scenario-h-apim-ai-gateway/README.md`](../scenario-h-apim-ai-gateway/README.md) | Foundry endpoint を **Azure API Management** 経由化し、tokens-per-minute / semantic cache / `<llm-emit-token-metric>` を一元適用 |
+| [`../scenario-i-evaluation-redteam/README.md`](../scenario-i-evaluation-redteam/README.md) | 本 `test_agent.py` / `tests/test_scenario_a.py` を JSONL 化し、**Built-in evaluator + Red Teaming Agent** を CI/CD ゲートに組込 |
+| [`../../docs/governance.md`](../../docs/governance.md) | RBAC (GUID 指定) / Content Filter (Prompt Shields / XPIA / PII) / Preview terms の横断チェックリスト |
+| [`../../docs/cost-finops.md`](../../docs/cost-finops.md) | gpt-4.1-mini / gpt-5-mini 月額試算 + Vector Store ($0.10/GB/日) + 削減アクション |
+| [`../../docs/evaluation-playbook.md`](../../docs/evaluation-playbook.md) | Prompt agent 向けの evaluator 推奨セット (Relevance / Groundedness / ToolCallAccuracy / IndirectAttack 等) |

@@ -449,3 +449,17 @@ az role assignment create --assignee-object-id $APP_OBJ_ID --assignee-principal-
 | Migration table (classic → new) | <https://learn.microsoft.com/en-us/azure/ai-foundry/agents/how-to/migrate> |
 | Tracing (AgentOps) | <https://learn.microsoft.com/en-us/azure/ai-foundry/observability/concepts/trace-agent-concept> |
 | Agent Framework orchestrations | <https://learn.microsoft.com/en-us/agent-framework/user-guide/workflows/orchestrations/overview> |
+
+---
+
+## 12. 関連シナリオ G/H/I・補助ドキュメント
+
+| ドキュメント | 何が補強されるか |
+|---|---|
+| [`../scenario-d-cs-plus-foundry/README.md`](../scenario-d-cs-plus-foundry/README.md) | Microsoft Copilot Studio を温存して Workflow agent を **Add an agent** で接続 (Preview) |
+| [`../scenario-g-foundry-to-m365/README.md`](../scenario-g-foundry-to-m365/README.md) | Workflow agent を **Agent Application として Microsoft 365 Copilot / Teams に直接公開** (Early Access Preview)。本書 §6.4 (Phase 6) の Publish の最終形に相当 |
+| [`../scenario-h-apim-ai-gateway/README.md`](../scenario-h-apim-ai-gateway/README.md) | Workflow agent 内の LLM 呼出を **APIM 経由化** し token 制御・semantic cache を一元適用。Workflow ノードの Model 設定で APIM endpoint を指定 |
+| [`../scenario-i-evaluation-redteam/README.md`](../scenario-i-evaluation-redteam/README.md) | **Agent 評価器 (TaskCompletion / IntentResolution / TaskNavigationEfficiency)** で Workflow の正しさを自動評価 + Red Teaming Agent でセーフティ ゲート |
+| [`../../docs/governance.md`](../../docs/governance.md) | Workflow Tracing Preview の RBAC / Entra Agent Identity / Publish 後の RBAC 再割当が必要なポイント |
+| [`../../docs/cost-finops.md`](../../docs/cost-finops.md) | Workflow agent の月額試算 + 段階的削減アクション (モデル選択 / Prompt 短縮) |
+| [`../../docs/evaluation-playbook.md`](../../docs/evaluation-playbook.md) | Workflow 向け evaluator セット (TaskCompletion / IntentResolution / TaskNavigationEfficiency + Safety 一式) |

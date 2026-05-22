@@ -290,3 +290,16 @@ OpenAPI 仕様 YAML を持っている場合は、Power Apps でカスタム コ
 | **F + A/B** | Microsoft Foundry 側を Prompt agent / Workflow agent で構成し、その配下の tool 群を MCP server として束ねる構成 |
 
 > 💡 **MCP を活かす設計指針**: tool が増えるたびに Microsoft Copilot Studio 側の Action / Connection を追加するのではなく、**MCP server 側に tool を集約**して 1 接続で複数 tool を扱う形にすると、ガバナンスとメンテナンス性が大きく改善します。
+
+---
+
+## 10. 関連シナリオ G/H/I・補助ドキュメント
+
+| ドキュメント | 何が補強されるか |
+|---|---|
+| [`../scenario-g-foundry-to-m365/README.md`](../scenario-g-foundry-to-m365/README.md) | Microsoft Foundry agent (シナリオ A〜C) を MCP server として公開し、それを **Microsoft 365 Copilot / Teams から直接呼ぶ** ためのフロント側公開ルート |
+| [`../scenario-h-apim-ai-gateway/README.md`](../scenario-h-apim-ai-gateway/README.md) | 既存 MCP server を **APIM 経由で公開** (`expose-existing-mcp-server`) または **既存 REST API を MCP として export** (`export-rest-mcp-server`)。OAuth 認証 / Streamable HTTP の集中管理に最適 |
+| [`../scenario-i-evaluation-redteam/README.md`](../scenario-i-evaluation-redteam/README.md) | MCP server を呼び出す Foundry agent 全体を **ToolCallAccuracy + Agent 評価器**で評価。**Indirect attack (XPIA)** が MCP resource 経由で発生しやすいため Safety 評価器が必須 |
+| [`../../docs/governance.md`](../../docs/governance.md) | Microsoft Copilot Studio DLP の Business / Non-Business 分類 + MCP server を 3rd party に置く場合の連鎖ブロック対策 |
+| [`../../docs/cost-finops.md`](../../docs/cost-finops.md) | MCP server ホスト コスト (Container Apps / Functions) + Copilot Credits (Agent action 5) の月額試算 |
+| [`../../docs/evaluation-playbook.md`](../../docs/evaluation-playbook.md) | MCP tool 利用時の **ToolCallAccuracy / IntentResolution / IndirectAttack** の閾値設計 |
