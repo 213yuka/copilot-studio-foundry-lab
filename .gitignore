@@ -1,6 +1,11 @@
 # Local workspace settings
-.github/
 .vscode/
+
+# Under .github/: Copilot customizations (instructions / skills / copilot-instructions.md) are not committed.
+# Other contents such as workflows (.github/workflows/) should be committed, so do not ignore the entire .github/ folder.
+.github/copilot-instructions.md
+.github/instructions/
+.github/skills/
 
 # Local verification / scratch area
 playground/
