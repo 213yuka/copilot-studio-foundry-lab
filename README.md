@@ -19,6 +19,37 @@ Microsoft Copilot Studio と Microsoft Foundry の **違い・移行・併用パ
 | [`research/`](research/) | Microsoft Copilot Studio と Microsoft Foundry の機能差・移行可否・連携パターンの調査結果 | [`copilot-studio-foundry-final-report.md`](research/copilot-studio-foundry-final-report.md) |
 | [`demo-assets/`](demo-assets/) | 6 シナリオ (A〜F) の手順書・コード・設定サンプル | [`README.md`](demo-assets/README.md) / [`00-create-cs-agent.md`](demo-assets/00-create-cs-agent.md) |
 
+## アーキテクチャ全体図
+
+6 シナリオの位置関係と提案中のシナリオ G/H/I (`playground/a-f-readme-improvements.md` §9 参照) を一望できる構成図です。
+
+```mermaid
+flowchart LR
+  User((エンド ユーザー))
+  subgraph CS["Microsoft Copilot Studio"]
+    CSAgent["IT-Helpdesk-Sample<br/>(Topics / Knowledge / Actions)"]
+  end
+  subgraph Foundry["Microsoft Foundry"]
+    PA["Prompt agent<br/>(シナリオ A / GA)"]
+    WA["Workflow agent<br/>(シナリオ B / Preview)"]
+    HA["Hosted agent<br/>(シナリオ C / Preview)"]
+    Model["Foundry models<br/>(BYOM / シナリオ E / GA)"]
+  end
+  subgraph MCP["MCP server"]
+    MCPSrv["任意ホスト<br/>(シナリオ F / GA)"]
+  end
+  User --> CSAgent
+  CSAgent -.エージェント本体を移行.-> PA
+  CSAgent -.エージェント本体を移行.-> WA
+  CSAgent -.エージェント本体を移行.-> HA
+  CSAgent --"D: Add an agent → Foundry<br/>(Preview)"--> PA
+  CSAgent --"D: 〃"--> WA
+  CSAgent --"D: 〃"--> HA
+  CSAgent --"E: BYOM (Prompt の Model)"--> Model
+  CSAgent --"F: Tools → MCP"--> MCPSrv
+  MCPSrv -.Foundry Hosted agent を MCP 化することも可能.-> HA
+```
+
 ## 取り扱うシナリオ (demo-assets)
 
 シナリオは **3 つのレイヤー** に整理しています。シナリオ A〜D / F は共通の出発点として **Microsoft Copilot Studio に同一の `IT-Helpdesk-Sample` エージェントを構築**します (シナリオ E は既存の Microsoft Copilot Studio エージェントを前提に開始)。

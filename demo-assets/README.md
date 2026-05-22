@@ -73,14 +73,16 @@ demo-assets/
 
 ## シナリオ概要
 
-| シナリオ | ターゲット | レイヤー | 状態 | Microsoft Copilot Studio 互換度 | 工数目安 | 本リポジトリ検証状況 |
-|---|---|---|---|---|---|---|
-| **A** | Microsoft Foundry Prompt agent | エージェント本体 (移行) | ✅ GA | 中 (instructions 集約) | 0.5〜1 人日 | ✅ ローカル検証済み (2026-05-22): `scenario-a-prompt-agent/run-log.md` 参照 |
-| **B** | Microsoft Foundry Workflow agent | エージェント本体 (移行) | ⚠️ Preview | **高** (Power Fx 互換 + ノード継承) | 1〜3 人日 | (未実施) |
-| **C** | Microsoft Foundry Hosted agent | エージェント本体 (移行) | ⚠️ Preview | 低 (コードで再現) | 3〜10 人日 | (未実施) |
-| **D** | Microsoft Copilot Studio + Microsoft Foundry agent 接続 | エージェント間連携 | ⚠️ Preview (接続機能) | **最高** (Microsoft Copilot Studio そのまま) | 0.5 人日〜 | (未実施) |
-| **E** | Microsoft Copilot Studio + Microsoft Foundry モデル (BYOM) | モデル / ツール単位 | ✅ GA | **最高** (Microsoft Copilot Studio そのまま) | 0.5 人日 | (未実施) |
-| **F** | Microsoft Copilot Studio + MCP server (Microsoft Foundry 含む) | モデル / ツール単位 | ✅ GA | **最高** (Microsoft Copilot Studio そのまま) | 0.5〜3 人日 | (未実施) |
+| シナリオ | ターゲット | レイヤー | 状態 | Microsoft Copilot Studio 互換度 | 工数目安 | SLA | コスト概算 | RBAC 最小権限 | 公開チャネル | Region 制約 | 本リポジトリ検証状況 |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| **A** | Microsoft Foundry Prompt agent | エージェント本体 (移行) | ✅ GA | 中 (instructions 集約) | 0.5〜1 人日 | あり (GA) | Token 課金のみ | Foundry User + Storage Blob Data Contributor | Foundry SDK/API + (Early Access Preview で M365/Teams) | File Search が Italy North / Brazil South で不可 等あり | ✅ ローカル検証済み (2026-05-22): `scenario-a-prompt-agent/run-log.md` 参照 |
+| **B** | Microsoft Foundry Workflow agent | エージェント本体 (移行) | ⚠️ Preview | **高** (Power Fx 互換 + ノード継承) | 1〜3 人日 | なし (Preview) | Token 課金 + Workflow Tracing は Preview の課金体系 | Foundry User + Contributor (Workflow 編集に必要) | Foundry SDK/API + Agent Application 経由 (Publish 後) | Workflow Tracing 対応リージョン限定 (`concepts/limits-quotas-regions` 要確認) | (未実施) |
+| **C** | Microsoft Foundry Hosted agent | エージェント本体 (移行) | ⚠️ Preview | 低 (コードで再現) | 3〜10 人日 | なし (Preview) | Token + Hosted Compute (sandbox 0.25 vCPU / 0.5 GiB 〜 2 vCPU / 4 GiB) + ACR ストレージ | Foundry Project Manager + Contributor + AcrPull (Project Managed Identity) | Responses / Activity / A2A / Invocations の 4 プロトコル、Bot Service 経由で Teams も可 | 18 リージョン限定 (`concepts/hosted-agents`) | (未実施) |
+| **D** | Microsoft Copilot Studio + Microsoft Foundry agent 接続 | エージェント間連携 | ⚠️ Preview (接続機能) | **最高** (Microsoft Copilot Studio そのまま) | 0.5 人日〜 | なし (接続機能は Preview) | Copilot Credits 5 / Agent action + Foundry 側 Token 課金 (二重) | Foundry User + Copilot Studio Maker 権限 | Copilot Studio の全チャネル (Teams / M365 / Web 等) | Copilot Studio リージョン + Foundry リージョン両方の制約 | (未実施) |
+| **E** | Microsoft Copilot Studio + Microsoft Foundry モデル (BYOM) | モデル / ツール単位 | ✅ GA (2025-09-15) | **最高** (Microsoft Copilot Studio そのまま) | 0.5 人日 | あり (BYOM 機能は GA) | Foundry 従量課金 + Copilot Credits | Power Platform 環境 Maker + Foundry Reader | Copilot Studio の全チャネル | Fine-tuning は Classic Foundry portal 必須 / Image generation は UI 非対応 | (未実施) |
+| **F** | Microsoft Copilot Studio + MCP server (Microsoft Foundry 含む) | モデル / ツール単位 | ✅ GA | **最高** (Microsoft Copilot Studio そのまま) | 0.5〜3 人日 | あり (Copilot Studio の MCP 接続は GA) | MCP server ホスト コスト + Copilot Credits | MCP server 側で個別設計 (OAuth 推奨) + Maker 権限 | Copilot Studio の全チャネル | Streamable HTTP 必須 / MCP Prompts は未対応 / OS / DLP 設定で連鎖ブロック可 | (未実施) |
+
+> 比較表を 12 列に拡張しました (SLA / コスト / RBAC / 公開チャネル / Region 列を追加)。詳細は各シナリオ README を参照。
 
 各シナリオの README には以下が完備されています:
 - 前提条件 (Microsoft Copilot Studio / Microsoft Foundry 両側のライセンス・RBAC・SDK バージョン)
