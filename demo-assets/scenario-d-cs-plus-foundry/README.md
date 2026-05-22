@@ -1,11 +1,11 @@
 # シナリオ D: Copilot Studio + Microsoft Foundry **併用 (Connect to a Foundry agent)** 完全手順書
 
-> **位置付け**: 既存 CS エージェントを **そのまま温存**し、Foundry agent を **司令塔 (CS) から呼ばれる外部エージェント**として接続するパターン
+> **位置付け**: 既存 Copilot Studio エージェントを **そのまま温存**し、Foundry agent を **司令塔 (Copilot Studio) から呼ばれる外部エージェント**として接続するパターン
 > **状態**: ⚠️ **Public Preview** (接続機能側、SLA 対象外)
 > **想定工数**: 0.5 人日〜 (Foundry 側 agent が既に存在する前提)
 > **公式ガイド (一次資料)**: <https://learn.microsoft.com/en-us/microsoft-copilot-studio/add-agent-foundry-agent>
 
-CS 側を完全に残したまま、特定 Topic (例: 「高度な調査」) を Foundry agent (シナリオ A / B / C のいずれか) に **委譲** する構成。お客様の M365 / Teams / Power Platform 投資を維持しつつ、Foundry の最新モデル / Deep Research / カスタム コードのメリットを活用できます。
+Copilot Studio 側を完全に残したまま、特定 Topic (例: 「高度な調査」) を Foundry agent (シナリオ A / B / C のいずれか) に **委譲** する構成。お客様の M365 / Teams / Power Platform 投資を維持しつつ、Foundry の最新モデル / Deep Research / カスタム コードのメリットを活用できます。
 
 ---
 
@@ -16,7 +16,7 @@ CS 側を完全に残したまま、特定 Topic (例: 「高度な調査」) �
    │  (Teams / M365 Copilot / 公開 Web)
    ▼
 [Copilot Studio エージェント] ── 既存資産そのまま
-   ├─ Topic: FAQ          → CS Knowledge
+   ├─ Topic: FAQ          → Copilot Studio Knowledge
    ├─ Topic: 申請処理      → Power Automate
    └─ Topic: 高度な調査     → [Foundry agent]
                               ▲
@@ -31,7 +31,7 @@ CS 側を完全に残したまま、特定 Topic (例: 「高度な調査」) �
    └─────────────────────────────────────────────────────┘
 ```
 
-CS 側のオーケストレーター (Generative orchestration) が、各 Topic / 接続 agent の **Description** を読んで呼出先を選びます。
+Copilot Studio 側のオーケストレーター (Generative orchestration) が、各 Topic / 接続 agent の **Description** を読んで呼出先を選びます。
 
 ---
 
@@ -39,12 +39,12 @@ CS 側のオーケストレーター (Generative orchestration) が、各 Topic 
 
 | 条件 | 該当 |
 |---|---|
-| 既存の CS エージェントを **そのまま継続使用**したい | ✅ |
+| 既存の Copilot Studio エージェントを **そのまま継続使用**したい | ✅ |
 | Teams / M365 Copilot / Power Platform 連携を維持したい | ✅ |
 | 一部の問い合わせだけ Foundry の最新モデル / Deep Research / カスタム ロジックで処理したい | ✅ |
-| 段階的に CS → Foundry へ移行したい (一度に切り替えない) | ✅ |
-| CS と Foundry の **両方** で課金発生して構わない | ✅ |
-| 単一プロダクトで完結させたい (CS 廃止予定) | ❌ シナリオ A〜C 推奨 |
+| 段階的に Copilot Studio → Foundry へ移行したい (一度に切り替えない) | ✅ |
+| Copilot Studio と Foundry の **両方** で課金発生して構わない | ✅ |
+| 単一プロダクトで完結させたい (Copilot Studio 廃止予定) | ❌ シナリオ A〜C 推奨 |
 
 ---
 
@@ -56,12 +56,12 @@ CS 側のオーケストレーター (Generative orchestration) が、各 Topic 
 
 | 項目 | 値 |
 |---|---|
-| CS ライセンス | Copilot Studio Standalone / Trial / M365 Copilot |
+| Copilot Studio ライセンス | Copilot Studio Standalone / Trial / M365 Copilot |
 | Maker 権限 | 対象エージェントへの **Edit 権限** + Power Platform Connection 作成権限 |
 | エージェント側設定 | **Generative orchestration が ON** であること (推奨) |
 | ポータル | <https://copilotstudio.microsoft.com> |
 
-📖 まだ CS エージェントが無い場合は `..\00-create-cs-agent.md` を先に実施。
+📖 まだ Copilot Studio エージェントが無い場合は `..\00-create-cs-agent.md` を先に実施。
 
 ### 2.2 Foundry 側
 
@@ -103,13 +103,13 @@ CS 側のオーケストレーター (Generative orchestration) が、各 Topic 
 
 ---
 
-## 4. Phase 2: CS 側のオーケストレーション設計
+## 4. Phase 2: Copilot Studio 側のオーケストレーション設計
 
 公式 (Generative orchestration): <https://learn.microsoft.com/en-us/microsoft-copilot-studio/advanced-generative-actions>
 
 ### 4.1 Generative orchestration の動作
 
-CS の Generative orchestration がオンの場合、ユーザー入力に対し以下の候補をすべて評価し、**Description** が最も適合するものを選びます:
+Copilot Studio の Generative orchestration がオンの場合、ユーザー入力に対し以下の候補をすべて評価し、**Description** が最も適合するものを選びます:
 
 - 自前の Topic
 - Knowledge ソース
@@ -137,7 +137,7 @@ CS の Generative orchestration がオンの場合、ユーザー入力に対し
 📄 同梱: `topic-route-to-foundry.md`
 
 ```
-[CS エージェント: ContosoHelpDeskOrchestrator]
+[Copilot Studio エージェント: ContosoHelpDeskOrchestrator]
   ├─ Topic: WelcomeGreeting
   │     Description: "ユーザーが最初に挨拶 / 自己紹介したときに使う"
   │
@@ -154,14 +154,14 @@ CS の Generative orchestration がオンの場合、ユーザー入力に対し
 
 ---
 
-## 5. Phase 3: CS に Foundry agent を接続
+## 5. Phase 3: Copilot Studio に Foundry agent を接続
 
 公式手順 (verbatim): <https://learn.microsoft.com/en-us/microsoft-copilot-studio/add-agent-foundry-agent>
 
 公式の 8 ステップを順に実行します。
 
 ### Step 1
-1. CS portal にサインイン → 対象エージェントを開く
+1. Copilot Studio portal にサインイン → 対象エージェントを開く
 2. 左メニュー **Agents** ページに移動 → **Add an agent** をクリック
 
 ### Step 2
@@ -178,7 +178,7 @@ CS の Generative orchestration がオンの場合、ユーザー入力に対し
 
 ### Step 5
 - **Name** と **Description** を入力
-- ⚠️ Description は **CS オーケストレーターが「いつこの Foundry agent を呼ぶか」を判断する根拠**
+- ⚠️ Description は **Copilot Studio オーケストレーターが「いつこの Foundry agent を呼ぶか」を判断する根拠**
   - 上記 §4.2 の Best practices を必ず守る
 
 ### Step 6
@@ -197,9 +197,9 @@ CS の Generative orchestration がオンの場合、ユーザー入力に対し
 
 ## 6. Phase 4: 動作確認
 
-### 6.1 CS の Test pane
+### 6.1 Copilot Studio の Test pane
 
-1. CS portal → 対象エージェント → 右上 **Test** をオン
+1. Copilot Studio portal → 対象エージェント → 右上 **Test** をオン
 2. テスト メッセージ例:
    - `MFA を再登録したい` → ITHelpdeskFoundryAgent が選ばれて呼ばれるはず
    - `競合 X 社の最新動向を調べて` → ResearchFoundryAgent が選ばれて呼ばれるはず
@@ -221,9 +221,9 @@ Generative orchestration の自動ルーティングではなく、特定 Topic 
 
 ### 6.3 公開 (Teams / M365 Copilot / Web)
 
-CS 側を **Publish** すれば、Foundry 接続もそのまま公開チャネルで動作します。
+Copilot Studio 側を **Publish** すれば、Foundry 接続もそのまま公開チャネルで動作します。
 
-1. CS portal → **Publish** → **Publish**
+1. Copilot Studio portal → **Publish** → **Publish**
 2. **Channels** → Teams / M365 Copilot / Demo Website を追加
 3. Teams で実機テスト
 
@@ -236,8 +236,8 @@ CS 側を **Publish** すれば、Foundry 接続もそのまま公開チャネ�
 
 ### 7.1 認証フロー
 
-- CS → Foundry の呼出は **Power Platform Connection** が仲介
-- Connection は CS の Maker / 環境スコープで作成
+- Copilot Studio → Foundry の呼出は **Power Platform Connection** が仲介
+- Connection は Copilot Studio の Maker / 環境スコープで作成
 - 公式ドキュメントは認証主体 (Service Principal / User-delegated) を明示していないが、Power Platform OAuth2 Service Connection のパターンと整合
 - Foundry 側では Microsoft Entra identity / RBAC / Content filter が **Foundry agent 側の責任**で適用される
 
@@ -245,14 +245,14 @@ CS 側を **Publish** すれば、Foundry 接続もそのまま公開チャネ�
 
 | 観点 | 注意点 |
 |---|---|
-| **データ越境** | CS 環境のデータが Foundry テナント / リージョンへ流れる。データ レジデンシー要件があるなら同一リージョン構成を必須化 |
-| **DLP ポリシー** | CS DLP と Foundry RBAC / VNet を **別々に**設計・運用する必要あり (1 箇所に統合できない) |
+| **データ越境** | Copilot Studio 環境のデータが Foundry テナント / リージョンへ流れる。データ レジデンシー要件があるなら同一リージョン構成を必須化 |
+| **DLP ポリシー** | Copilot Studio DLP と Foundry RBAC / VNet を **別々に**設計・運用する必要あり (1 箇所に統合できない) |
 | **会話履歴** | Foundry 側で会話履歴が保存される場合がある (Responses API の `store: true` 等)。法令対応・削除ポリシーを Foundry 側でも別途整備 |
-| **PII / 機密情報** | CS で受け取ったデータが Foundry のモデル プロバイダー (Azure OpenAI 等) を経由する。Content filter / Privacy 設定を確認 |
+| **PII / 機密情報** | Copilot Studio で受け取ったデータが Foundry のモデル プロバイダー (Azure OpenAI 等) を経由する。Content filter / Privacy 設定を確認 |
 
 ### 7.3 監査ログ
 
-- CS 側: Power Platform admin center → 環境 → アクティビティ ログ
+- Copilot Studio 側: Power Platform admin center → 環境 → アクティビティ ログ
 - Foundry 側: project → **Observability → Tracing** (AgentOps)
 - ⚠️ **両方を別々にレビューする必要あり**。1 つの監査ダッシュボードに集約する公式機能は現時点で無い
 
@@ -268,10 +268,10 @@ CS 側を **Publish** すれば、Foundry 接続もそのまま公開チャネ�
 
 | プロダクト | 課金対象 |
 |---|---|
-| **Copilot Studio** | CS Copilot Credits (メッセージ単価 / 機能利用に応じて) |
+| **Copilot Studio** | Copilot Studio Copilot Credits (メッセージ単価 / 機能利用に応じて) |
 | **Microsoft Foundry** | Azure サブスクリプションでの モデル トークン / Tool 呼出 / Hosted agent コンピュート |
 
-**Foundry agent が呼ばれるたびに、CS と Foundry の両方で課金が発生**します。月額シミュレーションは両方の単価で個別に試算が必要です。
+**Foundry agent が呼ばれるたびに、Copilot Studio と Foundry の両方で課金が発生**します。月額シミュレーションは両方の単価で個別に試算が必要です。
 
 ---
 
@@ -281,14 +281,14 @@ CS 側を **Publish** すれば、Foundry 接続もそのまま公開チャネ�
 |---|---|
 | 機能ステータス | **Public Preview** (SLA 外) |
 | Foundry portal バージョン | **新ポータル必須**。旧 portal の agent は `404 - Version not found` |
-| 課金 | CS + Foundry **両方** に発生 |
+| 課金 | Copilot Studio + Foundry **両方** に発生 |
 | 認証 | Foundry 側の認証は別途設計が必要 |
-| DLP / データ越境 | CS DLP と Foundry RBAC / VNet を別個に設計 |
-| Channel | CS の標準チャネル (Teams / M365 / Web) で問題なく動作するが、Streaming の挙動はチャネルにより差あり |
+| DLP / データ越境 | Copilot Studio DLP と Foundry RBAC / VNet を別個に設計 |
+| Channel | Copilot Studio の標準チャネル (Teams / M365 / Web) で問題なく動作するが、Streaming の挙動はチャネルにより差あり |
 | Agent Id 変更 | 接続後も詳細画面から変更可能 |
 | Fabric Data agent への redirect | **非サポート** (Foundry agent は OK) |
 | 接続上限 | 公式に明示なし |
-| 将来の置き換え | CS 完全置き換えする際は、シナリオ A / B / C に切り替え可能 (CS Topic を削除して Foundry agent を直接公開) |
+| 将来の置き換え | Copilot Studio 完全置き換えする際は、シナリオ A / B / C に切り替え可能 (Copilot Studio Topic を削除して Foundry agent を直接公開) |
 
 ---
 
@@ -299,8 +299,8 @@ CS 側を **Publish** すれば、Foundry 接続もそのまま公開チャネ�
 ```
 [現在]          [Phase 1: 試験]      [Phase 2: 並走]      [Phase 3: 完全移行]
                                                             (オプション)
-CS のみ    →    CS が司令塔         CS が司令塔          Foundry agent を
-              + Foundry に試験       + 半数の Topic を     公開して CS を廃止
+Copilot Studio のみ    →    Copilot Studio が司令塔         Copilot Studio が司令塔          Foundry agent を
+              + Foundry に試験       + 半数の Topic を     公開して Copilot Studio を廃止
               用 1 topic 委譲        Foundry に委譲       (= シナリオ A/B/C)
 
          シナリオ D 採用     →    シナリオ D 採用     →    シナリオ A/B/C
@@ -314,8 +314,8 @@ CS のみ    →    CS が司令塔         CS が司令塔          Foundry age
 | ファイル | 用途 |
 |---|---|
 | `README.md` | 本ファイル |
-| `cs-connection-notes.md` | CS 接続時に必要な Foundry 側情報を控えるテンプレ |
-| `topic-route-to-foundry.md` | CS の Trigger Phrase / Description 設計サンプル |
+| `cs-connection-notes.md` | Copilot Studio 接続時に必要な Foundry 側情報を控えるテンプレ |
+| `topic-route-to-foundry.md` | Copilot Studio の Trigger Phrase / Description 設計サンプル |
 
 > ℹ️ Foundry agent 本体 (A / B / C) は `..\scenario-a-prompt-agent\` 等のものを流用してください。本フォルダは **接続レイヤ・運用設計**のみを扱います。
 
@@ -328,7 +328,7 @@ CS のみ    →    CS が司令塔         CS が司令塔          Foundry age
 | **Connect to a Microsoft Foundry agent (一次資料)** | <https://learn.microsoft.com/en-us/microsoft-copilot-studio/add-agent-foundry-agent> |
 | 外部 agent 接続 全般 (Foundry / Fabric / SDK) | <https://learn.microsoft.com/en-us/microsoft-copilot-studio/authoring-add-other-agents> |
 | Generative orchestration / Best practices | <https://learn.microsoft.com/en-us/microsoft-copilot-studio/advanced-generative-actions> |
-| CS ライセンス | <https://learn.microsoft.com/en-us/microsoft-copilot-studio/requirements-licensing> |
+| Copilot Studio ライセンス | <https://learn.microsoft.com/en-us/microsoft-copilot-studio/requirements-licensing> |
 | メッセージ課金 | <https://learn.microsoft.com/en-us/microsoft-copilot-studio/requirements-messages-management> |
 | Foundry Agent Service 概要 | <https://learn.microsoft.com/en-us/azure/ai-foundry/agents/overview> |
 | Foundry project endpoint 取得 | <https://learn.microsoft.com/en-us/azure/ai-foundry/agents/quickstart?pivots=ai-foundry-portal> |

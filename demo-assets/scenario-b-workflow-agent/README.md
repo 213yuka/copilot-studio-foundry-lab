@@ -1,17 +1,17 @@
 # シナリオ B: Copilot Studio → Foundry **Workflow agent (Preview)** 移行 完全手順書
 
-> **位置付け**: 4 シナリオの中で **CS との互換度が最も高い** (Topic / 分岐 / HITL / Power Fx を温存)
+> **位置付け**: 4 シナリオの中で **Copilot Studio との互換度が最も高い** (Topic / 分岐 / HITL / Power Fx を温存)
 > **状態**: ⚠️ **Public Preview** (SLA 対象外、本番運用は非推奨)
 > **想定工数**: 1〜3 人日 (Topic 数による)
 
-CS の Topic ダイアログ ツリーを **Workflow agent のビジュアル ビルダー / Workflow YAML** に変換する移行パターン。Power Fx の文法とノード構造を多くそのまま流用できますが、いくつかの **重要な互換差分** (`Topic.*` スコープ非対応、Choice 型非対応、Azure Functions tool 廃止) があります。
+Copilot Studio の Topic ダイアログ ツリーを **Workflow agent のビジュアル ビルダー / Workflow YAML** に変換する移行パターン。Power Fx の文法とノード構造を多くそのまま流用できますが、いくつかの **重要な互換差分** (`Topic.*` スコープ非対応、Choice 型非対応、Azure Functions tool 廃止) があります。
 
 ---
 
 ## 0. 全体フロー
 
 ```
-[Phase 1] CS で IT-Helpdesk-Sample を作成
+[Phase 1] Copilot Studio で IT-Helpdesk-Sample を作成
     └─ PasswordReset Topic (Question + Power Fx 分岐)
         ↓
 [Phase 2] pac copilot extract-template で YAML 取得
@@ -38,7 +38,7 @@ CS の Topic ダイアログ ツリーを **Workflow agent のビジュアル �
 
 ---
 
-## 1. このシナリオが適する CS エージェント
+## 1. このシナリオが適する Copilot Studio エージェント
 
 | 条件 | 該当 |
 |---|---|
@@ -79,7 +79,7 @@ CS の Topic ダイアログ ツリーを **Workflow agent のビジュアル �
 
 公式 (Workflow concept): <https://learn.microsoft.com/en-us/azure/ai-foundry/agents/concepts/workflow>
 
-| CS 要素 | Foundry Workflow agent | 対応方針 |
+| Copilot Studio 要素 | Foundry Workflow agent | 対応方針 |
 |---|---|---|
 | `Topic.*` 変数スコープ | **非対応** (`System.*` / `Local.*` のみ) | すべて `Local.*` に書き換え |
 | `Global.*` 変数スコープ | **非対応** | Workflow 内で `Local.*` に置き換え、または外部ストアに保存 |
@@ -92,7 +92,7 @@ CS の Topic ダイアログ ツリーを **Workflow agent のビジュアル �
 
 ---
 
-## 3. Phase 1〜2: CS でエージェント作成 → pac で抽出
+## 3. Phase 1〜2: Copilot Studio でエージェント作成 → pac で抽出
 
 📖 **詳細は `..\00-create-cs-agent.md` の §2〜§8**
 
@@ -215,7 +215,7 @@ python create_prompt_agent.py
 #### 5.3.4 if/else ノード + Power Fx
 - 追加 → Logic → **if/else**
 - Condition: `Local.PCType = "社内PC"`
-- CS の `Topic.PCType = "社内PC"` を `Local.` に書き換えただけ
+- Copilot Studio の `Topic.PCType = "社内PC"` を `Local.` に書き換えただけ
 
 公式 Power Fx 対応関数表 (Foundry Workflow agent 用):
 
@@ -242,7 +242,7 @@ python create_prompt_agent.py
 | `System.*` | システム変数 (`System.LastMessage.Text`, `System.Conversation.Id`, `System.User.Language`, `System.Conversation.InTestMode` 等) |
 | `Local.*` | Workflow 内で作成した変数 |
 
-> ⚠️ **`Topic.*` / `Global.*` は非対応**。CS から持ち込む式はすべて書き換え。
+> ⚠️ **`Topic.*` / `Global.*` は非対応**。Copilot Studio から持ち込む式はすべて書き換え。
 
 ### 5.5 Tool 呼出 (OpenAPI / MCP / A2A)
 
@@ -316,9 +316,9 @@ CreateTicket を呼ぶ場合:
 
 ---
 
-## 7. マッピング表: CS → Workflow agent
+## 7. マッピング表: Copilot Studio → Workflow agent
 
-| CS 要素 | Workflow agent 側 |
+| Copilot Studio 要素 | Workflow agent 側 |
 |---|---|
 | Topic 全体 | 1 Workflow YAML (Sequential / HITL テンプレ等) |
 | Trigger phrases | Workflow をどの場面で呼び出すかは **呼出元 agent の Instructions / Description** で制御 |
@@ -344,7 +344,7 @@ CreateTicket を呼ぶ場合:
 
 | | 内容 |
 |---|---|
-| ✅ **利点** | **CS Topic 構造を最も忠実に保持** / Power Fx 流用可 / 確定的フロー / HITL テンプレ / マルチエージェント / ビジュアル ビルダー / YAML 編集 / Code 生成 |
+| ✅ **利点** | **Copilot Studio Topic 構造を最も忠実に保持** / Power Fx 流用可 / 確定的フロー / HITL テンプレ / マルチエージェント / ビジュアル ビルダー / YAML 編集 / Code 生成 |
 | ❌ **欠点** | **Public Preview** SLA 外 / Hosted agent をデザイナー内に置けない / 自動保存なし / Choice 型非対応 / `Topic.*` / `Global.*` 非対応 / Azure Functions tool 廃止 / YAML スキーマ仕様書未公開 |
 
 ---

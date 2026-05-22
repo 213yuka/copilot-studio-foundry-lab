@@ -1,67 +1,86 @@
-# Screenshots — 撮影チェックリスト
+# Screenshots — 撮影 / 取得チェックリスト
 
-デモ進行中に取得すべきスクリーンショット一覧。すべて取得すれば資料として完結します。
+このフォルダにはデモ進行中・検証中に取得したスクリーンショット (`.png`) を格納します。
 
 > ⚠️ 取得時はテナント名・ユーザー名・サブスクリプション ID 等の機密情報をマスキングすること。
 
-## Phase A: Copilot Studio
+## 命名規則
 
-| # | ファイル名 | 撮影タイミング | ポイント |
-|---|---|---|---|
-| A-01 | `A-01-studio-home.png` | Copilot Studio ホーム | 環境セレクタが見える状態 |
-| A-02 | `A-02-create-agent.png` | 「+ 新しいエージェント」ダイアログ | 「スキップして構成」が見える |
-| A-03 | `A-03-agent-overview.png` | エージェント作成完了直後の概要画面 | エージェント名・説明 |
-| A-04 | `A-04-knowledge-add.png` | ナレッジ タブで PDF/MD を追加した直後 | ファイル名と「処理中/利用可能」状態 |
-| A-05 | `A-05-action-config.png` | アクション (CreateTicket) 設定画面 | エンドポイント / 入力スキーマ |
-| A-06 | `A-06-topic-yaml.png` | トピックのコード ビュー (YAML) | YAML が見えている状態 |
-| A-07 | `A-07-test-pane.png` | テスト ペインで質問→回答 | 引用と Action 呼出が見える |
+- ファイル名: `{Phase}-{連番}-{内容}.png` (例: `A-02-create-agent.png`)
+- 解像度: 横 1300〜1600 px 推奨
+- Foundry Portal は `wsid` クエリにサブスクリプション ID が入るためマスキング必須
 
-## Phase B: Foundry リソース基盤
+## ディレクトリ構成
 
-| # | ファイル名 | 撮影タイミング | ポイント |
-|---|---|---|---|
-| B-01 | `B-01-bicep-deploy.png` | `az deployment group create` 完了画面 | リソース ID / Endpoint URL |
-| B-02 | `B-02-foundry-portal.png` | ai.azure.com で proj-helpdesk を開いた直後 | リソース ツリー |
-| B-03 | `B-03-model-deploy.png` | gpt-4.1-mini デプロイ完了 | デプロイ ステータス |
-| B-04 | `B-04-playground-baseline.png` | Playground でモデルにテキスト送信 | レスポンス確認 |
-| B-05 | `B-05-rbac.png` | Foundry User ロール付与画面 | ロール名 / GUID |
+```
+screenshots/
+├── README.md                      ← 本ファイル
+└── scenario-a/                    ← シナリオ A 関連のスクリーンショット
+    ├── A-LOG-01-phase-summary.png        ← Phase 3〜5 ローカル実行ログ サマリ
+    ├── A-LOG-02-test-session.png         ← Responses API 回帰テスト セッション
+    ├── A-CODE-01-openapi-yaml.png        ← create-ticket.openapi.yaml の全体
+    ├── A-CODE-02-prompt-agent-script.png ← create_prompt_agent.py の main 関数抜粋
+    ├── A-CODE-03-it-policy-md.png        ← it-policy.md §2.3 抜粋
+    └── reference-docs/                   ← Microsoft Learn 公式ドキュメントの参照画像
+        ├── ref-01-agents-overview.png
+        ├── ref-02-quickstart.png
+        ├── ref-03-file-search.png
+        ├── ref-04-openapi-tool.png
+        ├── ref-05-runtime-components.png
+        └── ref-06-rbac-foundry.png
+```
 
-## Phase C: Knowledge & Action
+各シナリオ (B / C / D) のスクリーンショットを追加する場合は、同様に `scenario-b/`, `scenario-c/`, `scenario-d/` を切ってください。
 
-| # | ファイル名 | 撮影タイミング | ポイント |
-|---|---|---|---|
-| C-01 | `C-01-vector-store.png` | `upload_knowledge.py` 実行完了 | vector_store_id 出力 |
-| C-02 | `C-02-openapi-yaml.png` | OpenAPI YAML を VS Code で開いた状態 | 構造が見える |
+## 再生成スクリプト (シナリオ A)
 
-## Phase D: Hosted Agent 構築
+[`scenario-a-prompt-agent`](../scenario-a-prompt-agent/) には Playwright を使った 3 種類の自動取得スクリプトが含まれています。
 
-| # | ファイル名 | 撮影タイミング | ポイント |
-|---|---|---|---|
-| D-01 | `D-01-azd-init.png` | `azd init` 直後のフォルダ構成 | tree 表示 |
-| D-02 | `D-02-docker-build.png` | `docker build` 完了 | image ID / size |
-| D-03 | `D-03-acr-push.png` | `docker push` 完了 | リポジトリにイメージが見える |
-| D-04 | `D-04-register-output.png` | `register_hosted_agent.py` 実行結果 | agent_version_id |
-| D-05 | `D-05-foundry-agent-list.png` | Foundry ポータルで helpdesk-hosted が表示 | エージェント一覧 |
-| D-06 | `D-06-acrpull-rbac.png` | Hosted agent MI に AcrPull 付与 | ロール割り当て |
-
-## Phase E: テスト & 評価
-
-| # | ファイル名 | 撮影タイミング | ポイント |
-|---|---|---|---|
-| E-01 | `E-01-playground-foundry.png` | Foundry Playground で「VPN がつながりません」 | ナレッジ引用 + Tool 呼出 |
-| E-02 | `E-02-trace.png` | Agent Tracing 画面 | ツール呼び出しチェーン |
-| E-03 | `E-03-evaluation.png` | Evaluation Hub のメトリクス | groundedness / relevance |
-
-## Phase F: ハイブリッド (任意)
-
-| # | ファイル名 | 撮影タイミング | ポイント |
-|---|---|---|---|
-| F-01 | `F-01-add-foundry-agent.png` | Copilot Studio 「+ エージェントの追加 → Microsoft Foundry のエージェント」 | Preview バッジ |
-| F-02 | `F-02-hybrid-test.png` | Copilot Studio テスト ペインから Foundry agent 呼出 | 応答が返る |
-
-## 比較スライド用 (デモ後に追加)
-
-| # | ファイル名 | 用途 |
+| スクリプト | 取得内容 | 認証 |
 |---|---|---|
-| X-01 | `X-01-side-by-side.png` | Copilot Studio Topic YAML と Foundry Workflow YAML の並列表示 |
-| X-02 | `X-02-feature-matrix.png` | 機能マッピング表のスクショ (移行レポートから) |
+| `capture_learn_docs.py` | Microsoft Learn 公式ドキュメントの参照画像 | 不要 |
+| `generate_log_screenshots.py` | Phase 3〜5 実行ログのターミナル風画像 | 不要 |
+| `generate_code_screenshots.py` | 同梱コード ファイルのシンタックス ハイライト画像 | 不要 |
+
+実行方法:
+
+```powershell
+cd .\demo-assets\scenario-a-prompt-agent
+
+# Playwright Chromium バイナリ (初回のみ)
+python -m playwright install chromium
+
+# 3 種類を順に実行
+python capture_learn_docs.py
+python generate_log_screenshots.py
+python generate_code_screenshots.py
+```
+
+## ポータル スクリーンショット撮影チェックリスト (任意、手動で取得)
+
+`ai.azure.com` / `copilotstudio.microsoft.com` は MFA サインインが必須のため、自動取得スクリプトの対象外です。以下は手動撮影時の推奨カットです。
+
+### Copilot Studio 側 (4 シナリオ共通)
+
+| # | ファイル名 | 撮影タイミング | ポイント |
+|---|---|---|---|
+| CS-01 | `cs-01-studio-home.png` | Copilot Studio ホーム | 環境セレクタが見える状態 |
+| CS-02 | `cs-02-create-agent.png` | 「+ 新しいエージェント」ダイアログ | 「スキップして構成」が見える |
+| CS-03 | `cs-03-agent-overview.png` | エージェント作成完了直後 | エージェント名・説明 |
+| CS-04 | `cs-04-knowledge-add.png` | ナレッジ追加直後 | ファイル名と「Ready」状態 |
+| CS-05 | `cs-05-topic-yaml.png` | トピックのコード ビュー | YAML 表示 |
+| CS-06 | `cs-06-test-pane.png` | テスト ペインで質問→回答 | 引用 + Action 呼出 |
+| CS-07 | `cs-07-pac-extract.png` | `pac copilot extract-template` 実行結果 | YAML ファイル生成 |
+
+### Foundry 側 (シナリオ A 対応)
+
+| # | ファイル名 | 撮影タイミング | ポイント |
+|---|---|---|---|
+| F-A-01 | `f-a-01-project-overview.png` | Foundry project の Overview | endpoint URL |
+| F-A-02 | `f-a-02-model-deploy.png` | Models + Endpoints | gpt-4.1-mini / gpt-5-mini |
+| F-A-03 | `f-a-03-rbac.png` | RBAC 画面 | Foundry User ロール |
+| F-A-04 | `f-a-04-vector-store.png` | Data → Vector stores | `it-policy-vs` (file_counts=1) |
+| F-A-05 | `f-a-05-agent-list.png` | Agents 一覧 | `helpdesk-prompt:1` が見える |
+| F-A-06 | `f-a-06-agent-detail.png` | Agent 詳細 | Instructions + Tools (FileSearch + OpenAPI) |
+| F-A-07 | `f-a-07-playground.png` | Playground でテスト送信 | 引用 + Tool 呼出のトレース |
+| F-A-08 | `f-a-08-trace.png` | Trace ペイン | OpenAPI 呼び出しチェーン |

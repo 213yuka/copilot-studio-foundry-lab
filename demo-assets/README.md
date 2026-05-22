@@ -13,7 +13,7 @@ Copilot Studio → Foundry 移行デモの 4 シナリオに対応した素材�
 ```
 demo-assets/
 ├── README.md                                  ← このファイル
-├── 00-create-cs-agent.md                      ← ★ 共通: CS でエージェント作成 → pac 抽出
+├── 00-create-cs-agent.md                      ← ★ 共通: Copilot Studio でエージェント作成 → pac 抽出
 │
 ├── screenshots/                               ← デモ進行中に取得するスクショ置き場
 │   └── README.md                              ← 撮影チェックリスト
@@ -31,7 +31,7 @@ demo-assets/
 │   ├── requirements.txt
 │   └── create_prompt_agent.py                 ← instructions + tools で 1 体作成
 │
-├── scenario-b-workflow-agent/                 ← 🟡 シナリオ B: Workflow agent (Preview / CS にいちばん近い)
+├── scenario-b-workflow-agent/                 ← 🟡 シナリオ B: Workflow agent (Preview / Copilot Studio にいちばん近い)
 │   ├── README.md
 │   └── workflows/
 │       └── password-reset.workflow.yaml       ← Topic を Workflow YAML に翻訳した例
@@ -47,26 +47,26 @@ demo-assets/
 │   └── tools/
 │       └── create-ticket.openapi.yaml         ← common/ のコピー (Docker ビルド コンテキスト用)
 │
-└── scenario-d-cs-plus-foundry/                ← 🟣 シナリオ D: CS + Foundry 併用 (Preview / 既存 CS 温存)
+└── scenario-d-cs-plus-foundry/                ← 🟣 シナリオ D: Copilot Studio + Foundry 併用 (Preview / 既存 Copilot Studio 温存)
     ├── README.md                              ← 接続手順 + 注意点
     ├── cs-connection-notes.md                 ← Foundry 側情報を控えるテンプレ
-    └── topic-route-to-foundry.md              ← CS ルーティング設計サンプル
+    └── topic-route-to-foundry.md              ← Copilot Studio ルーティング設計サンプル
 ```
 
 ## シナリオ概要
 
-| シナリオ | ターゲット | 状態 | CS 互換度 | 工数目安 |
-|---|---|---|---|---|
-| **A** | Prompt agent | ✅ GA | 中 (instructions 集約) | 0.5〜1 人日 |
-| **B** | Workflow agent | ⚠️ Preview | **高** (Power Fx 互換 + ノード継承) | 1〜3 人日 |
-| **C** | Hosted agent | ⚠️ Preview | 低 (コードで再現) | 3〜10 人日 |
-| **D** | CS + Foundry 併用 | ⚠️ Preview (接続機能) | **最高** (CS そのまま) | 0.5 人日〜 |
+| シナリオ | ターゲット | 状態 | Copilot Studio 互換度 | 工数目安 | 本リポジトリ検証状況 |
+|---|---|---|---|---|---|
+| **A** | Prompt agent | ✅ GA | 中 (instructions 集約) | 0.5〜1 人日 | ✅ ローカル検証済み (2026-05-22): `scenario-a-prompt-agent/run-log.md` 参照 |
+| **B** | Workflow agent | ⚠️ Preview | **高** (Power Fx 互換 + ノード継承) | 1〜3 人日 | (未実施) |
+| **C** | Hosted agent | ⚠️ Preview | 低 (コードで再現) | 3〜10 人日 | (未実施) |
+| **D** | Copilot Studio + Foundry 併用 | ⚠️ Preview (接続機能) | **最高** (Copilot Studio そのまま) | 0.5 人日〜 | (未実施) |
 
 各シナリオの README には以下が完備されています:
-- 前提条件 (CS / Foundry 両側のライセンス・RBAC・SDK バージョン)
-- Phase 1〜2: CS でエージェント作成 → pac 抽出 (→ `00-create-cs-agent.md` 参照)
+- 前提条件 (Copilot Studio / Foundry 両側のライセンス・RBAC・SDK バージョン)
+- Phase 1〜2: Copilot Studio でエージェント作成 → pac 抽出 (→ `00-create-cs-agent.md` 参照)
 - Phase 3 以降: Foundry 受け側の準備・登録・動作確認
-- CS → Foundry のマッピング表
+- Copilot Studio → Foundry のマッピング表
 - 既知の制約 / 公式ドキュメント リファレンス
 
 ## 共通の前提
@@ -109,7 +109,7 @@ Foundry の File Search は `.md` を直接サポートするため、デモで�
 | Tracing / Monitoring (AgentOps) | <https://learn.microsoft.com/en-us/azure/ai-foundry/observability/concepts/trace-agent-concept> |
 | Preview supplemental terms | <https://azure.microsoft.com/support/legal/preview-supplemental-terms/> |
 
-### Copilot Studio 側 (シナリオ D / 既存 CS エージェント)
+### Copilot Studio 側 (シナリオ D / 既存 Copilot Studio エージェント)
 
 | 観点 | 公式リファレンス |
 |---|---|
@@ -121,13 +121,15 @@ Foundry の File Search は `.md` を直接サポートするため、デモで�
 
 - ユーザー入力にパスワード / MFA コード / PIN / 個人特定情報 (PII) を要求しない (各 Instructions / Topic で禁止文を明記)
 - 緊急インシデント (情報漏えい・進行中の攻撃) は agent では対応せず、CSIRT 等の人手プロセスへエスカレーション
-- Foundry agent と CS agent の **両方を使うシナリオ D** では、CS DLP と Foundry RBAC / VNet を別々に設計・運用 (1 箇所に統合する公式機能は現時点なし)
+- Foundry agent と Copilot Studio agent の **両方を使うシナリオ D** では、Copilot Studio DLP と Foundry RBAC / VNet を別々に設計・運用 (1 箇所に統合する公式機能は現時点なし)
 - 会話履歴の保存有無 (Responses API の `store` 等) は法令・社内規程に合わせて明示的に設定
 - Preview 機能 (シナリオ B / C / D) は SLA 対象外。本番運用前に Preview supplemental terms を必ず確認
 
 ## スクショ運用ルール
 
 - ファイル名: `{Phase}-{連番}-{内容}.png` (例: `A-02-create-agent.png`)
-- 解像度: 1600px 横幅推奨
+- 解像度: 1300〜1600 px 横幅推奨
 - マスキング: テナント名 / ユーザー名 / サブスクリプション ID は必ずマスキング
 - 詳細は `screenshots/README.md`
+
+シナリオ A では Playwright を使って **認証不要なスクリーンショット (Microsoft Learn 参照、実行ログ、コード抜粋)** を自動生成するスクリプトを同梱しています。詳細は [`scenario-a-prompt-agent/README.md §7.2 / §11`](scenario-a-prompt-agent/README.md) と [`screenshots/README.md`](screenshots/README.md) を参照してください。

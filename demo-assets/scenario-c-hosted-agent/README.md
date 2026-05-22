@@ -4,14 +4,14 @@
 > **状態**: ⚠️ **Public Preview** (SLA 対象外、本番運用は非推奨)
 > **想定工数**: 3〜10 人日
 
-CS の Topic / 分岐 / HITL を **すべて Python コードで再実装**し、コンテナ化して Azure Container Registry (ACR) に push、Foundry に **Hosted agent** として登録する移行パターン。既存の LangGraph / Semantic Kernel / Microsoft Agent Framework のコード資産を最大限活用できます。
+Copilot Studio の Topic / 分岐 / HITL を **すべて Python コードで再実装**し、コンテナ化して Azure Container Registry (ACR) に push、Foundry に **Hosted agent** として登録する移行パターン。既存の LangGraph / Semantic Kernel / Microsoft Agent Framework のコード資産を最大限活用できます。
 
 ---
 
 ## 0. 全体フロー
 
 ```
-[Phase 1] CS で IT-Helpdesk-Sample を作成
+[Phase 1] Copilot Studio で IT-Helpdesk-Sample を作成
     └─ Topic 構造を Python 設計のリファレンスとして抽出
         ↓
 [Phase 2] pac copilot extract-template で YAML 取得
@@ -44,7 +44,7 @@ CS の Topic / 分岐 / HITL を **すべて Python コードで再実装**し�
 
 ---
 
-## 1. このシナリオが適する CS エージェント
+## 1. このシナリオが適する Copilot Studio エージェント
 
 | 条件 | 該当 |
 |---|---|
@@ -110,7 +110,7 @@ CS の Topic / 分岐 / HITL を **すべて Python コードで再実装**し�
 
 ---
 
-## 3. Phase 1〜2: CS でエージェント作成 → pac で抽出
+## 3. Phase 1〜2: Copilot Studio でエージェント作成 → pac で抽出
 
 📖 **詳細は `..\00-create-cs-agent.md` の §2〜§8**
 
@@ -193,7 +193,7 @@ def main():
         client=client,
         instructions="""
         あなたは Contoso 社内 IT ヘルプデスク アシスタントです。
-        ...(CS Instructions を流用)
+        ...(Copilot Studio Instructions を流用)
         """,
         default_options={"store": False},  # Foundry 側で履歴管理
     )
@@ -550,9 +550,9 @@ az monitor app-insights query `
 
 ---
 
-## 10. マッピング表: CS → Hosted agent
+## 10. マッピング表: Copilot Studio → Hosted agent
 
-| CS 要素 | Hosted agent 側 |
+| Copilot Studio 要素 | Hosted agent 側 |
 |---|---|
 | Topic | Python 関数 + ステート マシン / LangGraph の Node / Agent Framework の Agent |
 | Trigger phrases | LLM の意図判定 (Instructions に列挙) |

@@ -1,7 +1,7 @@
 # 00. 共通: Copilot Studio で IT ヘルプデスク エージェントを作成する
 
 > 本書はシナリオ A〜D の **共通の出発点** です。各シナリオ README から `..\00-create-cs-agent.md` として参照されます。
-> 4 シナリオはいずれも、ここで作る同一の CS エージェント (**IT-Helpdesk-Sample**) を出発点に、Foundry 側の受け皿を変えていく構成です。
+> 4 シナリオはいずれも、ここで作る同一の Copilot Studio エージェント (**IT-Helpdesk-Sample**) を出発点に、Foundry 側の受け皿を変えていく構成です。
 
 ---
 
@@ -27,13 +27,13 @@
 
 公式: <https://learn.microsoft.com/en-us/microsoft-copilot-studio/requirements-licensing-subscriptions>
 
-| ライセンス | テナント側 | 個人 (Maker) 側 | 備考 |
-|---|---|---|---|
-| **Copilot Studio (Standalone)** | 必須 (M365 admin → Billing) | **Copilot Studio User License** (個別割り当て) | 全機能。Generative orchestration、全チャネル、Premium connector OK |
-| Copilot Studio for Teams plan (一部 Microsoft 365 サブスクリプションに同梱) | (同梱の Teams plan) | M365 ユーザー全員 (対象 SKU) | 制限あり: Teams チャネル限定 / classic orchestration / Generative AI 機能なし。**M365 Copilot add-on とは別** |
-| **Trial** (30 日) | (個人で申込可) | 1 ユーザー | 公開不可。検証専用。trial 自体は 30 日 + 30 日延長 = 最大 60 日。trial 期限切れ後も作成済み agent は最大 90 日動作する |
+主なライセンスの種類:
 
-デモ用には Trial で十分です。サインアップ: <https://go.microsoft.com/fwlink/?LinkId=2107702>
+- **Copilot Studio (Standalone)** — 全機能利用可
+- **Copilot Studio for Teams plan** (一部 Microsoft 365 サブスクリプションに同梱) — 機能制限あり
+- **Trial** (30 日、サインアップ: <https://go.microsoft.com/fwlink/?LinkId=2107702>) — デモ・検証用
+
+> 各ライセンスの適用範囲・価格・割り当て方法などの詳細は割愛します。導入検討時は **担当営業 / Microsoft パートナー** にご相談ください。デモ目的であれば Trial で十分です。
 
 ### 1.2 環境 (Power Platform Environment)
 
@@ -42,7 +42,7 @@
 - 初回サインインで既定環境が自動作成されますが、**本番想定のデモなら別途 Production 環境を作るのが推奨**
 - 作成場所: <https://admin.powerplatform.com> → Environments → New
   - Region (データ存在地域)、Type = **Production**、Dataverse = **Yes** を必ず指定
-- **注意:** Power Platform admin center に表示される「Microsoft 365 Copilot Chat」環境は M365 Copilot の課金管理用です。**CS エージェントの構築には使わないこと**
+- **注意:** Power Platform admin center に表示される「Microsoft 365 Copilot Chat」環境は M365 Copilot の課金管理用です。**Copilot Studio エージェントの構築には使わないこと**
 
 ### 1.3 Maker 権限
 
@@ -51,7 +51,7 @@
 
 ---
 
-## 2. Phase 1 — CS ポータルでエージェントを新規作成
+## 2. Phase 1 — Copilot Studio ポータルでエージェントを新規作成
 
 公式: <https://learn.microsoft.com/en-us/microsoft-copilot-studio/authoring-first-bot>
 
@@ -227,7 +227,7 @@ https://passwordreset.contoso.local
 
 公式: <https://learn.microsoft.com/en-us/microsoft-copilot-studio/authoring-http-node>
 
-`demo-assets\common\tools\create-ticket.openapi.yaml` の OpenAPI 仕様を参考に、CS では **HTTP Request ノード** で同等処理を構築します。
+`demo-assets\common\tools\create-ticket.openapi.yaml` の OpenAPI 仕様を参考に、Copilot Studio では **HTTP Request ノード** で同等処理を構築します。
 
 ### 5.1 HTTP Request ノードを追加
 
@@ -268,7 +268,7 @@ PasswordReset Topic 内の適切な位置 (チケット起票が必要な分岐)
 - 既存の Logic Apps / Power Automate 資産がある場合はこちら
 - Trigger: **"When an agent calls the flow"**
 - Response: **"Respond to the agent"** (Async モードは **OFF** 必須、応答は 100 秒以内)
-- 入出力パラメータを定義して CS 側の Topic 変数とマップ
+- 入出力パラメータを定義して Copilot Studio 側の Topic 変数とマップ
 
 ---
 
@@ -293,7 +293,7 @@ PasswordReset Topic 内の適切な位置 (チケット起票が必要な分岐)
 
 公式: <https://learn.microsoft.com/en-us/microsoft-copilot-studio/publication-fundamentals-publish-channels>
 
-シナリオ D (CS + Foundry 併用) を行う場合、CS 側を Teams または M365 Copilot に Publish した状態にしておくことが推奨です。シナリオ A〜C のみであれば Publish 不要。
+シナリオ D (Copilot Studio + Foundry 併用) を行う場合、Copilot Studio 側を Teams または M365 Copilot に Publish した状態にしておくことが推奨です。シナリオ A〜C のみであれば Publish 不要。
 
 1. 上部 **Publish** → **Publish**
 2. **Channels** ページで Teams / M365 Copilot / Demo Website 等を追加
@@ -384,7 +384,7 @@ pac copilot extract-template `
 
 Flow / 環境変数 / カスタム コネクタも含めて移行したい場合は **Solution エクスポート/インポート** を使用:
 
-1. CS ポータル → **Settings** → **Solutions** → Custom (Unmanaged) solution 作成
+1. Copilot Studio ポータル → **Settings** → **Solutions** → Custom (Unmanaged) solution 作成
 2. 既存エージェント追加 → **Advanced** → **Add required objects** で関連 Flow / Connector を取り込み
 3. Export (Unmanaged のみ可能)
 4. ターゲット環境で Import
@@ -400,7 +400,7 @@ Flow / 環境変数 / カスタム コネクタも含めて移行したい場合
 | **A** | Prompt agent (GA) | Instructions / Knowledge 接続 / Action OpenAPI を Python SDK で 1 体登録 | [`scenario-a-prompt-agent\README.md`](scenario-a-prompt-agent/README.md) |
 | **B** | Workflow agent (Preview) | Topic ダイアログ ツリーを Workflow YAML / ビジュアル ビルダーに変換 | [`scenario-b-workflow-agent\README.md`](scenario-b-workflow-agent/README.md) |
 | **C** | Hosted agent (Preview) | コードで再実装し、コンテナとして ACR → Foundry 登録 | [`scenario-c-hosted-agent\README.md`](scenario-c-hosted-agent/README.md) |
-| **D** | CS + Foundry 併用 (Preview) | CS をそのまま残し、Foundry agent (= A/B/C) を Add an agent で接続 | [`scenario-d-cs-plus-foundry\README.md`](scenario-d-cs-plus-foundry/README.md) |
+| **D** | Copilot Studio + Foundry 併用 (Preview) | Copilot Studio をそのまま残し、Foundry agent (= A/B/C) を Add an agent で接続 | [`scenario-d-cs-plus-foundry\README.md`](scenario-d-cs-plus-foundry/README.md) |
 
 ---
 
@@ -408,7 +408,7 @@ Flow / 環境変数 / カスタム コネクタも含めて移行したい場合
 
 | トピック | URL |
 |---|---|
-| CS ライセンス比較 | <https://learn.microsoft.com/en-us/microsoft-copilot-studio/requirements-licensing-subscriptions> |
+| Copilot Studio ライセンス比較 | <https://learn.microsoft.com/en-us/microsoft-copilot-studio/requirements-licensing-subscriptions> |
 | 環境の初期構成 | <https://learn.microsoft.com/en-us/microsoft-copilot-studio/environments-first-run-experience> |
 | エージェント作成 (Quickstart) | <https://learn.microsoft.com/en-us/microsoft-copilot-studio/authoring-first-bot> |
 | Knowledge 全般 | <https://learn.microsoft.com/en-us/microsoft-copilot-studio/knowledge-copilot-studio> |
@@ -417,7 +417,7 @@ Flow / 環境変数 / カスタム コネクタも含めて移行したい場合
 | Trigger phrase 設計指針 | <https://learn.microsoft.com/en-us/microsoft-copilot-studio/guidance/trigger-phrases-best-practices> |
 | Question ノード | <https://learn.microsoft.com/en-us/microsoft-copilot-studio/authoring-ask-a-question> |
 | Condition + Power Fx | <https://learn.microsoft.com/en-us/microsoft-copilot-studio/authoring-using-conditions> |
-| Power Fx in CS | <https://learn.microsoft.com/en-us/microsoft-copilot-studio/advanced-power-fx> |
+| Power Fx in Copilot Studio | <https://learn.microsoft.com/en-us/microsoft-copilot-studio/advanced-power-fx> |
 | HTTP Request ノード | <https://learn.microsoft.com/en-us/microsoft-copilot-studio/authoring-http-node> |
 | Power Automate Flow Action | <https://learn.microsoft.com/en-us/microsoft-copilot-studio/advanced-flow-create> |
 | Test pane | <https://learn.microsoft.com/en-us/microsoft-copilot-studio/authoring-test-bot> |

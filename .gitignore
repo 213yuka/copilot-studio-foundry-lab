@@ -25,6 +25,10 @@ dist/
 build/
 coverage/
 
+# Playwright persistent browser profiles (contain cookies / session tokens — must NOT be committed)
+**/.pw-profile/
+**/.pw-profile-cs/
+
 # Python caches and virtual environments, if added later
 __pycache__/
 *.py[cod]

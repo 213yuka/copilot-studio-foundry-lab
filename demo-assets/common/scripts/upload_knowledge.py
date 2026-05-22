@@ -5,9 +5,12 @@ r"""
     $env:FOUNDRY_PROJECT_ENDPOINT = "<Foundry project endpoint>"
     python upload_knowledge.py ..\sample-knowledge\it-policy.md
 
-⚠️ 本スクリプトは学習用に旧 API パターン (`client.agents.upload_file_and_poll`) を
-   使用しています。新しいプロジェクトでは Responses API 経由が推奨です。
-   詳細は各シナリオ README §5 を参照してください。
+新しい Foundry projects (azure-ai-projects >= 2.0) は OpenAI 互換の Responses API 経由で
+vector store を作成します (旧 `client.agents.upload_file_and_poll` API は削除済み)。
+
+出力:
+    file_id           = file_xxxxxxxx
+    vector_store_id   = vs_xxxxxxxx
 """
 
 import os
@@ -17,19 +20,24 @@ from azure.identity import DefaultAzureCredential
 from azure.ai.projects import AIProjectClient
 
 
-def main(file_path: str) -> None:
+def main(file_path: str, vs_name: str = "it-policy-vs") -> None:
     endpoint = os.environ["FOUNDRY_PROJECT_ENDPOINT"]
     with DefaultAzureCredential() as cred, AIProjectClient(
         endpoint=endpoint, credential=cred, allow_preview=True
     ) as client:
-        file = client.agents.upload_file_and_poll(
-            file_path=file_path, purpose="assistants"
-        )
-        print(f"file_id           = {file.id}")
-        vs = client.agents.create_vector_store_and_poll(
-            file_ids=[file.id], name="it-policy-vs"
-        )
+        openai = client.get_openai_client()
+
+        with open(file_path, "rb") as f:
+            uploaded = openai.files.create(file=f, purpose="assistants")
+        print(f"file_id           = {uploaded.id}")
+
+        vs = openai.vector_stores.create(name=vs_name, file_ids=[uploaded.id])
+        # ingestion が完了するまで poll
+        vs = openai.vector_stores.poll(vector_store_id=vs.id) if hasattr(
+            openai.vector_stores, "poll"
+        ) else vs
         print(f"vector_store_id   = {vs.id}")
+        print(f"vector_store_name = {vs.name}")
         print()
         print("次の値を環境変数に設定してください:")
         print(f'  $env:KNOWLEDGE_VECTOR_STORE_ID = "{vs.id}"')

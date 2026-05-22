@@ -1,16 +1,18 @@
 """
 シナリオ A: Prompt agent (GA) を 1 体作成。
-CS の Topic / 分岐ロジックを instructions に「言語化」して集約。
+Copilot Studio の Topic / 分岐ロジックを instructions に「言語化」して集約。
 
 実行前に:
     $env:FOUNDRY_PROJECT_ENDPOINT     = "<Foundry プロジェクト endpoint>"
     $env:KNOWLEDGE_VECTOR_STORE_ID    = "<common/scripts/upload_knowledge.py の出力 vs id>"
-    $env:FOUNDRY_MODEL_NAME           = "gpt-4.1-mini"   # (省略可)
+    $env:FOUNDRY_MODEL_NAME           = "gpt-5-mini"   # (省略時は gpt-4.1-mini)
+    $env:FOUNDRY_AGENT_NAME           = "helpdesk-prompt"  # (省略可)
 """
 
 import os
 from pathlib import Path
 
+import yaml
 from azure.identity import DefaultAzureCredential
 from azure.ai.projects import AIProjectClient
 from azure.ai.projects.models import (
@@ -18,22 +20,24 @@ from azure.ai.projects.models import (
     FileSearchTool,
     OpenApiTool,
     OpenApiFunctionDefinition,
+    OpenApiAnonymousAuthDetails,
 )
 
 
 ENDPOINT = os.environ["FOUNDRY_PROJECT_ENDPOINT"]
 MODEL = os.environ.get("FOUNDRY_MODEL_NAME", "gpt-4.1-mini")
 VS_ID = os.environ["KNOWLEDGE_VECTOR_STORE_ID"]
+AGENT_NAME = os.environ.get("FOUNDRY_AGENT_NAME", "helpdesk-prompt")
 
-# 共通 OpenAPI 定義を ../common/tools/ から読み込む
+# 共通 OpenAPI 定義を ../common/tools/ から読み込む (YAML → dict)
 OPENAPI_PATH = (
     Path(__file__).resolve().parent.parent
     / "common" / "tools" / "create-ticket.openapi.yaml"
 )
-OPENAPI_SPEC = OPENAPI_PATH.read_text(encoding="utf-8")
+OPENAPI_SPEC = yaml.safe_load(OPENAPI_PATH.read_text(encoding="utf-8"))
 
 
-# CS の Topic / 分岐ロジックを言語化したガイドライン
+# Copilot Studio の Topic / 分岐ロジックを言語化したガイドライン
 INSTRUCTIONS = """
 あなたは Contoso 株式会社の社内 IT ヘルプデスク アシスタントです。
 
@@ -70,7 +74,7 @@ def main() -> None:
         endpoint=ENDPOINT, credential=cred, allow_preview=True
     ) as client:
         agent = client.agents.create_version(
-            agent_name="helpdesk-prompt",
+            agent_name=AGENT_NAME,
             definition=PromptAgentDefinition(
                 model=MODEL,
                 instructions=INSTRUCTIONS,
@@ -81,13 +85,13 @@ def main() -> None:
                             name="ticket_api",
                             description="ユーザーが報告した IT 問題のチケットを起票する",
                             spec=OPENAPI_SPEC,
-                            auth={"type": "anonymous"},
+                            auth=OpenApiAnonymousAuthDetails(),
                         )
                     ),
                 ],
             ),
         )
-        print(f"agent_name        = helpdesk-prompt")
+        print(f"agent_name        = {AGENT_NAME}")
         print(f"agent_version_id  = {agent.id}")
 
 
