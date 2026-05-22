@@ -44,7 +44,7 @@ common/
 
 | 変更内容 | 必須対応 |
 |---|---|
-| `it-policy.md` の本文変更 | シナリオ A〜C の Vector Store を再アップロード (シナリオ A の `run-log.md` 期待値とずれていないか確認) |
+| `it-policy.md` の本文変更 | シナリオ A〜C の Vector Store を再アップロード (シナリオ A の `tests/test_scenario_a.py` の期待値とずれていないか確認) |
 | `create-ticket.openapi.yaml` 変更 | `scenario-c-hosted-agent/tools/` 配下のコピーも同内容に更新 |
 | `upload_knowledge.py` のリトライ・SDK 切替 | シナリオ A の `tests/test_scenario_a.py` で File Search テストが通ることを確認 |
 

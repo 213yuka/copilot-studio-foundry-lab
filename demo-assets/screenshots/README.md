@@ -15,19 +15,12 @@
 ```
 screenshots/
 ├── README.md                      ← 本ファイル
-└── scenario-a/                    ← シナリオ A 関連のスクリーンショット
+└── scenario-a/                    ← シナリオ A 関連のスクリーンショット (`generate_*.py` で生成)
     ├── A-LOG-01-phase-summary.png        ← Phase 3〜5 ローカル実行ログ サマリ
     ├── A-LOG-02-test-session.png         ← Responses API 回帰テスト セッション
     ├── A-CODE-01-openapi-yaml.png        ← create-ticket.openapi.yaml の全体
     ├── A-CODE-02-prompt-agent-script.png ← create_prompt_agent.py の main 関数抜粋
-    ├── A-CODE-03-it-policy-md.png        ← it-policy.md §2.3 抜粋
-    └── reference-docs/                   ← Microsoft Learn 公式ドキュメントの参照画像
-        ├── ref-01-agents-overview.png
-        ├── ref-02-quickstart.png
-        ├── ref-03-file-search.png
-        ├── ref-04-openapi-tool.png
-        ├── ref-05-runtime-components.png
-        └── ref-06-rbac-foundry.png
+    └── A-CODE-03-it-policy-md.png        ← it-policy.md §2.3 抜粋
 ```
 
 各シナリオ (B / C / D / E / F / **G / H / I**) のスクリーンショットを追加する場合は、同様に `scenario-b/`, `scenario-c/`, `scenario-d/`, `scenario-e/`, `scenario-f/`, `scenario-g/`, `scenario-h/`, `scenario-i/` を切ってください。
@@ -38,11 +31,10 @@ screenshots/
 
 ## 再生成スクリプト (シナリオ A)
 
-[`scenario-a-prompt-agent`](../scenario-a-prompt-agent/) には Playwright を使った 3 種類の自動取得スクリプトが含まれています。
+[`scenario-a-prompt-agent`](../scenario-a-prompt-agent/) には README 用のスクリーンショットを再生成するスクリプトが含まれています。
 
 | スクリプト | 取得内容 | 認証 |
 |---|---|---|
-| `capture_learn_docs.py` | Microsoft Learn 公式ドキュメントの参照画像 | 不要 |
 | `generate_log_screenshots.py` | Phase 3〜5 実行ログのターミナル風画像 | 不要 |
 | `generate_code_screenshots.py` | 同梱コード ファイルのシンタックス ハイライト画像 | 不要 |
 
@@ -54,8 +46,7 @@ cd .\demo-assets\scenario-a-prompt-agent
 # Playwright Chromium バイナリ (初回のみ)
 python -m playwright install chromium
 
-# 3 種類を順に実行
-python capture_learn_docs.py
+# 2 種類を順に実行
 python generate_log_screenshots.py
 python generate_code_screenshots.py
 ```

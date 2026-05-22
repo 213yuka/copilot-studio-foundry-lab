@@ -42,7 +42,17 @@ demo-assets/
 ├── scenario-a-prompt-agent/                   ← 🟢 シナリオ A: Prompt agent (GA / 最短ルート)
 │   ├── README.md
 │   ├── requirements.txt
-│   └── create_prompt_agent.py                 ← instructions + tools で 1 体作成
+│   ├── pytest.ini
+│   ├── create_prompt_agent.py                 ← instructions + tools で 1 体作成
+│   ├── test_agent.py                          ← (Legacy) 旧 目視確認スクリプト
+│   ├── interactive_browser.py                 ← Copilot Studio 手順検証用 Playwright ドライバ
+│   ├── generate_log_screenshots.py            ← 実行ログをターミナル風画像に化
+│   ├── generate_code_screenshots.py           ← 同梱コードをハイライト画像に化
+│   ├── docs/
+│   │   └── security.md                        ← Content Filter / Prompt Shields / XPIA / PII 設定手順
+│   └── tests/
+│       ├── conftest.py                        ← openai_client / conversation fixture + mask_pii()
+│       └── test_scenario_a.py                 ← pytest 回帰テスト
 │
 ├── scenario-b-workflow-agent/                 ← 🟡 シナリオ B: Workflow agent (Preview / Microsoft Copilot Studio にいちばん近い)
 │   ├── README.md
@@ -52,9 +62,13 @@ demo-assets/
 ├── scenario-c-hosted-agent/                   ← 🔴 シナリオ C: Hosted agent (Preview / 最大の自由度)
 │   ├── README.md
 │   ├── Dockerfile
-│   ├── requirements.txt
+│   ├── agent.yaml                             ← azd deploy 用 Hosted agent マニフェスト
+│   ├── azure.yaml                             ← Azure Developer CLI (azd) サービス定義
+│   ├── requirements.txt                       ← 本番ランタイム用 (最小化)
 │   ├── src/agent.py
-│   ├── scripts/register_hosted_agent.py
+│   ├── scripts/
+│   │   ├── register_hosted_agent.py           ← ACR イメージを Foundry に Hosted agent として登録
+│   │   └── requirements-scripts.txt           ← 管理スクリプト専用の依存関係
 │   └── tools/create-ticket.openapi.yaml
 │
 ├── scenario-d-cs-plus-foundry/                ← 🟣 シナリオ D: Microsoft Copilot Studio + Microsoft Foundry 併用 (Preview)
@@ -89,7 +103,7 @@ demo-assets/
 
 | シナリオ | ターゲット | レイヤー | 状態 | Microsoft Copilot Studio 互換度 | 工数目安 | SLA | コスト概算 | RBAC 最小権限 | 公開チャネル | Region 制約 | 本リポジトリ検証状況 |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| **A** | Microsoft Foundry Prompt agent | エージェント本体 (移行) | ✅ GA | 中 (instructions 集約) | 0.5〜1 人日 | あり (GA) | Token 課金のみ | Foundry User + Storage Blob Data Contributor | Foundry SDK/API + (Early Access Preview で M365/Teams = シナリオ G) | File Search が Italy North / Brazil South で不可 等あり | ✅ ローカル検証済み (2026-05-22): `scenario-a-prompt-agent/run-log.md` 参照 |
+| **A** | Microsoft Foundry Prompt agent | エージェント本体 (移行) | ✅ GA | 中 (instructions 集約) | 0.5〜1 人日 | あり (GA) | Token 課金のみ | Foundry User + Storage Blob Data Contributor | Foundry SDK/API + (Early Access Preview で M365/Teams = シナリオ G) | File Search が Italy North / Brazil South で不可 等あり | (未実施)  |
 | **B** | Microsoft Foundry Workflow agent | エージェント本体 (移行) | ⚠️ Preview | **高** (Power Fx 互換 + ノード継承) | 1〜3 人日 | なし (Preview) | Token 課金 + Workflow Tracing は Preview の課金体系 | Foundry User + Contributor (Workflow 編集に必要) | Foundry SDK/API + Agent Application 経由 (Publish 後) | Workflow Tracing 対応リージョン限定 (`concepts/limits-quotas-regions` 要確認) | (未実施) |
 | **C** | Microsoft Foundry Hosted agent | エージェント本体 (移行) | ⚠️ Preview | 低 (コードで再現) | 3〜10 人日 | なし (Preview) | Token + Hosted Compute (sandbox 0.25 vCPU / 0.5 GiB 〜 2 vCPU / 4 GiB) + ACR ストレージ | Foundry Project Manager + Contributor + AcrPull (Project Managed Identity) | Responses / Activity / A2A / Invocations の 4 プロトコル、Bot Service 経由で Teams も可 | 18 リージョン限定 (`concepts/hosted-agents`) | (未実施) |
 | **D** | Microsoft Copilot Studio + Microsoft Foundry agent 接続 | エージェント間連携 | ⚠️ Preview (接続機能) | **最高** (Microsoft Copilot Studio そのまま) | 0.5 人日〜 | なし (接続機能は Preview) | Copilot Credits 5 / Agent action + Foundry 側 Token 課金 (二重) | Foundry User + Copilot Studio Maker 権限 | Copilot Studio の全チャネル (Teams / M365 / Web 等) | Copilot Studio リージョン + Foundry リージョン両方の制約 | (未実施) |

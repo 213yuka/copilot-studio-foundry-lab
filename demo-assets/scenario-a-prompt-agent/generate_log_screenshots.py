@@ -34,17 +34,17 @@ TERMINAL_CSS = """
 
 def page1_phase_summary() -> str:
     body = """
-    <h1>シナリオ A — Phase 3〜5 ローカル実行ログ</h1>
-    <div class="muted">Foundry project: policy-qa-demo (japaneast) | model: gpt-5-mini | 2026-05-22</div>
+    <h1>シナリオ A — Phase 3〜5 ローカル実行ログ (サンプル)</h1>
+    <div class="muted">Foundry project: &lt;your-foundry-project&gt; (&lt;region&gt;) | model: gpt-5-mini | sample run</div>
 
     <h2>Phase 3b: Vector Store 作成 (it-policy.md → File Search)</h2>
     <div class="panel"><pre><span class="prompt">PS&gt;</span> python common\\scripts\\upload_knowledge.py common\\sample-knowledge\\it-policy.md
-<span class="key">file_id</span>           = <span class="val">assistant-VjL1LGUgkPDaora2UZ36o6</span>
-<span class="key">vector_store_id</span>   = <span class="val">vs_LFFXzBenUR1e5bjU5fxRXfiH</span>
+<span class="key">file_id</span>           = <span class="val">assistant-xxxxxxxxxxxxxxxxxxxxxx</span>
+<span class="key">vector_store_id</span>   = <span class="val">vs_xxxxxxxxxxxxxxxxxxxxxxxx</span>
 <span class="key">vector_store_name</span> = <span class="val">it-policy-vs</span>
 
 次の値を環境変数に設定してください:
-  <span class="prompt">$env:KNOWLEDGE_VECTOR_STORE_ID</span> = "vs_LFFXzBenUR1e5bjU5fxRXfiH"</pre></div>
+  <span class="prompt">$env:KNOWLEDGE_VECTOR_STORE_ID</span> = "vs_xxxxxxxxxxxxxxxxxxxxxxxx"</pre></div>
 
     <h2>Phase 4: Prompt agent 作成 (helpdesk-prompt)</h2>
     <div class="panel"><pre><span class="prompt">PS&gt;</span> python scenario-a-prompt-agent\\create_prompt_agent.py

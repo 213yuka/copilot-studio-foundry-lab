@@ -1,8 +1,8 @@
 # シナリオ A: Copilot Studio → Foundry **Prompt agent (GA)** 移行
 
-> **位置付け**: 6 シナリオの中で **最短ルート / GA 機能のみ** (エージェント本体を Microsoft Foundry に移行する 3 ルート A/B/C のうちの A)  
+> **位置付け**: 9 シナリオの中で **最短ルート / GA 機能のみ** (エージェント本体を Microsoft Foundry に移行する 3 ルート A/B/C のうちの A)  
 > **想定工数**: 0.5〜1 人日  
-> **本リポジトリでローカル検証済み (2026-05-22)** — `run-log.md` に実行ログ、`screenshots/scenario-a/` に成果スクリーンショット
+> **本リポジトリで動作確認用のスクリプト・テストを同梱** (`tests/`, `test_agent.py`, `create_prompt_agent.py`)。参考スクリーンショットは `../screenshots/scenario-a/` 配下を参照
 
 Copilot Studio の Topic / 分岐ロジックを **Instructions (自然言語ガイダンス)** に集約し、Knowledge を **File Search**、Action を **OpenAPI tool** として Foundry Prompt agent に登録する移行パターンです。
 
@@ -69,11 +69,7 @@ Copilot Studio の Topic / 分岐ロジックを **Instructions (自然言語ガ
 | リージョン | Responses API 対応 (File Search は Italy North / Brazil South 不可) |
 | Python SDK | `pip install -r requirements.txt` |
 
-![Microsoft Foundry Agent Service 概要 (公式)](../screenshots/scenario-a/reference-docs/ref-01-agents-overview.png)
-
 > ⚠️ `Cognitive Services User` / `Azure AI Developer` などの旧ロール名は **Foundry project には適用されません**。新名称 **Foundry User** を使ってください。詳細は [RBAC リファレンス](https://learn.microsoft.com/en-us/azure/ai-foundry/concepts/rbac-foundry)。
-
-![RBAC for Foundry (公式)](../screenshots/scenario-a/reference-docs/ref-06-rbac-foundry.png)
 
 ---
 
@@ -102,8 +98,6 @@ Copilot Studio の Topic / 分岐ロジックを **Instructions (自然言語ガ
 
 公式 Quickstart: <https://learn.microsoft.com/en-us/azure/ai-foundry/quickstarts/get-started-code>
 
-![Quickstart: get-started-code (公式)](../screenshots/scenario-a/reference-docs/ref-02-quickstart.png)
-
 1. <https://ai.azure.com> にサインイン → **New Foundry** トグル ON
 2. **+ Create a project** → 名前 / リージョン / Basic を入力
 3. 作成後、**Project endpoint** をコピー (形式: `https://<resource>.services.ai.azure.com/api/projects/<project>`)
@@ -118,7 +112,7 @@ Copilot Studio の Topic / 分岐ロジックを **Instructions (自然言語ガ
 > ℹ️ **gpt-5 系を使う場合は事前登録が必須**: 公式 (`concepts/limits-quotas-regions`) verbatim:  
 > _"If you're using gpt-5 models, registration is required."_  
 > アクセス申請: <https://aka.ms/openai/gpt-5/2025-08-07>  
-> 申請承認まで時間がかかるため、当日デモなど急ぎの場合は **`gpt-4.1-mini` を推奨** します。本リポジトリの `run-log.md` は申請済みテナントで `gpt-5-mini` を使用しています。
+> 申請承認まで時間がかかるため、当日デモなど急ぎの場合は **`gpt-4.1-mini` を推奨** します。
 
 ### 4.3 RBAC を割り当てる
 
@@ -174,8 +168,6 @@ $env:FOUNDRY_MODEL_NAME       = "gpt-5-mini"        # または gpt-4.1-mini
 
 公式 (File Search): <https://learn.microsoft.com/en-us/azure/ai-foundry/agents/how-to/tools/file-search>
 
-![File Search 公式ドキュメント](../screenshots/scenario-a/reference-docs/ref-03-file-search.png)
-
 | 項目 | 上限 |
 |---|---|
 | 最大ファイル サイズ | 512 MB |
@@ -194,13 +186,13 @@ python common\scripts\upload_knowledge.py common\sample-knowledge\it-policy.md
 出力例:
 
 ```
-file_id           = assistant-VjL1LGUgkPDaora2UZ36o6
-vector_store_id   = vs_LFFXzBenUR1e5bjU5fxRXfiH
+file_id           = assistant-xxxxxxxxxxxxxxxxxxxxxx
+vector_store_id   = vs_xxxxxxxxxxxxxxxxxxxxxxxx
 vector_store_name = it-policy-vs
 ```
 
 ```powershell
-$env:KNOWLEDGE_VECTOR_STORE_ID = "vs_LFFXzBenUR1e5bjU5fxRXfiH"
+$env:KNOWLEDGE_VECTOR_STORE_ID = "vs_xxxxxxxxxxxxxxxxxxxxxxxx"
 ```
 
 > 💡 本スクリプトは Responses API (`openai.vector_stores.create`) で作成します。旧 `client.agents.upload_file_and_poll` は `azure-ai-projects>=2.0` で削除済みです。
@@ -245,8 +237,6 @@ agent_version_id  = helpdesk-prompt:1
 > 💡 GA SDK では agent は `(agent_name, agent_version)` で識別します (旧 `agent_id` GUID は廃止)。
 > 公式: <https://learn.microsoft.com/en-us/azure/ai-foundry/agents/concepts/runtime-components>
 
-![Runtime components (公式)](../screenshots/scenario-a/reference-docs/ref-05-runtime-components.png)
-
 ### 6.3 Instructions テンプレート (Copilot Studio Topic の言語化)
 
 `create_prompt_agent.py` の `INSTRUCTIONS` 定数に既に含まれている内容です。
@@ -281,8 +271,6 @@ agent_version_id  = helpdesk-prompt:1
 | **Managed Identity** | `OpenApiManagedAuthDetails(security_scheme=OpenApiManagedSecurityScheme(audience="..."))` | Entra 保護 API |
 
 公式: <https://learn.microsoft.com/en-us/azure/ai-foundry/agents/how-to/tools/openapi-spec>
-
-![OpenAPI tool (公式)](../screenshots/scenario-a/reference-docs/ref-04-openapi-tool.png)
 
 > ⚠️ `auth=` には **dict ではなく SDK のクラス インスタンス** を渡してください (`azure-ai-projects>=2.1` 時点)。
 > 同様に `spec=` には YAML 文字列ではなく **dict** が必要です(`yaml.safe_load()` で変換)。`create_prompt_agent.py` ではこの変換を行っています。
@@ -323,7 +311,7 @@ python test_agent.py
 | MFA 登録質問 | it-policy.md §2.2 から引用 | ✅ |
 | 機密情報の要求 (PIN を教えろ) | 拒否、CSIRT 案内 | ✅ |
 
-intent 一致率 100% (5/5)。詳細は [`run-log.md`](run-log.md) を参照。
+intent 一致率 100% (5/5)。`tests/test_scenario_a.py` および `test_agent.py` で再現できます。
 
 ---
 
@@ -414,11 +402,9 @@ python create_prompt_agent.py
 | `tests\test_scenario_a.py` | pytest 回帰テスト (TestPasswordReset / TestSecurityGuardrails / TestMFA / TestCreateTicket) |
 | `create_prompt_agent.py` | Prompt agent を 1 体作成するスクリプト (Phase 4) |
 | `test_agent.py` | (Legacy) 旧 目視確認スクリプト。新規開発では `tests/test_scenario_a.py` を使用してください |
-| `run-log.md` | 本リポジトリでローカル実行した際のログ (2026-05-22) |
-| `capture_learn_docs.py` | Microsoft Learn 参照画像を Playwright で取得 (認証不要) |
+| `interactive_browser.py` | Microsoft Copilot Studio 手順検証用のインタラクティブ ブラウザ ドライバ (Playwright を stdin JSON コマンドで操作) |
 | `generate_log_screenshots.py` | 実行ログをターミナル風画像に化(README 用、認証不要) |
 | `generate_code_screenshots.py` | 同梱コードをシンタックス ハイライト画像に化(README 用、認証不要) |
-| `capture_foundry_screenshots.py` | Foundry Portal の各ページをスクショ取得 (**初回サインインが必要**、persistent profile を `.pw-profile/` に保存) |
 
 ---
 
