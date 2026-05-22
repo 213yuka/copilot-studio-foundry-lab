@@ -1,0 +1,55 @@
+openapi: 3.0.1
+info:
+  title: TicketAPI
+  description: ユーザーが報告した IT 問題のチケットを起票する社内 API (デモ用に httpbin.org を流用)
+  version: "1.0"
+servers:
+  - url: https://httpbin.org
+paths:
+  /post:
+    post:
+      operationId: CreateTicket
+      summary: ユーザーが問題を報告したときにチケットを作成する
+      description: |
+        ユーザーが申告した IT 問題から、件名・優先度・カテゴリーを抽出してチケットを起票します。
+        ナレッジでセルフサービス手順が見つからなかった場合、または手順実行後も解決しなかった場合のみ呼び出してください。
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [summary, priority, category]
+              properties:
+                summary:
+                  type: string
+                  description: 問題の要約 (1 文、80 字以内)
+                priority:
+                  type: string
+                  enum: [low, medium, high, critical]
+                  description: |
+                    critical = 業務停止 / high = 個人作業停止 /
+                    medium = 部分的な不都合 / low = 質問・要望
+                category:
+                  type: string
+                  enum: [account, network, device, software, security, other]
+                  description: 問題カテゴリ
+                user_consent:
+                  type: boolean
+                  description: ユーザーがチケット起票に同意したかどうか (true 必須)
+      responses:
+        "200":
+          description: チケット起票成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ticket_id:
+                    type: string
+                  status:
+                    type: string
+        "400":
+          description: 入力不正
+        "401":
+          description: 認証失敗

@@ -1,0 +1,33 @@
+# Local workspace settings
+.github/
+.vscode/
+
+# Local verification / scratch area
+playground/
+
+# Secrets and local environment files
+.env
+.env.*
+!.env.example
+
+# Logs and temporary files
+*.log
+*.tmp
+*.temp
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Dependency and build outputs, if added later
+node_modules/
+dist/
+build/
+coverage/
+
+# Python caches and virtual environments, if added later
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
