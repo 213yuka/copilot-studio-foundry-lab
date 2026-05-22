@@ -1,11 +1,21 @@
-# シナリオ D: Copilot Studio + Microsoft Foundry **併用 (Connect to a Foundry agent)** 完全手順書
+# シナリオ D: Microsoft Copilot Studio + Microsoft Foundry **agent 連携 (Connect to a Foundry agent)** 完全手順書
 
-> **位置付け**: 既存 Copilot Studio エージェントを **そのまま温存**し、Foundry agent を **司令塔 (Copilot Studio) から呼ばれる外部エージェント**として接続するパターン
+> **位置付け**: 既存 Microsoft Copilot Studio エージェントを **そのまま温存**し、Microsoft Foundry agent を **司令塔 (Microsoft Copilot Studio) から呼ばれる外部エージェント**として接続するパターン
 > **状態**: ⚠️ **Public Preview** (接続機能側、SLA 対象外)
-> **想定工数**: 0.5 人日〜 (Foundry 側 agent が既に存在する前提)
+> **想定工数**: 0.5 人日〜 (Microsoft Foundry 側 agent が既に存在する前提)
 > **公式ガイド (一次資料)**: <https://learn.microsoft.com/en-us/microsoft-copilot-studio/add-agent-foundry-agent>
 
-Copilot Studio 側を完全に残したまま、特定 Topic (例: 「高度な調査」) を Foundry agent (シナリオ A / B / C のいずれか) に **委譲** する構成。お客様の M365 / Teams / Power Platform 投資を維持しつつ、Foundry の最新モデル / Deep Research / カスタム コードのメリットを活用できます。
+Microsoft Copilot Studio 側を完全に残したまま、特定 Topic (例: 「高度な調査」) を Microsoft Foundry agent (シナリオ A / B / C のいずれか) に **委譲** する構成。お客様の M365 / Teams / Power Platform 投資を維持しつつ、Microsoft Foundry の最新モデル / Deep Research / カスタム コードのメリットを活用できます。
+
+> 💡 **連携レイヤーの選び方**: Microsoft Copilot Studio を温存したまま Microsoft Foundry を活用するパターンは、本シナリオ D (agent 単位) のほかに 2 つあります。
+>
+> | シナリオ | 連携レイヤー | 何を Microsoft Foundry から呼ぶか | 状態 |
+> |---|---|---|---|
+> | **D (本書)** | エージェント単位 | Microsoft Foundry agent (Prompt / Workflow / Hosted) を `Add an agent` で接続 | Preview |
+> | **E** ([`..\scenario-e-byom-foundry-model\README.md`](../scenario-e-byom-foundry-model/README.md)) | モデル単位 (BYOM) | Microsoft Copilot Studio の Prompt ツールの `Model` に Foundry モデルを接続 | GA |
+> | **F** ([`..\scenario-f-mcp-connection\README.md`](../scenario-f-mcp-connection/README.md)) | ツール単位 | MCP server (Microsoft Foundry / 任意ホスト) を `Tools → Model Context Protocol` で接続 | GA |
+>
+> 3 シナリオは併用可能で、用途に応じて使い分けるのが推奨です。
 
 ---
 

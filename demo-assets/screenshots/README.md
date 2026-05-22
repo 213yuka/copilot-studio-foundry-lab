@@ -30,7 +30,9 @@ screenshots/
         └── ref-06-rbac-foundry.png
 ```
 
-各シナリオ (B / C / D) のスクリーンショットを追加する場合は、同様に `scenario-b/`, `scenario-c/`, `scenario-d/` を切ってください。
+各シナリオ (B / C / D / E / F) のスクリーンショットを追加する場合は、同様に `scenario-b/`, `scenario-c/`, `scenario-d/`, `scenario-e/`, `scenario-f/` を切ってください。
+
+> 💡 シナリオ E (BYOM) は Microsoft Copilot Studio 側の Prompt ツール画面と Microsoft Foundry の Models + Endpoints 画面が、シナリオ F (MCP) は Microsoft Copilot Studio 側の Tools タブの MCP onboarding wizard と接続後の Tools / Resources 一覧が主要な撮影ポイントになります。
 
 ## 再生成スクリプト (シナリオ A)
 
@@ -60,19 +62,19 @@ python generate_code_screenshots.py
 
 `ai.azure.com` / `copilotstudio.microsoft.com` は MFA サインインが必須のため、自動取得スクリプトの対象外です。以下は手動撮影時の推奨カットです。
 
-### Copilot Studio 側 (4 シナリオ共通)
+### Microsoft Copilot Studio 側 (シナリオ A〜D / F 共通。E は既存エージェントを前提のためスキップ可)
 
 | # | ファイル名 | 撮影タイミング | ポイント |
 |---|---|---|---|
-| CS-01 | `cs-01-studio-home.png` | Copilot Studio ホーム | 環境セレクタが見える状態 |
+| CS-01 | `cs-01-studio-home.png` | Microsoft Copilot Studio ホーム | 環境セレクタが見える状態 |
 | CS-02 | `cs-02-create-agent.png` | 「+ 新しいエージェント」ダイアログ | 「スキップして構成」が見える |
 | CS-03 | `cs-03-agent-overview.png` | エージェント作成完了直後 | エージェント名・説明 |
 | CS-04 | `cs-04-knowledge-add.png` | ナレッジ追加直後 | ファイル名と「Ready」状態 |
 | CS-05 | `cs-05-topic-yaml.png` | トピックのコード ビュー | YAML 表示 |
 | CS-06 | `cs-06-test-pane.png` | テスト ペインで質問→回答 | 引用 + Action 呼出 |
-| CS-07 | `cs-07-pac-extract.png` | `pac copilot extract-template` 実行結果 | YAML ファイル生成 |
+| CS-07 | `cs-07-pac-extract.png` | `pac copilot extract-template` 実行結果 | YAML ファイル生成 (シナリオ A〜D で必要、E / F は任意) |
 
-### Foundry 側 (シナリオ A 対応)
+### Microsoft Foundry 側 (シナリオ A 対応)
 
 | # | ファイル名 | 撮影タイミング | ポイント |
 |---|---|---|---|

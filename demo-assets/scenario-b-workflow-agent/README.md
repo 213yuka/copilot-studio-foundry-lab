@@ -1,6 +1,6 @@
 # シナリオ B: Copilot Studio → Foundry **Workflow agent (Preview)** 移行 完全手順書
 
-> **位置付け**: 4 シナリオの中で **Copilot Studio との互換度が最も高い** (Topic / 分岐 / HITL / Power Fx を温存)
+> **位置付け**: 6 シナリオの中で **Microsoft Copilot Studio との互換度が最も高い** (Topic / 分岐 / HITL / Power Fx を温存)
 > **状態**: ⚠️ **Public Preview** (SLA 対象外、本番運用は非推奨)
 > **想定工数**: 1〜3 人日 (Topic 数による)
 

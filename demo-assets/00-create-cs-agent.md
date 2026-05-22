@@ -1,7 +1,7 @@
-# 00. 共通: Copilot Studio で IT ヘルプデスク エージェントを作成する
+# 00. 共通: Microsoft Copilot Studio で IT ヘルプデスク エージェントを作成する
 
-> 本書はシナリオ A〜D の **共通の出発点** です。各シナリオ README から `..\00-create-cs-agent.md` として参照されます。
-> 4 シナリオはいずれも、ここで作る同一の Copilot Studio エージェント (**IT-Helpdesk-Sample**) を出発点に、Foundry 側の受け皿を変えていく構成です。
+> 本書はシナリオ A〜D / F の **共通の出発点** です。各シナリオ README から `..\00-create-cs-agent.md` として参照されます (シナリオ E は既存の Microsoft Copilot Studio エージェントが前提)。
+> シナリオ A〜D / F はいずれも、ここで作る同一の Microsoft Copilot Studio エージェント (**IT-Helpdesk-Sample**) を出発点に、Microsoft Foundry 側の受け皿 (A〜D) や、モデル / MCP server の接続先 (E / F) を変えていく構成です。
 
 ---
 
@@ -17,7 +17,7 @@
 | Topic | `PasswordReset` — Question + Power Fx 条件で社内 PC / 社外 PC 分岐 |
 | Action | `CreateTicket` — HTTP Request ノードでチケット起票エンドポイントを呼び出し |
 
-最後に **`pac copilot extract-template`** で YAML テンプレートをエクスポートし、シナリオ A〜D のいずれかの Foundry 受け皿に渡します。
+最後に **`pac copilot extract-template`** で YAML テンプレートをエクスポートし、シナリオ A〜D のいずれかの Microsoft Foundry 受け皿に渡します (シナリオ E / F では YAML 抽出は必須ではありませんが、構成変更時の差分管理用に取得しておくと便利です)。
 
 ---
 
@@ -303,7 +303,7 @@ PasswordReset Topic 内の適切な位置 (チケット起票が必要な分岐)
 
 ## 8. Phase 7 — pac CLI でエクスポート (移行の核心)
 
-シナリオ A〜D のいずれでも、ここで取得した YAML が Foundry 側の設計インプットになります。
+シナリオ A〜D のいずれでも、ここで取得した YAML が Microsoft Foundry 側の設計インプットになります (シナリオ E / F では構成変更時の差分管理用)。
 
 ### 8.1 pac CLI のインストール
 

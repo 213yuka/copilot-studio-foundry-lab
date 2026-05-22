@@ -1,6 +1,6 @@
 # シナリオ A: Copilot Studio → Foundry **Prompt agent (GA)** 移行
 
-> **位置付け**: 4 シナリオの中で **最短ルート / GA 機能のみ**  
+> **位置付け**: 6 シナリオの中で **最短ルート / GA 機能のみ** (エージェント本体を Microsoft Foundry に移行する 3 ルート A/B/C のうちの A)  
 > **想定工数**: 0.5〜1 人日  
 > **本リポジトリでローカル検証済み (2026-05-22)** — `run-log.md` に実行ログ、`screenshots/scenario-a/` に成果スクリーンショット
 
