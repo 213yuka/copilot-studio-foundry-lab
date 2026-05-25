@@ -11,6 +11,10 @@ Microsoft Copilot Studio と Microsoft Foundry の **違い・移行・併用パ
 ```
 .
 ├── README.md          ← このファイル
+├── CODE_OF_CONDUCT.md ← Microsoft Open Source Code of Conduct
+├── CONTRIBUTING.md    ← コントリビュート ガイド
+├── LICENSE            ← MIT ライセンス
+├── SECURITY.md        ← 脆弱性報告手順 (MSRC)
 ├── .gitignore
 ├── demo-assets/       ← 7 シナリオ (A〜F + H) の再現素材一式 (手順書・サンプル コード・OpenAPI など)
 ├── docs/              ← 横断ドキュメント (Governance / FinOps)

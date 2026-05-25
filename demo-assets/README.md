@@ -14,7 +14,7 @@ Microsoft Copilot Studio ↔ Microsoft Foundry の **移行 / 連携 / ガバナ
 
 ## 📘 まず読むべきもの
 
-1. **[`00-create-cs-agent.md`](00-create-cs-agent.md)** — **共通の出発点**: Microsoft Copilot Studio で IT ヘルプデスク エージェントを作成し、pac CLI で YAML 抽出するまでの完全な手順書 (シナリオ A〜D 共通。E / F も同じエージェントを起点とする)
+1. **[`00-create-cs-agent.md`](00-create-cs-agent.md)** — **共通の出発点**: Microsoft Copilot Studio で IT ヘルプデスク エージェントを作成し、pac CLI で YAML 抽出するまでの完全な手順書 (シナリオ A〜D 共通。E / F も同じエージェントを起点とする)。実 UI スクショ 26 枚付きで検証済
 2. 各シナリオの README — Microsoft Foundry 側の受け皿 (A〜F) / 横断ガバナンス (H) ごとの完全手順書
 3. シナリオ A〜F + H の概要・比較は本 README の「シナリオ概要」表 (11 列) を参照
 4. (本番化を見据える場合) [`../docs/`](../docs/) — Governance / FinOps の横断ドキュメント
@@ -26,22 +26,22 @@ demo-assets/
 ├── README.md                                  ← このファイル
 ├── 00-create-cs-agent.md                      ← ★ 共通: Microsoft Copilot Studio でエージェント作成 → pac 抽出
 │
-├── screenshots/                               ← デモ進行中に取得するスクショ置き場
-│   └── README.md                              ← 撮影チェックリスト
+├── screenshots/
+│   └── copilot-studio-agent/                  ← 00 検証で取得済の Microsoft Copilot Studio 実 UI スクショ (`01-26.png` 26 枚)
 │
-├── common/                                    ← シナリオ A〜C 共通素材 (Foundry agent 本体を作る系)
+├── common/                                    ← シナリオ A〜C 共通素材 (Microsoft Foundry agent 本体を作る系)
 │   ├── README.md
 │   ├── sample-knowledge/
-│   │   └── it-policy.md                       ← Contoso 架空 IT 規定 (File Search にそのままアップロード可)
+│   │   └── it-policy.md                       ← Contoso 架空 IT 規定 (ファイル検索にそのままアップロード可)
 │   ├── tools/
 │   │   └── create-ticket.openapi.yaml         ← OpenAPI tool 定義 (チケット起票)
 │   └── scripts/
-│       └── upload_knowledge.py                ← Vector Store 作成 (シナリオ A〜C 共通)
+│       └── upload_knowledge.py                ← (任意) Vector Store 作成スクリプト (シナリオ B / C 向け、A は GUI で完結)
 │
-├── scenario-a-prompt-agent/                   ← 🟢 シナリオ A: Prompt agent (GA / 最短ルート / portal-first)
+├── scenario-a-prompt-agent/                   ← 🟢 シナリオ A: Prompt agent (GA / 最短ルート / GUI 完結)
 │   ├── README.md
-│   ├── requirements.txt
-│   ├── create_prompt_agent.py                 ← (任意) ポータル代替: SDK で agent 作成
+│   ├── requirements.txt                       ← (本シナリオでは未使用) CI 化・コード再現用リファレンス
+│   ├── create_prompt_agent.py                 ← (本シナリオでは未使用) Foundry portal の代替として SDK で agent を作る参考実装
 │   └── docs/
 │       └── security.md                        ← Content Filter / Prompt Shields / XPIA / PII 設定手順
 │
@@ -58,7 +58,7 @@ demo-assets/
 │   ├── requirements.txt                       ← 本番ランタイム用 (最小化)
 │   ├── src/agent.py
 │   ├── scripts/
-│   │   ├── register_hosted_agent.py           ← ACR イメージを Foundry に Hosted agent として登録
+│   │   ├── register_hosted_agent.py           ← ACR イメージを Microsoft Foundry に Hosted agent として登録
 │   │   └── requirements-scripts.txt           ← 管理スクリプト専用の依存関係
 │   └── tools/create-ticket.openapi.yaml
 │
@@ -87,13 +87,15 @@ demo-assets/
 
 | シナリオ | ターゲット | レイヤー | 状態 | Microsoft Copilot Studio 互換度 | SLA | コスト概算 | RBAC 最小権限 | 公開チャネル | Region 制約 | 本リポジトリ検証状況 |
 |---|---|---|---|---|---|---|---|---|---|---|
-| **A** | Microsoft Foundry Prompt agent | エージェント本体 (移行) | ✅ GA | 中 (instructions 集約) | あり (GA) | Token 課金のみ | Foundry User + Storage Blob Data Contributor | Foundry SDK/API | File Search が Italy North / Brazil South で不可 等あり | (未実施)  |
+| **A** | Microsoft Foundry Prompt agent | エージェント本体 (移行) | ✅ GA | 中 (instructions 集約) | あり (GA) | Token 課金のみ | Foundry User + Storage Blob Data Contributor | Foundry SDK/API | File Search が Italy North / Brazil South で不可 等あり | GUI 完結方針で README リライト済 (Foundry portal 検証はこれから) |
 | **B** | Microsoft Foundry Workflow agent | エージェント本体 (移行) | ⚠️ Preview | **高** (Power Fx 互換 + ノード継承) | なし (Preview) | Token 課金 + Workflow Tracing は Preview の課金体系 | Foundry User + Contributor (Workflow 編集に必要) | Foundry SDK/API + Agent Application 経由 (Publish 後) | Workflow Tracing 対応リージョン限定 (`concepts/limits-quotas-regions` 要確認) | (未実施) |
 | **C** | Microsoft Foundry Hosted agent | エージェント本体 (移行) | ⚠️ Preview | 低 (コードで再現) | なし (Preview) | Token + Hosted Compute (sandbox 0.25 vCPU / 0.5 GiB 〜 2 vCPU / 4 GiB) + ACR ストレージ | Foundry Project Manager + Contributor + AcrPull (Project Managed Identity) | Responses / Activity / A2A / Invocations の 4 プロトコル、Bot Service 経由で Teams も可 | 18 リージョン限定 (`concepts/hosted-agents`) | (未実施) |
 | **D** | Microsoft Copilot Studio + Microsoft Foundry agent 接続 | エージェント間連携 | ⚠️ Preview (接続機能) | **最高** (Microsoft Copilot Studio そのまま) | なし (接続機能は Preview) | Copilot Credits 5 / Agent action + Foundry 側 Token 課金 (二重) | Foundry User + Copilot Studio Maker 権限 | Copilot Studio の全チャネル (Teams / M365 / Web 等) | Copilot Studio リージョン + Foundry リージョン両方の制約 | (未実施) |
 | **E** | Microsoft Copilot Studio + Microsoft Foundry モデル (BYOM) | モデル / ツール単位 | ✅ GA (2025-09-15) | **最高** (Microsoft Copilot Studio そのまま) | あり (BYOM 機能は GA) | Foundry 従量課金 + Copilot Credits | Power Platform 環境 Maker + Foundry Reader | Copilot Studio の全チャネル | Fine-tuning は Classic Foundry portal 必須 / Image generation は UI 非対応 | (未実施) |
 | **F** | Microsoft Copilot Studio + MCP server (Microsoft Foundry 含む) | モデル / ツール単位 | ✅ GA | **最高** (Microsoft Copilot Studio そのまま) | あり (Copilot Studio の MCP 接続は GA) | MCP server ホスト コスト + Copilot Credits | MCP server 側で個別設計 (OAuth 推奨) + Maker 権限 | Copilot Studio の全チャネル | Streamable HTTP 必須 / MCP Prompts は未対応 / DLP 設定で連鎖ブロック可 | (未実施) |
 | **H** | Azure API Management を AI Gateway として被せる | 横断ガバナンス / FinOps | APIM コア ✅ GA / Foundry 統合 ⚠️ Preview | — (上位レイヤー) | あり (APIM GA 部分) | **+$700/月** (Standard v2) + リクエスト課金 | APIM Contributor + Cognitive Services User | A〜F すべての backend を統合 | Streamable HTTP 必須 (MCP) / Standard v2 以上推奨 | (未実施) |
+
+> 📝 **共通の出発点 (`00-create-cs-agent.md`) の検証状況**: Microsoft Copilot Studio で `IT-Helpdesk-Sample` を作成し、pac CLI で YAML 抽出するまでの完全な手順書として **Web UI で全工程を検証済 (実 UI スクショ 26 枚 [`screenshots/copilot-studio-agent/`](screenshots/copilot-studio-agent/) を添付)**。シナリオ A〜D / F はここを起点に進めます。
 
 各シナリオの README には以下が完備されています:
 - 前提条件 (Microsoft Copilot Studio / Microsoft Foundry / Azure / Microsoft 365 各側のライセンス・RBAC・SDK バージョン)
@@ -107,10 +109,10 @@ demo-assets/
 
 シナリオ A〜D / F はいずれも、まず **`00-create-cs-agent.md`** に従って Microsoft Copilot Studio に `IT-Helpdesk-Sample` エージェントを構築します (シナリオ E は Microsoft Copilot Studio 側のエージェントがある前提で開始)。
 
-その上で、Microsoft Foundry agent を作る系 (シナリオ A〜C) では `it-policy.md` を **Vector Store にアップロード** し、得られた `vector_store_id` を環境変数に設定する手順で進めます。アップロード手段はシナリオごとに推奨パスが異なります:
+その上で、Microsoft Foundry agent を作る系 (シナリオ A〜C) では `it-policy.md` を **ファイル検索 (File Search)** で利用できる状態にします。アップロード手段はシナリオごとに推奨パスが異なります:
 
-- **シナリオ A (portal-first)**: Foundry portal の **Knowledge → + Add → File search → ドラッグ & ドロップ** で完結。Python は不要。詳細は [`scenario-a-prompt-agent/README.md`](scenario-a-prompt-agent/README.md) §4 を参照。
-- **シナリオ B / C (SDK 主体)**: `common/scripts/upload_knowledge.py` で一括登録。
+- **シナリオ A (GUI 完結)**: Foundry portal のプレイグラウンドで **ツール → 追加 → ファイル検索 → ファイルの参照 → アタッチ** するだけで完結 (Python 不要、`vector_store_id` の手動管理も不要)。詳細は [`scenario-a-prompt-agent/README.md`](scenario-a-prompt-agent/README.md) §4 を参照。
+- **シナリオ B / C (SDK 主体)**: `common/scripts/upload_knowledge.py` で Vector Store を作成し、`vector_store_id` を環境変数に設定して進めます。
 
 ```powershell
 # (シナリオ B / C 向け) repo root から実行
@@ -122,7 +124,7 @@ python common\scripts\upload_knowledge.py common\sample-knowledge\it-policy.md
 $env:KNOWLEDGE_VECTOR_STORE_ID = "<vs_xxxxxxxx>"
 ```
 
-> シナリオ A でも CI / 自動化したい場合は同じスクリプトを利用できます (任意)。シナリオ E / F は Microsoft Foundry 側に agent を作る必要が無い (E はモデルだけ、F は MCP server だけ) ため、上記 Vector Store 作成手順は不要です。シナリオ **H** (APIM) は A〜D を「被せる対象」として参照します。
+> シナリオ E / F は Microsoft Foundry 側に agent を作る必要が無い (E はモデルだけ、F は MCP server だけ) ため、上記 Vector Store 作成手順は不要です。シナリオ **H** (APIM) は A〜D を「被せる対象」として参照します。
 
 ## サンプル PDF を使いたい場合
 
@@ -208,11 +210,10 @@ Q4 (上位レイヤー / 本番化). A〜F で構築した後、本番ローン�
 | [`../docs/governance.md`](../docs/governance.md) | DLP / RBAC (GUID 指定) / Entra Agent Identity / Content Safety / Preview terms の横断チェックリスト | A〜F + H すべて |
 | [`../docs/cost-finops.md`](../docs/cost-finops.md) | Foundry token / Copilot Credits / 補助リソース / APIM token metric / シナリオ別月額試算 / KQL レポート | A〜F + H すべて (特に H) |
 
-## スクショ運用ルール
+## スクリーンショット運用ルール
 
-- ファイル名: `{Phase}-{連番}-{内容}.png` (例: `A-02-create-agent.png`)
+- 配置先: [`screenshots/copilot-studio-agent/`](screenshots/copilot-studio-agent/) — `00-create-cs-agent.md` 検証時に取得した Microsoft Copilot Studio の実 UI スクショ (`01-home-screen.png` 〜 `26-channels-page.png` の 26 枚)
+- ファイル名: `{連番}-{内容}.png` (例: `07-add-knowledge-modal.png`)。00 と同じ規則で追加してください
 - 解像度: 1300〜1600 px 横幅推奨
-- マスキング: テナント名 / ユーザー名 / サブスクリプション ID は必ずマスキング
-- 詳細は [`screenshots/README.md`](screenshots/README.md)
-
-シナリオ A は **Foundry portal を主体** とし、Vector Store 作成と (任意の) Agent 自動作成だけを Python で扱います。スクリーンショットは portal を実際に操作した実画像を `screenshots/copilot-studio-agent/` (00 共通) と必要に応じ `screenshots/scenario-a/` に追加してください。詳細は [`scenario-a-prompt-agent/README.md`](scenario-a-prompt-agent/README.md) と [`screenshots/README.md`](screenshots/README.md) を参照。
+- マスキング: テナント名 / ユーザー名 / サブスクリプション ID / 個人特定情報は必ずマスキング
+- シナリオ A〜F + H の実 UI を新たに撮影する場合は、シナリオ別サブディレクトリ (例: `screenshots/scenario-a/`) を作成して同じ規則で配置してください
