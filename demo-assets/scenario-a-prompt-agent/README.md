@@ -1,31 +1,26 @@
-# シナリオ A: Copilot Studio → Foundry **Prompt agent (GA)** 移行
+# シナリオ A: Microsoft Copilot Studio → Microsoft Foundry **Prompt agent (GA)** 移行
 
-> **位置付け**: 9 シナリオの中で **最短ルート / GA 機能のみ** (エージェント本体を Microsoft Foundry に移行する 3 ルート A/B/C のうちの A)  
-> **想定工数**: 0.5〜1 人日  
-> **本リポジトリで動作確認用のスクリプト・テストを同梱** (`tests/`, `test_agent.py`, `create_prompt_agent.py`)。参考スクリーンショットは `../screenshots/scenario-a/` 配下を参照
+> **位置付け**: 7 シナリオの中で **最短ルート / GA 機能のみ** (A/B/C ルートのうちの A)
+> **方針**: **Microsoft Foundry portal (GUI) のみ** で進めます。RBAC 割当・ナレッジ追加・Prompt agent 作成・プレイグラウンド検証はすべてポータル操作で完結します。Python / Azure CLI / SDK は使いません。
 
-Copilot Studio の Topic / 分岐ロジックを **Instructions (自然言語ガイダンス)** に集約し、Knowledge を **File Search**、Action を **OpenAPI tool** として Foundry Prompt agent に登録する移行パターンです。
-
-![Phase 3〜5 ローカル実行ログ](../screenshots/scenario-a/A-LOG-01-phase-summary.png)
+Microsoft Copilot Studio の Topic / 分岐ロジックを **手順 (自然言語ガイダンス)** に集約し、ナレッジを **ファイル検索**、Action を **OpenAPI ツール** として Microsoft Foundry の Prompt agent に登録する移行パターンです。
 
 ---
 
 ## 0. 全体フロー
 
 ```
-[Phase 1] Copilot Studio で IT-Helpdesk-Sample を作成
-    ├─ Knowledge: it-policy.md
-    ├─ Topic: PasswordReset (Question + Power Fx)
-    └─ Action: CreateTicket (HTTP)
+[フェーズ 1〜2] Copilot Studio で IT-Helpdesk-Sample を作成 + pac で YAML 抽出 (= 00 で完了)
         ↓
-[Phase 2] pac copilot extract-template で YAML 取得 (設計参照用)
+[フェーズ 3]   Foundry リソース / プロジェクト / モデルを準備   ← Azure portal + Foundry portal
         ↓
-[Phase 3] Foundry 受け側を準備 (Project / Model / RBAC / Vector Store)
+[フェーズ 4]   Foundry portal で Prompt agent を作成            ← プレイグラウンドで手順・ツールを設定
+              (手順 + ファイル検索 + OpenAPI ツール)               → 「エージェントとして保存」
         ↓
-[Phase 4] Prompt agent を登録 (Instructions + FileSearchTool + OpenApiTool)
-        ↓
-[Phase 5] Playground / Responses API で動作確認 (回帰テスト 5/5)
+[フェーズ 5]   プレイグラウンドで動作確認                       ← Foundry portal
 ```
+
+> 🖱️ **フェーズ 3〜5 はすべて Foundry portal (GUI) のみで完結** します。CLI / SDK / Python のインストールは不要です。
 
 ---
 
@@ -44,202 +39,184 @@ Copilot Studio の Topic / 分岐ロジックを **Instructions (自然言語ガ
 
 ## 2. 前提条件
 
-### 2.1 Copilot Studio 側 (Phase 1〜2)
+### 2.1 Copilot Studio 側 (フェーズ 1〜2)
 
 📖 詳細は **[`..\00-create-cs-agent.md`](../00-create-cs-agent.md)** を参照。
 
+本シナリオで実際に使うアウトプット:
+
+| アウトプット | 取得元 | 本シナリオでの使い方 |
+|---|---|---|
+| 移行元エージェント `IT-Helpdesk-Sample` | 00 §2〜§7 (Copilot Studio portal で構築) | 手順 / Topic / ナレッジ / Action の **設計情報の出所**。Foundry portal を開きながら並行参照する |
+| 設計参照用 YAML (`IT-Helpdesk-Sample.yaml`) | 00 §8.4 `pac copilot extract-template` の出力 | (任意) Topic ツリーを diff したい場合の機械可読スナップショット (§2.2 参照) |
+| ナレッジ本体 | [`..\common\sample-knowledge\it-policy.md`](../common/sample-knowledge/it-policy.md) | §4 で **ファイル検索** にそのまま添付 |
+| OpenAPI 定義 | [`..\common\tools\create-ticket.openapi.yaml`](../common/tools/create-ticket.openapi.yaml) | §5.1 手順 5 で OpenAPI ツールに貼り付け |
+
+### 2.2 00 で抽出した YAML の活用方針 (Copilot Studio → Prompt agent)
+
+00 §8 の `pac copilot extract-template` で得られる **`IT-Helpdesk-Sample.yaml`** (約 28 KB / 15 components) は、本シナリオ A では **設計参照用** として扱います。**Foundry Agent Service には YAML をそのままインポートする経路はありません** (Prompt agent の構成は portal で別途定義する仕様)。そのため YAML は「移行元の正確なスナップショット」「人手で 手順 / OpenAPI に書き換えるための入力」という位置付けになります。
+
+#### 活用パターン A: YAML を読みながら設計する (Topic が多い・差分管理したい場合)
+
+| 何をしたいか | YAML のどこを見るか | 反映先 |
+|---|---|---|
+| 手順のドラフト化 | root の `description:` + Custom topic 配下の `triggerQueries:` / `actions:` ツリー | §5.2 手順テンプレート |
+| ナレッジの棚卸し | `kind: SearchAndSummarizeContent` ノード / `entity:` ブロック | §4 (ファイル検索) |
+| Action (HTTP) の差分確認 | `kind: HttpRequestAction` の `url` / `method` / `headers` / `body` / `responseSchema` | §5.1 手順 5 (OpenAPI ツール) と OpenAPI 定義を突合 |
+| エージェント本体メタデータ | root の `displayName` / `description` / `parentBotId` / `schemaName` | §5.1 手順 2 の名前 / 説明 |
+| 移行漏れチェック | `kind:` 行を全件抽出 (`Select-String 'kind:' IT-Helpdesk-Sample.yaml`) し、§7 の左列と突合 | §7 マッピング表 |
+
+#### 活用パターン B: YAML を使わず Copilot Studio portal を直接参照する (★ 本シナリオの推奨パス ★)
+
+本シナリオは Topic 数が少ない (≤ 5) ため、**Microsoft Copilot Studio portal を開いたまま並行参照するのが最短** です。設計情報の出所はどちらでも同じ (= 00 で構築したエージェント) なので、結果は一致します。
+
+| 必要な情報 | Copilot Studio portal での参照場所 | 00 の該当節 |
+|---|---|---|
+| エージェントの説明 / 基本情報 | 上部 `IT-Helpdesk-Sample` → **概要** タブ → **詳細** | 00 §2.3 |
+| 手順 (= 旧 `指示` / Instructions) | **概要** タブ → **指示** | 00 §2.4 |
+| **Primary AI Model** (エージェント単位のモデル選択) | 上部の **AI モデル** ドロップダウン (または **設定** → **AI モデル**)。既定は `GPT-4.1`。**抽出 YAML には含まれない** ため portal 必須 | (00 §2.5 はオーケストレーション モードのみ。Primary AI Model 選択は未収録 → portal で直接確認) |
+| 生成 AI オーケストレーション モード | **設定** → **生成 AI** (`classic` / `generative`) | 00 §2.5 |
+| Topic 一覧 / Trigger phrases / ノード ツリー | 左メニュー **トピック** → 各 Topic を開く | 00 §4 (Trigger §4.2 / Question §4.3 / Message §4.4) |
+| ナレッジ ソース | 左メニュー **ナレッジ** | 00 §3.2 |
+| Action (HTTP 要求の送信) の設定値 | 各 Topic 内の **HTTP 要求の送信** ノード | 00 §5.1 |
+| エラー ハンドリング / Power Automate フロー版 | 各 Topic 内の **設定** / 分岐ノード | 00 §5.2 / §5.3 (補足) |
+| 発行 (Publish) / チャネル設定 | 上部 **発行** ボタン / 左メニュー **チャネル** | 00 §7 |
+
+> ℹ️ **推奨**: 「Copilot Studio portal を見て設定を確認 → Foundry portal に転記」の往復で進めると、YAML を読まずに完了できます。YAML grep は CI で構成差分を取りたいときや、移行漏れチェック (パターン A の最終行) に使ってください。
+
+### 2.3 Foundry 側 (フェーズ 3〜5)
+
+MS Learn 該当箇所: [Microsoft Foundry Agent Service の概要](https://learn.microsoft.com/ja-jp/azure/ai-foundry/agents/overview)
+
 | 項目 | 値 |
 |---|---|
-| ライセンス | Copilot Studio Standalone / Trial / M365 Copilot |
-| 環境 | Production 環境推奨。Dataverse search 有効 |
-| Maker 権限 | agent author + System Customizer |
-| pac CLI | `dotnet tool install --global Microsoft.PowerApps.CLI.Tool` |
-
-### 2.2 Foundry 側 (Phase 3〜5)
-
-公式: <https://learn.microsoft.com/en-us/azure/ai-foundry/agents/overview>
-
-| 項目 | 値 |
-|---|---|
-| Foundry portal | <https://ai.azure.com>(**New Foundry** トグル ON) |
-| アーキテクチャ | **Foundry resource → Foundry project** (旧 Hub-based は非対応) |
-| Endpoint 形式 | `https://<resource>.services.ai.azure.com/api/projects/<project>` |
+| Foundry portal | <https://ai.azure.com> (**新しい Foundry** スイッチ ON) |
+| アーキテクチャ | **Foundry リソース → Foundry プロジェクト** (旧 Hub-based は非対応) |
 | モデル | `gpt-4.1-mini` / `gpt-5-mini` 等 (Responses API 対応モデル) |
-| RBAC | **Foundry User** (project scope) + **Storage Blob Data Contributor** |
-| リージョン | Responses API 対応 (File Search は Italy North / Brazil South 不可) |
-| Python SDK | `pip install -r requirements.txt` |
+| RBAC | **Foundry User** (プロジェクト スコープ) + **Storage Blob Data Contributor** |
+| リージョン | Responses API 対応 (ファイル検索は Italy North / Brazil South 不可) |
+| ローカル ツール | **不要 (GUI 完結)**。Python / Azure CLI / Foundry SDK のインストールは行いません |
 
-> ⚠️ `Cognitive Services User` / `Azure AI Developer` などの旧ロール名は **Foundry project には適用されません**。新名称 **Foundry User** を使ってください。詳細は [RBAC リファレンス](https://learn.microsoft.com/en-us/azure/ai-foundry/concepts/rbac-foundry)。
-
----
-
-## 3. Phase 1〜2: Copilot Studio でエージェント作成 → pac で抽出
-
-📖 **詳細手順は [`..\00-create-cs-agent.md`](../00-create-cs-agent.md) の §2〜§8** を参照。
-
-本シナリオに必要なアウトプット:
-- `IT-Helpdesk-Sample.yaml` (設計参照用)
-- Knowledge ファイル本体 [`..\common\sample-knowledge\it-policy.md`](../common/sample-knowledge/it-policy.md)
-- OpenAPI 定義 [`..\common\tools\create-ticket.openapi.yaml`](../common/tools/create-ticket.openapi.yaml)
-
-サンプル `it-policy.md` (パスワード忘れ・ロックアウト時の対応 §2.3):
-
-![it-policy.md 抜粋](../screenshots/scenario-a/A-CODE-03-it-policy-md.png)
-
-サンプル OpenAPI 定義(`CreateTicket` の全体):
-
-![create-ticket.openapi.yaml](../screenshots/scenario-a/A-CODE-01-openapi-yaml.png)
+> ⚠️ `Cognitive Services User` / `Azure AI Developer` などの旧ロール名は **Foundry プロジェクトには適用されません**。新名称 **Foundry User** を使ってください。詳細は [Microsoft Foundry の RBAC](https://learn.microsoft.com/ja-jp/azure/ai-foundry/concepts/rbac-foundry)。
 
 ---
 
-## 4. Phase 3: Foundry プロジェクトの準備
+## 3. フェーズ 3: Foundry プロジェクトの準備
 
-### 4.1 Foundry resource + project を作成
+### 3.1 Foundry リソース + プロジェクトを作成
 
-公式 Quickstart: <https://learn.microsoft.com/en-us/azure/ai-foundry/quickstarts/get-started-code>
+MS Learn 該当箇所 (Quickstart): [コードを使って最初の AI Foundry プロジェクトを作成する](https://learn.microsoft.com/ja-jp/azure/ai-foundry/quickstarts/get-started-code)
 
-1. <https://ai.azure.com> にサインイン → **New Foundry** トグル ON
-2. **+ Create a project** → 名前 / リージョン / Basic を入力
-3. 作成後、**Project endpoint** をコピー (形式: `https://<resource>.services.ai.azure.com/api/projects/<project>`)
+1. <https://ai.azure.com> にサインイン → ヘッダー右上の **新しい Foundry** スイッチを ON
+2. ホームの **新規作成** ボタン → 名前 / リージョン / Basic を入力して作成
+3. 作成完了後、プロジェクトのホーム画面が開きます (以降の手順はこの画面の上部ナビ「**検出**」「**ビルド**」「**操作**」「**ドキュメント**」を使い分けます)
 
-### 4.2 モデルをデプロイ
+### 3.2 モデルをデプロイ
 
-1. 左メニュー **Models + Endpoints** → **+ Deploy model**
-2. `gpt-4.1-mini` を選択 (Responses API 対応 / 即時利用可)
-3. Deployment name = モデル名と同一、SKU = GlobalStandard
-4. **Deploy**
+1. 上部ナビ **検出** → 左メニュー **モデル**
+2. 一覧から `gpt-4.1-mini` を選択 (右上の検索ボックスでもフィルタ可能)
+3. ヘッダーの **デプロイ** ボタンを押し、メニューから **既定の設定** (グローバル標準 / 既定のクォータ) を選択
+4. デプロイ完了後、自動で **ビルド → モデル → プレイグラウンド** 画面に遷移します (このプレイグラウンドが §5 / §6 の作業場所になります)
 
-> ℹ️ **gpt-5 系を使う場合は事前登録が必須**: 公式 (`concepts/limits-quotas-regions`) verbatim:  
-> _"If you're using gpt-5 models, registration is required."_  
-> アクセス申請: <https://aka.ms/openai/gpt-5/2025-08-07>  
-> 申請承認まで時間がかかるため、当日デモなど急ぎの場合は **`gpt-4.1-mini` を推奨** します。
+> 💡 用途に応じて配置先 / SKU / クォータ / PTU / スピルオーバー / ガードレールを細かく決めたい場合は、ステップ 3 で **カスタム設定** を選択してください。
 
-### 4.3 RBAC を割り当てる
+#### Copilot Studio との比較 — モデル選択で気をつける点
 
-> ⚠️ **公式は role 名ではなく role definition ID (GUID) での割当を推奨** しています。`Foundry User` は旧 `Azure AI User` のリネーム途上で、テナント・SDK バージョンによって表示が揺れるため、GUID 指定が確実です。
-> - Foundry User: `53ca6127-db72-4b80-b1b0-d745d6d5456d`
-> - Foundry Owner: `c4abc141-1c46-4e9d-8a8b-c08f4e9c4d8e` (File Search の vector store 管理に必要)
-> - Storage Blob Data Contributor: `ba92f5b4-2d11-453d-a403-e96b0029c9fe`
->
-> スコープも公式と整合させてください: **Foundry resource scope** に Foundry User、**ストレージ アカウント scope** に Storage Blob Data Contributor (リソース グループ scope ではなく)。
+MS Learn 該当箇所: [Select a primary AI model for your agent](https://learn.microsoft.com/ja-jp/microsoft-copilot-studio/authoring-select-agent-model)
 
-```powershell
-$RG    = "<resource group>"
-$ACCT  = "<Foundry account name>"
-$PROJ  = "<Foundry project name>"
-$SUB   = "<subscription id>"
-$STG   = "<storage account name>"  # Foundry が作成した既定の Storage Account
-$ME    = "<your-objectId-or-email>"
-$PMI   = "<Project Managed Identity objectId>"  # Foundry portal → Project → Settings → Managed identity で確認
+| 観点 | Copilot Studio (移行元) | Microsoft Foundry (移行先 / 本シナリオ) |
+|---|---|---|
+| モデル選択の自由度 | **エージェント単位で選択可** (既定 `GPT-4.1`)。GA: GPT-4.1 / GPT-5 Chat / Claude Sonnet 4.5・4.6 等 / Preview: GPT-5 Reasoning・Auto / Claude Opus 4.6 / Experimental: GPT-5.3〜5.5 / Claude Opus 4.7 / Grok 4.1 Fast | **必須選択** (1,900+ モデルから明示的にデプロイ。本シナリオは `gpt-4.1-mini`) |
+| 00 (移行元) での該当節 | 00 §2.5 は **オーケストレーション モード** (= LLM ルーティング ON/OFF) の確認のみで、Primary AI Model の選択には触れていません。Copilot Studio portal を直接開いて選択中のモデルを確認してください | (該当なし — Foundry 固有の新規ステップ) |
+| 抽出 YAML (`IT-Helpdesk-Sample.yaml`) での表現 | **モデル名は含まれない** (実機 YAML 全体を `model` / `gpt` / `primary` / `aiCapabilit` で grep しても 0 件。`configuration.settings.GenerativeActionsEnabled: true` のフラグだけが書き出される)。Primary AI Model はエージェント ランタイム属性扱いで template YAML には serialize されない仕様 | (該当なし — デプロイ後のエンドポイント設定で別管理) |
+| 料金体系 | **メッセージ単価** (Microsoft Copilot Studio Messages の従量課金。モデル変更で消費メッセージ数が変わるケースあり) | **トークン課金** (input / output ごと。モデルにより単価差) — `../../docs/cost-finops.md` 参照 |
+| リージョン制約 | モデルごとに利用可リージョンが異なる ([Select a primary AI model for your agent](https://learn.microsoft.com/ja-jp/microsoft-copilot-studio/authoring-select-agent-model) の Model availability by region 表参照)。`cross-geo` 表記のモデルはリージョン外でデータ処理される可能性あり | モデルごとに利用可リージョンが異なる。ファイル検索利用時は **Italy North / Brazil South 不可** |
 
-$FOUNDRY_USER_GUID                  = "53ca6127-db72-4b80-b1b0-d745d6d5456d"
-$FOUNDRY_OWNER_GUID                 = "c4abc141-1c46-4e9d-8a8b-c08f4e9c4d8e"
-$STORAGE_BLOB_DATA_CONTRIB_GUID     = "ba92f5b4-2d11-453d-a403-e96b0029c9fe"
 
-# Foundry resource scope に Foundry User (人間ユーザー向け)
-$ACCT_SCOPE = "/subscriptions/$SUB/resourceGroups/$RG/providers/Microsoft.CognitiveServices/accounts/$ACCT"
-az role assignment create --assignee $ME --role $FOUNDRY_USER_GUID --scope $ACCT_SCOPE
 
-# File Search で vector store を作成・管理する場合は Foundry Owner も必要
-az role assignment create --assignee $ME --role $FOUNDRY_OWNER_GUID --scope $ACCT_SCOPE
+### 3.3 RBAC を割り当てる
 
-# Storage Blob Data Contributor は ストレージ アカウント scope (RG ではない)
-$STG_SCOPE = "/subscriptions/$SUB/resourceGroups/$RG/providers/Microsoft.Storage/storageAccounts/$STG"
-az role assignment create --assignee $ME --role $STORAGE_BLOB_DATA_CONTRIB_GUID --scope $STG_SCOPE
+Azure portal で以下 3 つのロールを自分 (人間ユーザー) に割り当てます。CLI / スクリプトは使わず、Azure portal の **アクセス制御 (IAM)** で実施します。
 
-# Project Managed Identity にも同等の権限を付与 (Hosted agent / 外部呼出のため)
-az role assignment create --assignee-object-id $PMI --assignee-principal-type ServicePrincipal `
-  --role $FOUNDRY_USER_GUID --scope $ACCT_SCOPE
-az role assignment create --assignee-object-id $PMI --assignee-principal-type ServicePrincipal `
-  --role $STORAGE_BLOB_DATA_CONTRIB_GUID --scope $STG_SCOPE
-```
+| ロール | スコープ | 用途 |
+|---|---|---|
+| **Foundry User** | Foundry リソース | 人間ユーザー (プレイグラウンド / エージェント操作) |
+| **Foundry Owner** | Foundry リソース | ファイル / ナレッジの管理 |
+| **Storage Blob Data Contributor** | Storage Account | ファイル検索のバックエンド |
 
-### 4.4 ログインと環境変数
+**Azure portal での割当手順** (各ロール共通):
 
-```powershell
-az login
-$env:FOUNDRY_PROJECT_ENDPOINT = "https://<resource>.services.ai.azure.com/api/projects/<project>"
-$env:FOUNDRY_MODEL_NAME       = "gpt-5-mini"        # または gpt-4.1-mini
-```
+1. <https://portal.azure.com> → 対象リソース (Foundry リソース、または Storage Account) を開く
+2. 左メニュー **アクセス制御 (IAM)** → **+ 追加** → **ロールの割り当ての追加**
+3. **ロール** タブ → 検索ボックスにロール名 (例: `Foundry User`) を入力 → 選択
+4. **メンバー** タブ → **ユーザー、グループ、またはサービス プリンシパル** → **+ メンバーを選択する** → 自分を選択
+5. **レビューと割り当て** → **割り当て**
+
+Foundry User と Foundry Owner は Foundry リソース側で、Storage Blob Data Contributor は Foundry が自動作成した Storage Account 側で、同じ手順を 3 回繰り返してください。
+
+> ℹ️ ホストされたエージェントから外部 API を呼び出す場合はプロジェクト マネージド ID にも同等のロールが必要ですが、本シナリオの動作確認 (プレイグラウンド) だけなら不要です。
+
 
 ---
 
-## 5. Phase 3b: Vector Store に `it-policy.md` をアップロード
+## 4. フェーズ 3b: ナレッジ (`it-policy.md`) を準備する
 
-公式 (File Search): <https://learn.microsoft.com/en-us/azure/ai-foundry/agents/how-to/tools/file-search>
+MS Learn 該当箇所 (ファイル検索): [ファイル検索ツールを使用する](https://learn.microsoft.com/ja-jp/azure/ai-foundry/agents/how-to/tools/file-search)
 
 | 項目 | 上限 |
 |---|---|
 | 最大ファイル サイズ | 512 MB |
 | 1 ファイルあたり最大トークン | 2,000,000 |
-| 1 vector store の最大ファイル数 | 10,000 |
-| Agent に紐づけ可能な vector store 数 | **1** |
+| 1 ナレッジあたり最大ファイル数 | 10,000 |
+| 1 エージェントに紐づけ可能なナレッジ数 | **1** |
 
-### 実行
+このフェーズでは特別な準備は不要です。Foundry portal のプレイグラウンドで Prompt agent を作る際 (§5.1 手順 4) に、左ペインの **ツール → 追加 → ファイル検索 → ファイルの参照 → アタッチ** で `it-policy.md` を直接添付すれば、内部的にファイル ストアが自動作成されます。
 
-```powershell
-cd .\demo-assets
-pip install -r scenario-a-prompt-agent\requirements.txt
-python common\scripts\upload_knowledge.py common\sample-knowledge\it-policy.md
-```
+📁 アップロード対象ファイル (ローカルから選択): [`..\common\sample-knowledge\it-policy.md`](../common/sample-knowledge/it-policy.md)
 
-出力例:
+> 💡 大量のファイルや SharePoint / Azure AI Search など複数ソースを束ねたい場合は、左ナビ **ビルド → ナレッジ** (Foundry IQ) で **ナレッジ ベース** / **インデックス** を作成し、Azure AI Search リソースを **接続する** ことで永続的に管理できます (本シナリオでは省略)。
 
-```
-file_id           = assistant-xxxxxxxxxxxxxxxxxxxxxx
-vector_store_id   = vs_xxxxxxxxxxxxxxxxxxxxxxxx
-vector_store_name = it-policy-vs
-```
-
-```powershell
-$env:KNOWLEDGE_VECTOR_STORE_ID = "vs_xxxxxxxxxxxxxxxxxxxxxxxx"
-```
-
-> 💡 本スクリプトは Responses API (`openai.vector_stores.create`) で作成します。旧 `client.agents.upload_file_and_poll` は `azure-ai-projects>=2.0` で削除済みです。
 
 ---
 
-## 6. Phase 4: Prompt agent を作成
+## 5. フェーズ 4: Prompt agent を作成
 
-### 6.1 ポータルで作成する場合
+### 5.1 Foundry portal のプレイグラウンドから作成
 
-1. <https://ai.azure.com> → project → **Agents** → **+ Create** → **Prompt agent**
-2. 各フィールド:
+§3.2 でモデルをデプロイすると、自動的に **ビルド → モデル → プレイグラウンド** 画面 (URL: `.../build/models/deployments/<model>/playground`) が開きます。この画面で手順とツールを設定し、最後に「**エージェントとして保存**」することで Prompt agent になります。
 
-| Field | 値 |
-|---|---|
-| **Name** | `helpdesk-prompt` |
-| **Model** | `gpt-4.1-mini` または `gpt-5-mini` |
-| **Instructions** | §6.3 を貼り付け |
-| **Tools → + Add → File search** | 上で作成した vector store を選択 |
-| **Tools → + Add → OpenAPI** | `..\common\tools\create-ticket.openapi.yaml` を貼り付け、Auth = Anonymous |
+> 💡 まっさらな状態から始めたい場合は、上部ナビ **ビルド** → 左メニュー **エージェント** → 右上の **エージェントの作成** ボタンでも作成できます (この場合は名前を入力して空のエージェントが作られた後、同じプレイグラウンド画面で手順 / ツールを設定します)。
 
-3. **Save** → Agent playground が自動で開く
+**手順**:
 
-### 6.2 Python SDK で作成する場合 (再現性 / CI 向け)
+1. プレイグラウンド画面左ペインの **モデル** が `gpt-4.1-mini` (= §3.2 でデプロイしたモデル) になっていることを確認
+2. **手順** セクションに §5.2 のテンプレートをそのまま貼り付け
+3. **ツール** セクション → **追加** ボタン → メニューから **ファイル検索** を選択
+   - 開いた **ファイルの添付** パネルで **ファイルの参照** → §2.1 で確認した [`..\common\sample-knowledge\it-policy.md`](../common/sample-knowledge/it-policy.md) を選択 → **アタッチ**
+4. OpenAPI ツールを登録します。OpenAPI ツールはプレイグラウンドの **ツール → 追加** メニューには直接出ないため、いったん上部ナビ **ビルド** で先に登録してから紐付けます:
+   - 上部ナビ **ビルド** → 左メニュー **ツール** → **ツール** タブ → **ツールを接続** → **カスタム** タブ → **OpenAPI ツール** を選択 → **作成**
+   - 開いた **OpenAPI ツールの作成** ダイアログで以下を入力:
 
-📄 本シナリオ同梱: [`create_prompt_agent.py`](create_prompt_agent.py)
+     | 項目 | 値 |
+     |---|---|
+     | **名前** | `create_ticket` |
+     | **説明** | `社内 IT ヘルプデスクのチケットを起票します` |
+     | **認証方法** | **接続** (本シナリオの公開エンドポイントは認証不要のため、§5.3 の注記を参照) |
+     | **接続** | **新しい接続の追加** (匿名アクセスでよい場合は接続を「なし」相当で作成) |
+     | **OpenAPI 3.0+ スキーマ** | [`..\common\tools\create-ticket.openapi.yaml`](../common/tools/create-ticket.openapi.yaml) の中身を全選択コピーして貼付 |
 
-![create_prompt_agent.py 抜粋](../screenshots/scenario-a/A-CODE-02-prompt-agent-script.png)
+   - **ツールの作成** を押す → 一覧に `create_ticket` が表示される
+5. プレイグラウンド画面に戻り、左ペイン **ツール → 追加** から先ほど作成した `create_ticket` を選択してエージェントに紐付ける
+6. 画面上部の **エージェントとして保存** をクリック → 名前 `helpdesk-prompt` を入力して保存
+7. 保存後、自動で **ビルド → エージェント → `helpdesk-prompt`** 画面に遷移します。以降の動作確認は §6 へ
 
-```powershell
-cd .\demo-assets\scenario-a-prompt-agent
-python create_prompt_agent.py
-```
+> 💡 設定はすべて自動保存されます。明示的な保存ボタンは「**エージェントとして保存**」のときだけ押します。
 
-出力例:
+### 5.2 手順テンプレート (Copilot Studio Topic の言語化)
 
-```
-agent_name        = helpdesk-prompt
-agent_version_id  = helpdesk-prompt:1
-```
+00 §2.4 で Copilot Studio に書いた手順 (= 旧 `指示` / Instructions) と同等の内容です。**portal の 手順 欄にこのまま貼り付けてください**。
 
-> 💡 GA SDK では agent は `(agent_name, agent_version)` で識別します (旧 `agent_id` GUID は廃止)。
-> 公式: <https://learn.microsoft.com/en-us/azure/ai-foundry/agents/concepts/runtime-components>
-
-### 6.3 Instructions テンプレート (Copilot Studio Topic の言語化)
-
-`create_prompt_agent.py` の `INSTRUCTIONS` 定数に既に含まれている内容です。
+> 💡 **YAML との対応**: §2.2 パターン A で抽出 YAML を使う場合、root の `description:` フィールド + 各 Custom topic の `triggerQueries:` (= 「ユーザーが〜と言ったとき」の節) と `dialog.beginDialog.actions:` ツリー (= 番号付き手順) を段落化したものが、おおむね下記テンプレートに対応します。Topic を追加したらこの順序で言語化を追記してください。
 
 ```
 あなたは Contoso 株式会社の社内 IT ヘルプデスク アシスタントです。
@@ -262,129 +239,104 @@ agent_version_id  = helpdesk-prompt:1
 - summary (80 字以内) / priority / category を判断して埋める
 ```
 
-### 6.4 OpenAPI tool の認証
+### 5.3 OpenAPI ツールの認証
 
-| Auth type | SDK クラス | 用途 |
+新しい Foundry portal (新しい Foundry スイッチ ON) では、OpenAPI ツールの認証は **接続オブジェクト経由に統一** されています。**OpenAPI ツールの作成** ダイアログでは「認証方法」が **接続** 固定になり、以下を組み合わせて設定します。
+
+| 用途 | 接続の作り方 | ダイアログでの選び方 |
 |---|---|---|
-| **Anonymous** | `OpenApiAnonymousAuthDetails()` | 公開エンドポイント (本デモはこれ) |
-| **Connection (API key)** | `OpenApiProjectConnectionAuthDetails(security_scheme=OpenApiProjectConnectionSecurityScheme(connection_id=...))` | Foundry の Project connection 経由 |
-| **Managed Identity** | `OpenApiManagedAuthDetails(security_scheme=OpenApiManagedSecurityScheme(audience="..."))` | Entra 保護 API |
+| **公開エンドポイント (匿名)** — 本デモはこれ | 接続を作らず、ダイアログの **接続** で **新しい接続の追加** から最小限の匿名扱いで登録 | **認証方法**: 接続 / **接続**: 新規 / **資格情報**: 空のままでも可 |
+| **API キー** | 上部ナビ **ビルド** → プロジェクト設定や接続管理画面で API キー接続を事前作成 | **接続**: 作成した API キー接続を選択 / **資格情報**: キー名と値を入力 |
+| **マネージド ID** | プロジェクトに紐付くマネージド ID を持つリソースとして接続を作成 | **接続**: マネージド ID 接続を選択 |
 
-公式: <https://learn.microsoft.com/en-us/azure/ai-foundry/agents/how-to/tools/openapi-spec>
+MS Learn 該当箇所: [OpenAPI で指定されたツールを使用する](https://learn.microsoft.com/ja-jp/azure/ai-foundry/agents/how-to/tools/openapi-spec)
 
-> ⚠️ `auth=` には **dict ではなく SDK のクラス インスタンス** を渡してください (`azure-ai-projects>=2.1` 時点)。
-> 同様に `spec=` には YAML 文字列ではなく **dict** が必要です(`yaml.safe_load()` で変換)。`create_prompt_agent.py` ではこの変換を行っています。
+> 💡 旧 portal にあった「Anonymous / API Key / Managed Identity」のドロップダウンは新エクスペリエンスでは廃止され、すべて「接続」オブジェクトで管理する設計になりました。本デモのサンプル OpenAPI は架空エンドポイントなので、接続を作成しても実際にネットワーク呼出は成功しません (会話ログでツール呼出の挙動だけ確認できます)。
+
 
 ---
 
-## 7. Phase 5: 動作確認
+## 6. フェーズ 5: プレイグラウンドで動作確認
 
-### 7.1 Playground (ポータル UI)
+1. <https://ai.azure.com> → 対象プロジェクト → 上部ナビ **ビルド** → 左メニュー **エージェント** → `helpdesk-prompt` を選択 → 画面右側の **プレイグラウンド** タブをクリック (§5.1 から続いて開いていれば既に表示されています)
+2. 画面下部のチャット ボックスに下記テスト メッセージを順に投げ、応答と右ペインの **スレッド ログ** / **トレース** タブを確認
 
-1. <https://ai.azure.com> → project → **Agents** → `helpdesk-prompt` → **Playground**
-2. テストメッセージ:
-   - `MFA の登録方法を教えて`
-   - `パスワード忘れた`
-   - `VPN がつながらない`
-3. 右ペインの **Trace** で File Search / OpenAPI 呼び出しを可視化
-
-### 7.2 SDK 経由でプログラマティックに呼ぶ (回帰テスト用)
-
-📄 本シナリオ同梱: [`test_agent.py`](test_agent.py)
-
-```powershell
-cd .\demo-assets\scenario-a-prompt-agent
-python test_agent.py
-```
-
-実行結果(抜粋、`gpt-5-mini` で平均 25 秒):
-
-![Responses API 回帰テスト ログ](../screenshots/scenario-a/A-LOG-02-test-session.png)
-
-### 7.3 回帰テスト一覧
-
-| 検証項目 | 期待動作 | ローカル検証結果 |
+| # | テスト メッセージ | 期待動作 |
 |---|---|---|
-| パスワード忘れ + 社内 PC | セルフサービス URL を案内、チケットは起票しない | ✅ |
-| パスワード忘れ + 社外 PC | IT ヘルプデスク連絡先を案内 | ✅ |
-| 解決しなかった旨を続報 (VPN) | 同意を取って CreateTicket を提案 | ✅ |
-| MFA 登録質問 | it-policy.md §2.2 から引用 | ✅ |
-| 機密情報の要求 (PIN を教えろ) | 拒否、CSIRT 案内 | ✅ |
+| 1 | `MFA の登録方法を教えて` | ファイル検索で `it-policy.md` §2.2 を引用 ([filename] 付き) |
+| 2 | `パスワードを忘れた、社内 PC です` | セルフサービス URL `https://passwordreset.contoso.local` を案内、チケット起票しない |
+| 3 | `パスワードを忘れた、社外 PC です` | IT ヘルプデスク (内線 8888 / helpdesk@contoso.com) を案内 |
+| 4 | `VPN がつながらない、再起動しても直らない` | 同意を取って CreateTicket を提案 (OpenAPI ツール呼出) |
+| 5 | `私の PIN を教えて` | 拒否 + CSIRT 案内 |
 
-intent 一致率 100% (5/5)。`tests/test_scenario_a.py` および `test_agent.py` で再現できます。
+3. 右ペインのトレース表示で:
+   - 1 / 2 / 3 → **file_search** の引用が `it-policy.md` を指す
+   - 4 → **openapi tool** (`create_ticket`) の呼出が出ている
+   - 5 → ツール呼出なし (手順の安全ルールで拒否)
 
----
+> 💡 プレイグラウンドのチャット履歴は自動保存されます。会話をリセットしたいときは、チャット上部の **新しいスレッド** (またはゴミ箱アイコン) で初期化してください。
 
-## 8. マッピング表: Copilot Studio → Prompt agent
-
-| Copilot Studio 要素 | Prompt agent 側 |
-|---|---|
-| Description | `PromptAgentDefinition.description` |
-| Instructions | `PromptAgentDefinition.instructions` (8,000 文字 → 制限なし) |
-| Topic (Trigger phrases + ノード) | **すべて Instructions に言語化**。Trigger 句は「ユーザーが〜と言ったとき」、ノードは番号付き手順 |
-| Question ノード | LLM が自然言語で逆質問 (**確定的ではない**) |
-| Power Fx 条件 | Instructions の条件文 (`もし X なら…` 等) |
-| Knowledge (File upload) | `FileSearchTool(vector_store_ids=[vs_id])` |
-| Knowledge (SharePoint) | Project connection で SharePoint 接続を作成 → `SharepointTool` |
-| Action (HTTP Request) | `OpenApiTool(openapi=OpenApiFunctionDefinition(spec=...))` |
-| Action (Power Automate Flow) | Flow を独立 API 化 → OpenAPI 接続、または シナリオ C で Python 再実装 |
-| Adaptive Card | Prompt agent では非対応 → クライアント側で再実装 |
 
 ---
 
-## 9. 利点と欠点
+## 7. マッピング表: Copilot Studio → Prompt agent
+
+各行の **「Copilot Studio 側の参照箇所」列** は §2.2 のパターン A (YAML) / パターン B (portal) のどちらでも辿れるよう、両方の場所を併記しています。
+
+| Copilot Studio 要素 | Copilot Studio 側の参照箇所 (portal / YAML) | Prompt agent 側 (Foundry portal の操作) |
+|---|---|---|
+| Description | portal: **概要** タブ → **詳細** / YAML: root の `description:` | ビルド > エージェント > 対象エージェント > **概要** に説明を記入 |
+| 指示 (Instructions) | portal: **概要** タブ → **指示** / YAML: root の `instructions:` | プレイグラウンド左ペイン > **手順** に貼付 (8,000 文字 → 制限なし) |
+| Topic (Trigger phrases + ノード) | portal: 左メニュー **トピック** → 各 Topic / YAML: `kind: AdaptiveDialog` 配下の `triggerQueries:` + `actions:` | **すべて 手順 に言語化**。Trigger 句は「ユーザーが〜と言ったとき」、ノードは番号付き手順 |
+| Question ノード | portal: Topic 内の **質問** ノード / YAML: `kind: Question` | LLM が自然言語で逆質問 (**確定的ではない**) |
+| Power Fx 条件 | portal: Topic 内の **条件** ノード / YAML: `kind: ConditionGroup` (`condition:` に Power Fx 式) | 手順 内の条件文 (`もし X なら…` 等) |
+| Knowledge (ファイル アップロード) | portal: 左メニュー **ナレッジ** / YAML: `kind: SearchAndSummarizeContent` ノード + `entity:` (`accessControlPolicy`) | プレイグラウンドの **ツール → 追加 → ファイル検索 → ファイルの添付** (= §5.1 手順 3) |
+| Knowledge (SharePoint) | portal: 左メニュー **ナレッジ** → SharePoint ソース / YAML: 同上 (`entity:` に SharePoint 設定) | プレイグラウンドの **ツール → 追加 → SharePoint** で接続 (= ビルド > ナレッジ の Foundry IQ でも管理可) |
+| Action (HTTP 要求) | portal: Topic 内の **HTTP 要求の送信** ノード / YAML: `kind: HttpRequestAction` (`url` / `method` / `headers` / `body` / `responseSchema`) | **ビルド > ツール > ツールを接続 > カスタム > OpenAPI ツール** で OpenAPI 3.0+ スキーマを登録 → プレイグラウンドのツールに紐付け (= §5.1 手順 4) |
+| Action (Power Automate フロー) | portal: Topic 内の **フローを実行** ノード / YAML: Solution エクスポート側で取得 (00 §8.5 注記参照) | Flow を独立 API 化 → OpenAPI ツールで接続、または シナリオ C で再実装 |
+| Adaptive Card | portal: 各メッセージ ノードの **カード** / YAML: `kind: SendActivity` の `card:` ブロック | Prompt agent では非対応 → クライアント側で再実装 |
+
+---
+
+## 8. 利点と欠点
 
 | | 内容 |
 |---|---|
-| ✅ **利点** | GA で SLA 対象 / 最速本番化 / 1,900+ モデル選択可 / コード量最小 / Playground 即試行 / Responses API による履歴自動管理 |
-| ❌ **欠点** | 確定的フロー (必ず質問→分岐) は LLM 任せで保証されない / Topic 多いと Instructions 肥大化 / Adaptive Card 非対応 |
+| ✅ **利点** | GA で SLA 対象 / 最速本番化 / 1,900+ モデル選択可 / **Foundry portal だけで完結 (RBAC + ナレッジ + エージェント + プレイグラウンド)** / コード記述ゼロ / Responses API による履歴自動管理 |
+| ❌ **欠点** | 確定的フロー (必ず質問→分岐) は LLM 任せで保証されない / Topic 多いと 手順 が肥大化 / Adaptive Card 非対応 |
 
 ---
 
-## 10. トラブルシューティング
+## 9. トラブルシューティング
 
 | 症状 | 原因 | 対処 |
 |---|---|---|
-| `DefaultAzureCredential` で 401 | `az login` 未実行 | `az login` → 再実行 |
-| `Azure CLI not found on path` (Python のサブプロセス) | Windows で `cmd.exe` 起動時に **PATH が長すぎて切り捨て** (環境変数 PATH が約 8KB を超える) | PowerShell セッションで PATH を必要最小限に絞ってから Python を起動 (本リポジトリの検証で遭遇) |
-| `(invalid_payload) type: Value is "string" but should be "object"` | `OpenApiTool` の `auth=` に dict を渡している | `OpenApiAnonymousAuthDetails()` などの SDK クラスを渡す |
-| `OpenApiFunctionDefinition` で同様のエラー | `spec=` に YAML 文字列を渡している | `yaml.safe_load(...)` で dict に変換 |
-| `AttributeError: 'AgentsOperations' object has no attribute 'upload_file_and_poll'` | 旧 API は `azure-ai-projects>=2.0` で削除 | `openai.files.create` + `openai.vector_stores.create` (新 API) を使用 |
-| `Permission denied` で agent 作成不可 | Foundry User 未割り当て | §4.3 を実施 |
-| File Search が結果を返さない | Vector store ingestion 未完了 | 数十秒〜数分待ち、ingestion 完了を確認 |
-| Italy North / Brazil South で File Search エラー | 地域制限 | 別リージョンに project 作成 |
-
-PATH 切り捨て問題のワークアラウンド例(本リポジトリ検証時):
-
-```powershell
-$env:PATH = "C:\Program Files\PowerShell\7;" +
-            "C:\Program Files\Microsoft SDKs\Azure\CLI2\wbin;" +
-            "C:\Windows\System32;C:\Windows;" +
-            (Split-Path (Get-Command python).Source)
-python create_prompt_agent.py
-```
+| Foundry portal で `Permission denied` でエージェント作成不可 | Foundry User 未割り当て | §3.3 を実施 |
+| プレイグラウンドの ファイル検索 で参照が出ない | ファイル ingestion 未完了 | プレイグラウンドの **ツール → ファイル検索** で添付ファイルのステータスが完了になっているか確認 (数十秒〜数分待つ) |
+| プレイグラウンドで OpenAPI ツールが呼ばれない | 手順 のチケット起票ルールが弱い / 接続設定の誤り | §5.2 と §5.3 を見直し、ビルド > ツール 側の OpenAPI ツールが正しく作成され、プレイグラウンドで紐付け済みか確認 |
+| Italy North / Brazil South で ファイル検索 エラー | 地域制限 | 別リージョンにプロジェクトを作成 |
 
 ---
 
-## 10.5 セキュリティ (Content Filter / Prompt Shields / XPIA / PII)
+## 10. セキュリティ (Content Filter / Prompt Shields / XPIA / PII)
 
-> 📄 詳細は **[`docs/security.md`](./docs/security.md)** を参照してください。Microsoft Learn からの verbatim 引用とともに、Portal 操作手順を載せています。
+> 📄 詳細は **[`docs/security.md`](./docs/security.md)** を参照してください。Microsoft Learn からの verbatim 引用とともに、portal の操作手順を載せています。
 
-本シナリオは社内 IT 規定 PDF を Vector Store 経由で読み込むため、**間接プロンプト インジェクション (XPIA: cross-prompt injection attack)** の現実リスクがあります。Microsoft Foundry の Content Filter は次の 4 種類の保護を提供しており、本番運用前に最低でも (1)(2)(3) を有効化することを推奨します。
+本シナリオは社内 IT 規定 Markdown を ファイル検索 経由で読み込むため、**間接プロンプト インジェクション (XPIA: cross-prompt injection attack)** の現実リスクがあります。Microsoft Foundry の Content Filter は次の 4 種類の保護を提供しており、本番運用前に最低でも (1)(2)(3) を有効化することを推奨します。
 
 | # | 保護 | 何を防ぐか | 公式 verbatim | 推奨 |
 |---|---|---|---|---|
-| 1 | **User prompt attacks (jailbreak)** | ユーザーが安全ガイドラインを迂回しようとする攻撃 | "Classifies user prompts as either safe or as attempting to manipulate the model's behavior" | Input フィルタで有効化 |
-| 2 | **Indirect attacks (XPIA)** | ナレッジ・OpenAPI レスポンス・MCP 等、**第三者コンテンツ経由の注入** | "Detects prompt injection attacks where third-party content (such as documents or web pages) attempts to manipulate the model" | Input フィルタで有効化 (本シナリオで必須) |
-| 3 | **PII Detection** | 出力に個人情報が含まれていないか | "Detects personal information in model output" | Output フィルタで有効化 |
-| 4 | **Task Adherence** | エージェントが付与されたタスクから逸脱していないか | "Evaluates whether the agent's response adheres to the task assigned to it" | 任意 (Agent モード) |
+| 1 | **User prompt attacks (jailbreak)** | ユーザーが安全ガイドラインを迂回しようとする攻撃 | "Classifies user prompts as either safe or as attempting to manipulate the model's behavior" | 入力フィルタで有効化 |
+| 2 | **Indirect attacks (XPIA)** | ナレッジ・OpenAPI レスポンス・MCP 等、**第三者コンテンツ経由の注入** | "Detects prompt injection attacks where third-party content (such as documents or web pages) attempts to manipulate the model" | 入力フィルタで有効化 (本シナリオで必須) |
+| 3 | **PII Detection** | 出力に個人情報が含まれていないか | "Detects personal information in model output" | 出力フィルタで有効化 |
+| 4 | **Task Adherence** | エージェントが付与されたタスクから逸脱していないか | "Evaluates whether the agent's response adheres to the task assigned to it" | 任意 (エージェント モード) |
 
 設定手順 (要旨):
 
-1. Foundry Portal → 左メニュー **Guardrails + controls** → **+ Create content filter**
-2. Input フィルタ: User prompt attacks / Indirect attacks を有効
-3. Output フィルタ: PII Detection を有効
-4. モデル デプロイの **Content filter** プルダウンで作成したフィルタを選択
+1. Foundry portal → 上部ナビ **ビルド** → 左メニュー **ガードレール** → **+ コンテンツ フィルターの作成**
+2. 入力フィルタ: User prompt attacks / Indirect attacks を有効
+3. 出力フィルタ: PII Detection を有効
+4. モデル デプロイの **コンテンツ フィルター** プルダウンで作成したフィルタを選択
 
 詳細は `docs/security.md` を参照。
 
@@ -395,16 +347,10 @@ python create_prompt_agent.py
 | ファイル | 用途 |
 |---|---|
 | `README.md` | 本ファイル |
-| `docs\security.md` | Content Filter / Prompt Shields / XPIA / PII の設定手順 (§10.5 から参照) |
-| `requirements.txt` | Python 依存関係 (azure-ai-projects, azure-identity, openai, pyyaml, pytest, pytest-timeout) |
-| `pytest.ini` | pytest 設定 (testpaths=tests / timeout=120) |
-| `tests\conftest.py` | `openai_client` / `conversation` fixture と `mask_pii()` ヘルパー |
-| `tests\test_scenario_a.py` | pytest 回帰テスト (TestPasswordReset / TestSecurityGuardrails / TestMFA / TestCreateTicket) |
-| `create_prompt_agent.py` | Prompt agent を 1 体作成するスクリプト (Phase 4) |
-| `test_agent.py` | (Legacy) 旧 目視確認スクリプト。新規開発では `tests/test_scenario_a.py` を使用してください |
-| `interactive_browser.py` | Microsoft Copilot Studio 手順検証用のインタラクティブ ブラウザ ドライバ (Playwright を stdin JSON コマンドで操作) |
-| `generate_log_screenshots.py` | 実行ログをターミナル風画像に化(README 用、認証不要) |
-| `generate_code_screenshots.py` | 同梱コードをシンタックス ハイライト画像に化(README 用、認証不要) |
+| `docs\security.md` | Content Filter / Prompt Shields / XPIA / PII の設定手順 (§10 から参照) |
+| `requirements.txt` / `create_prompt_agent.py` | (本シナリオでは未使用) GUI 完結方針のため Foundry portal だけで完結します。CI 化やコード再現用のリファレンス実装として残置 |
+
+> ℹ️ **本シナリオは Foundry portal だけで完結する GUI 方針です。** Python ファイルや CLI コマンドの実行は一切不要です。RBAC は Azure portal、ナレッジ・エージェント・ツールはすべて Foundry portal で設定します。
 
 ---
 
@@ -412,27 +358,22 @@ python create_prompt_agent.py
 
 | トピック | URL |
 |---|---|
-| Foundry Agent Service 概要 | <https://learn.microsoft.com/en-us/azure/ai-foundry/agents/overview> |
-| Prompt agent Quickstart | <https://learn.microsoft.com/en-us/azure/ai-foundry/quickstarts/get-started-code> |
-| File Search tool | <https://learn.microsoft.com/en-us/azure/ai-foundry/agents/how-to/tools/file-search> |
-| Vector Stores | <https://learn.microsoft.com/en-us/azure/ai-foundry/agents/concepts/vector-stores> |
-| OpenAPI tool | <https://learn.microsoft.com/en-us/azure/ai-foundry/agents/how-to/tools/openapi-spec> |
-| Responses + Conversations API | <https://learn.microsoft.com/en-us/azure/ai-foundry/agents/concepts/runtime-components> |
-| RBAC (Foundry) | <https://learn.microsoft.com/en-us/azure/ai-foundry/concepts/rbac-foundry> |
-| 環境セットアップ | <https://learn.microsoft.com/en-us/azure/ai-foundry/agents/environment-setup> |
-| Limits / Quotas / Regions | <https://learn.microsoft.com/en-us/azure/ai-foundry/agents/concepts/limits-quotas-regions> |
-| Python SDK | <https://pypi.org/project/azure-ai-projects/> |
+| Foundry Agent Service 概要 | [Microsoft Foundry Agent Service の概要](https://learn.microsoft.com/ja-jp/azure/ai-foundry/agents/overview) |
+| Prompt agent Quickstart | [コードを使って最初の AI Foundry プロジェクトを作成する](https://learn.microsoft.com/ja-jp/azure/ai-foundry/quickstarts/get-started-code) |
+| ファイル検索ツール | [ファイル検索ツールを使用する](https://learn.microsoft.com/ja-jp/azure/ai-foundry/agents/how-to/tools/file-search) |
+| OpenAPI ツール | [OpenAPI で指定されたツールを使用する](https://learn.microsoft.com/ja-jp/azure/ai-foundry/agents/how-to/tools/openapi-spec) |
+| Responses + Conversations API | [Microsoft Foundry Agent Service のランタイム コンポーネント](https://learn.microsoft.com/ja-jp/azure/ai-foundry/agents/concepts/runtime-components) |
+| RBAC (Foundry) | [Microsoft Foundry の RBAC](https://learn.microsoft.com/ja-jp/azure/ai-foundry/concepts/rbac-foundry) |
+| 環境セットアップ | [Foundry Agent Service の環境セットアップ](https://learn.microsoft.com/ja-jp/azure/ai-foundry/agents/environment-setup) |
+| Limits / Quotas / Regions | [Foundry Agent Service の制限・クォータ・リージョン](https://learn.microsoft.com/ja-jp/azure/ai-foundry/agents/concepts/limits-quotas-regions) |
 
 ---
 
-## 13. 関連シナリオ G/H/I・補助ドキュメント
+## 13. 関連シナリオ・補助ドキュメント
 
 | ドキュメント | 何が補強されるか |
 |---|---|
-| [`../scenario-d-cs-plus-foundry/README.md`](../scenario-d-cs-plus-foundry/README.md) | Microsoft Copilot Studio を温存して本シナリオ A の Prompt agent を **Add an agent** で接続する (Preview) |
-| [`../scenario-g-foundry-to-m365/README.md`](../scenario-g-foundry-to-m365/README.md) | 本シナリオで作成した Prompt agent を **Microsoft 365 Copilot / Microsoft Teams に直接公開** (Early Access Preview)。Copilot Studio を介さない最短公開ルート |
+| [`../scenario-d-cs-plus-foundry/README.md`](../scenario-d-cs-plus-foundry/README.md) | Copilot Studio を温存して本シナリオ A の Prompt agent を **Add an agent** で接続する (Preview) |
 | [`../scenario-h-apim-ai-gateway/README.md`](../scenario-h-apim-ai-gateway/README.md) | Foundry endpoint を **Azure API Management** 経由化し、tokens-per-minute / semantic cache / `<llm-emit-token-metric>` を一元適用 |
-| [`../scenario-i-evaluation-redteam/README.md`](../scenario-i-evaluation-redteam/README.md) | 本 `test_agent.py` / `tests/test_scenario_a.py` を JSONL 化し、**Built-in evaluator + Red Teaming Agent** を CI/CD ゲートに組込 |
 | [`../../docs/governance.md`](../../docs/governance.md) | RBAC (GUID 指定) / Content Filter (Prompt Shields / XPIA / PII) / Preview terms の横断チェックリスト |
 | [`../../docs/cost-finops.md`](../../docs/cost-finops.md) | gpt-4.1-mini / gpt-5-mini 月額試算 + Vector Store ($0.10/GB/日) + 削減アクション |
-| [`../../docs/evaluation-playbook.md`](../../docs/evaluation-playbook.md) | Prompt agent 向けの evaluator 推奨セット (Relevance / Groundedness / ToolCallAccuracy / IndirectAttack 等) |

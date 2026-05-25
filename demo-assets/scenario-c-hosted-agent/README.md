@@ -1,8 +1,7 @@
 # シナリオ C: Copilot Studio → Foundry **Hosted agent (Preview)** 移行 完全手順書
 
-> **位置付け**: 9 シナリオの中で **最大の自由度・最大の工数**
+> **位置付け**: 7 シナリオの中で **最大の自由度・最大の工数**
 > **状態**: ⚠️ **Public Preview** (SLA 対象外、本番運用は非推奨)
-> **想定工数**: 3〜10 人日
 
 Copilot Studio の Topic / 分岐 / HITL を **すべて Python コードで再実装**し、コンテナ化して Azure Container Registry (ACR) に push、Foundry に **Hosted agent** として登録する移行パターン。既存の LangGraph / Semantic Kernel / Microsoft Agent Framework のコード資産を最大限活用できます。
 
@@ -67,8 +66,8 @@ Copilot Studio の Topic / 分岐 / HITL を **すべて Python コードで再�
 
 ### 2.2 Azure / Foundry 側
 
-公式 (Hosted agent 概念): <https://learn.microsoft.com/en-us/azure/ai-foundry/agents/concepts/hosted-agents>
-公式 (デプロイ手順): <https://learn.microsoft.com/en-us/azure/ai-foundry/agents/how-to/deploy-hosted-agent>
+MS Learn 該当箇所 (Hosted agent 概念): [Microsoft Foundry Hosted agent の概念](https://learn.microsoft.com/ja-jp/azure/ai-foundry/agents/concepts/hosted-agents)
+MS Learn 該当箇所 (デプロイ手順): [Hosted agent をデプロイする](https://learn.microsoft.com/ja-jp/azure/ai-foundry/agents/how-to/deploy-hosted-agent)
 
 | 項目 | 値 / 公式リンク |
 |---|---|
@@ -170,7 +169,7 @@ az acr create -g $RG -n $ACR --sku Basic
 
 📄 同梱: `src\agent.py`
 
-公式サンプル: <https://github.com/microsoft-foundry/foundry-samples/tree/main/samples/python/hosted-agents>
+公式サンプル: [microsoft-foundry/foundry-samples — samples/python/hosted-agents (GitHub)](https://github.com/microsoft-foundry/foundry-samples/tree/main/samples/python/hosted-agents)
 
 最小実装 (Responses protocol):
 
@@ -310,7 +309,7 @@ CPU / メモリ範囲: 0.25 vCPU / 0.5 GiB 〜 2 vCPU / 4 GiB
 
 ### 5.5 Responses Protocol の概要
 
-公式: <https://learn.microsoft.com/en-us/azure/ai-foundry/agents/how-to/deploy-hosted-agent#container-requirements>
+MS Learn 該当箇所: [Hosted agent をデプロイする — コンテナー要件](https://learn.microsoft.com/ja-jp/azure/ai-foundry/agents/how-to/deploy-hosted-agent#container-requirements)
 
 | Protocol | Path | 用途 |
 |---|---|---|
@@ -383,7 +382,7 @@ az acr build `
 
 ### 6.4 Project Managed Identity に AcrPull 付与 (Option B / C のみ)
 
-公式: <https://learn.microsoft.com/en-us/azure/ai-foundry/agents/how-to/deploy-hosted-agent>
+MS Learn 該当箇所: [Hosted agent をデプロイする](https://learn.microsoft.com/ja-jp/azure/ai-foundry/agents/how-to/deploy-hosted-agent)
 
 ```powershell
 # Project の System-assigned MI の Object ID を取得 (Azure portal → Foundry project → Identity)
@@ -423,7 +422,7 @@ az role assignment create `
 
 📄 同梱: `scripts\register_hosted_agent.py`
 
-公式: <https://learn.microsoft.com/en-us/azure/ai-foundry/agents/how-to/deploy-hosted-agent>
+MS Learn 該当箇所: [Hosted agent をデプロイする](https://learn.microsoft.com/ja-jp/azure/ai-foundry/agents/how-to/deploy-hosted-agent)
 
 ```powershell
 pip install "azure-ai-projects>=2.1.0"
@@ -484,7 +483,7 @@ while True:
 
 ### 7.3 Endpoint routing 構成
 
-公式: <https://learn.microsoft.com/en-us/azure/ai-foundry/agents/how-to/manage-hosted-agent>
+MS Learn 該当箇所: [Hosted agent を管理する](https://learn.microsoft.com/ja-jp/azure/ai-foundry/agents/how-to/manage-hosted-agent)
 
 ```python
 from azure.ai.projects.models import (
@@ -615,29 +614,26 @@ az monitor app-insights query `
 
 | トピック | URL |
 |---|---|
-| Hosted agent 概念 | <https://learn.microsoft.com/en-us/azure/ai-foundry/agents/concepts/hosted-agents> |
-| Hosted agent デプロイ手順 | <https://learn.microsoft.com/en-us/azure/ai-foundry/agents/how-to/deploy-hosted-agent> |
-| Hosted agent 管理 | <https://learn.microsoft.com/en-us/azure/ai-foundry/agents/how-to/manage-hosted-agent> |
-| Hosted agent Quickstart | <https://learn.microsoft.com/en-us/azure/ai-foundry/agents/quickstarts/quickstart-hosted-agent> |
-| Virtual Networks (制約) | <https://learn.microsoft.com/en-us/azure/ai-foundry/agents/how-to/virtual-networks> |
-| 環境セットアップ | <https://learn.microsoft.com/en-us/azure/ai-foundry/agents/environment-setup> |
+| Hosted agent 概念 | [Microsoft Foundry Hosted agent の概念](https://learn.microsoft.com/ja-jp/azure/ai-foundry/agents/concepts/hosted-agents) |
+| Hosted agent デプロイ手順 | [Hosted agent をデプロイする](https://learn.microsoft.com/ja-jp/azure/ai-foundry/agents/how-to/deploy-hosted-agent) |
+| Hosted agent 管理 | [Hosted agent を管理する](https://learn.microsoft.com/ja-jp/azure/ai-foundry/agents/how-to/manage-hosted-agent) |
+| Hosted agent Quickstart | [Foundry Hosted agent のクイックスタート](https://learn.microsoft.com/ja-jp/azure/ai-foundry/agents/quickstarts/quickstart-hosted-agent) |
+| Virtual Networks (制約) | [Foundry Agent Service の Virtual Networks](https://learn.microsoft.com/ja-jp/azure/ai-foundry/agents/how-to/virtual-networks) |
+| 環境セットアップ | [Foundry Agent Service の環境セットアップ](https://learn.microsoft.com/ja-jp/azure/ai-foundry/agents/environment-setup) |
 | Python Hosted agent サンプル | <https://github.com/microsoft-foundry/foundry-samples/tree/main/samples/python/hosted-agents> |
 | Azure SDK サンプル | <https://github.com/Azure/azure-sdk-for-python/tree/main/sdk/ai/azure-ai-projects/samples/hosted_agents> |
 | Microsoft Agent Framework | <https://github.com/microsoft/agent-framework> |
 | Bicep infrastructure samples | <https://github.com/azure-ai-foundry/foundry-samples/tree/main/infrastructure> |
-| RBAC | <https://learn.microsoft.com/en-us/azure/ai-foundry/concepts/rbac-foundry> |
+| RBAC | [Microsoft Foundry の RBAC](https://learn.microsoft.com/ja-jp/azure/ai-foundry/concepts/rbac-foundry) |
 
 ---
 
-## 14. 関連シナリオ G/H/I・補助ドキュメント
+## 14. 関連シナリオ H・補助ドキュメント
 
 | ドキュメント | 何が補強されるか |
 |---|---|
 | [`../scenario-d-cs-plus-foundry/README.md`](../scenario-d-cs-plus-foundry/README.md) | Microsoft Copilot Studio を温存して Hosted agent を **Add an agent** で接続 (Preview) |
 | [`../scenario-f-mcp-connection/README.md`](../scenario-f-mcp-connection/README.md) | Hosted agent コンテナに **MCP server を同梱**し Microsoft Copilot Studio から 1 接続で複数 tool を利用可能に |
-| [`../scenario-g-foundry-to-m365/README.md`](../scenario-g-foundry-to-m365/README.md) | Hosted agent を **Activity Protocol 経由で Microsoft 365 Copilot / Microsoft Teams へ直接公開** (Early Access Preview)。Bot Service が自動構成 |
 | [`../scenario-h-apim-ai-gateway/README.md`](../scenario-h-apim-ai-gateway/README.md) | Hosted agent コンテナ内の `OPENAI_BASE_URL` を **APIM endpoint に差替え** → コール単位で metric / circuit breaker / PTU フォールバック |
-| [`../scenario-i-evaluation-redteam/README.md`](../scenario-i-evaluation-redteam/README.md) | Agent Framework 5 パターン (Sequential / Concurrent / Handoff / Group Chat / Magentic) を **Agent 評価器 + Red Teaming Agent** で網羅検証 |
 | [`../../docs/governance.md`](../../docs/governance.md) | Project Managed Identity への AcrPull 割当・Hosted agent の per-session VM のリテンション |
 | [`../../docs/cost-finops.md`](../../docs/cost-finops.md) | Hosted Compute SKU 別 ($/hour) + Hosted agent シナリオの月額試算 + 削減アクション |
-| [`../../docs/evaluation-playbook.md`](../../docs/evaluation-playbook.md) | Hosted agent (multi-step) 向け evaluator セット (TaskCompletion + ResponseCompleteness + CodeVulnerability 等) |

@@ -34,6 +34,9 @@ coverage/
 **/.pw-profile/
 **/.pw-profile-cs/
 
+# Playwright MCP local cache (console logs, page dumps) — local-only artifacts
+.playwright-mcp/
+
 # Python caches and virtual environments, if added later
 __pycache__/
 *.py[cod]

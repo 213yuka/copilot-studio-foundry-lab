@@ -44,16 +44,16 @@ common/
 
 | 変更内容 | 必須対応 |
 |---|---|
-| `it-policy.md` の本文変更 | シナリオ A〜C の Vector Store を再アップロード (シナリオ A の `tests/test_scenario_a.py` の期待値とずれていないか確認) |
+| `it-policy.md` の本文変更 | シナリオ A〜C の Vector Store を再アップロード。Playground での回答内容が想定どおりか手動で再確認 |
 | `create-ticket.openapi.yaml` 変更 | `scenario-c-hosted-agent/tools/` 配下のコピーも同内容に更新 |
-| `upload_knowledge.py` のリトライ・SDK 切替 | シナリオ A の `tests/test_scenario_a.py` で File Search テストが通ることを確認 |
+| `upload_knowledge.py` のリトライ・SDK 切替 | シナリオ A〜C で実際に Vector Store 作成が成功することを手動で確認 |
 
 ## 本番エンドポイント差替手順 (推奨)
 
 1. **OpenAPI**: `servers[].url` を社内 API のホストに変更。`operationId` は snake_case を維持。
 2. **認証**: `components.securitySchemes` に `Bearer` / `OAuth2` を追加し、`security` で参照。
 3. **Vector Store**: 本番 PDF / Markdown を `it-policy.md` と差替え、PII を含まないことを再確認。
-4. **PII マスキング**: ログ・トレーシングを Application Insights に送る場合、`scenario-a-prompt-agent/tests/conftest.py` の `mask_pii()` を参考に追加実装する。
+4. **PII マスキング**: ログ・トレーシングを Application Insights に送る場合、出力本文に対する PII マスキングを実装してください (例: 電話番号・メール・社員番号の正規表現置換)。
 
 ## 関連シナリオ
 

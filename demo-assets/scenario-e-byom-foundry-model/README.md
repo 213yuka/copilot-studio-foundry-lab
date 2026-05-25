@@ -2,9 +2,8 @@
 
 > **位置付け**: Microsoft Copilot Studio エージェント本体は **そのまま温存**し、**プロンプト ノードで利用する LLM だけ** Microsoft Foundry のモデルカタログから差し替える、最小工数・最小リスクの連携パターン。
 > **状態**: ✅ **GA (2025-09-15 一般提供開始)** (Power Platform の "Azure AI Foundry" コネクタ経由)。Public Preview は 2025-05-15 開始。
-> **想定工数**: 0.5 人日 (Foundry リソース・モデルが既に存在する場合)
-> **公式ガイド (一次資料)**: <https://learn.microsoft.com/en-us/microsoft-copilot-studio/bring-your-own-model-prompts>
-> **Release Plan**: <https://learn.microsoft.com/en-us/power-platform/release-plan/2025wave1/ai-builder/use-own-generative-ai-model-azure-ai-foundry-prompt-builder>
+> **MS Learn 該当箇所 (ガイド (一次資料)**): [Prompts で独自モデル (BYOM) を使う](https://learn.microsoft.com/ja-jp/microsoft-copilot-studio/bring-your-own-model-prompts)
+> **Release Plan**: [Power Platform 2025 wave 1 release plan — BYOM in prompt builder](https://learn.microsoft.com/ja-jp/power-platform/release-plan/2025wave1/ai-builder/use-own-generative-ai-model-azure-ai-foundry-prompt-builder)
 
 シナリオ A〜D は **エージェント (agent)** レイヤーの選択肢でしたが、本シナリオ E は **モデル (model)** レイヤーの選択肢です。Microsoft Copilot Studio の Topic / Action / Knowledge 構造は何も変えず、**Prompt ツール (= Power Platform AI Builder Prompt)** が呼び出す LLM だけを Microsoft Foundry 側に切り替えます。
 
@@ -56,7 +55,7 @@
 
 ### 2.1 Microsoft Copilot Studio 側
 
-公式: <https://learn.microsoft.com/en-us/microsoft-copilot-studio/requirements-licensing-subscriptions>
+MS Learn 該当箇所: [Copilot Studio にアクセスする](https://learn.microsoft.com/ja-jp/microsoft-copilot-studio/requirements-licensing-subscriptions)
 
 | 項目 | 値 |
 |---|---|
@@ -77,7 +76,7 @@
 | エンドポイント | モデル デプロイ後の **deployment name** と **base model name** が必要 (両方とも portal の表記に **完全一致**で入力) |
 | RBAC | Foundry project に **Foundry User** ロール |
 
-公式モデルカタログ: <https://ai.azure.com/explore/models>
+Microsoft Foundry portal: [モデルカタログ (ai.azure.com)](https://ai.azure.com/explore/models)
 
 ### 2.3 Power Platform 管理側
 
@@ -93,7 +92,7 @@
 
 ## 3. Phase 1: Microsoft Foundry 側でモデルをデプロイ
 
-公式: <https://learn.microsoft.com/en-us/azure/ai-foundry/how-to/deploy-models-openai>
+MS Learn 該当箇所: [Azure OpenAI のモデルをデプロイする](https://learn.microsoft.com/ja-jp/azure/ai-foundry/how-to/deploy-models-openai)
 
 > ⚠️ **ポータル切替の重要な分岐 (必読)**:
 > 
@@ -125,7 +124,7 @@
 
 ### 3.1 (任意) ファインチューン モデルの場合
 
-公式: <https://learn.microsoft.com/en-us/azure/ai-foundry/how-to/fine-tune-managed-compute>
+MS Learn 該当箇所: [Managed compute でモデルを Fine-tune する](https://learn.microsoft.com/ja-jp/azure/ai-foundry/how-to/fine-tune-managed-compute)
 
 > ⚠️ **Fine-tuning は New Foundry portal では実行できません。Foundry (classic) portal に切り替えてから操作してください。**
 
@@ -139,7 +138,7 @@
 
 ## 4. Phase 2: Microsoft Copilot Studio で Prompt ツールを作成
 
-公式 (Prompt ツール全体): <https://learn.microsoft.com/en-us/microsoft-copilot-studio/prompts-overview>
+MS Learn 該当箇所 (Prompt ツール全体): [Prompts の概要](https://learn.microsoft.com/ja-jp/microsoft-copilot-studio/prompts-overview)
 
 ### 4.1 Prompt ツール (= Action) を新規追加
 
@@ -168,7 +167,7 @@
 
 ### 4.3 画像・ドキュメント入力を扱う場合
 
-公式: <https://learn.microsoft.com/en-us/microsoft-copilot-studio/bring-your-own-model-prompts>
+MS Learn 該当箇所: [Prompts で独自モデル (BYOM) を使う](https://learn.microsoft.com/ja-jp/microsoft-copilot-studio/bring-your-own-model-prompts)
 
 Prompt に **画像入力**を追加すると、ドロップダウンには **画像対応モデルのみ**が表示されます。
 
@@ -249,13 +248,13 @@ Generative orchestration が ON の場合、Prompt の **Description** をオー
 
 | 観点 | 内容 | 公式リファレンス |
 |---|---|---|
-| **対応モデル種別** | **chat completion** タイプのみ。embedding / text-to-image / speech 等は本機能では非対応 | <https://learn.microsoft.com/en-us/microsoft-copilot-studio/bring-your-own-model-prompts> |
+| **対応モデル種別** | **chat completion** タイプのみ。embedding / text-to-image / speech 等は本機能では非対応 | [Prompts で独自モデル (BYOM) を使う](https://learn.microsoft.com/ja-jp/microsoft-copilot-studio/bring-your-own-model-prompts) |
 | **画像生成** | DALL·E 3 等の text-to-image は UI から直接選べない (プラグイン / REST API 呼び出しで代替) | 同上 |
 | **deployment name / base model name** | Foundry portal の表記と **完全一致**必須 | 同上 |
-| **データ越境** | Microsoft Copilot Studio 環境のデータ (= プロンプト入力 + 履歴) が Foundry テナント / リージョンへ流れる。データ レジデンシー要件があるなら **同一リージョン構成**を必須化 | <https://learn.microsoft.com/en-us/azure/ai-foundry/concepts/encryption-keys-portal> |
-| **DLP** | Power Platform admin center で `Azure AI Foundry` コネクタが Blocked になっていると接続不可 | <https://learn.microsoft.com/en-us/power-platform/admin/wp-data-loss-prevention> |
-| **課金** | Microsoft Copilot Studio Message Capacity と Foundry モデル従量課金の **二重計上** が発生 | <https://learn.microsoft.com/en-us/microsoft-copilot-studio/requirements-messages> |
-| **Responsible AI** | Foundry モデル側の Content Filter / Guardrails は **Foundry 側責任**で別途設定する必要あり | <https://learn.microsoft.com/en-us/azure/ai-foundry/responsible-use-of-ai-overview> |
+| **データ越境** | Microsoft Copilot Studio 環境のデータ (= プロンプト入力 + 履歴) が Foundry テナント / リージョンへ流れる。データ レジデンシー要件があるなら **同一リージョン構成**を必須化 | [Microsoft Foundry portal の暗号化キー設定](https://learn.microsoft.com/ja-jp/azure/ai-foundry/concepts/encryption-keys-portal) |
+| **DLP** | Power Platform admin center で `Azure AI Foundry` コネクタが Blocked になっていると接続不可 | [Power Platform のデータ損失防止 (DLP) ポリシー](https://learn.microsoft.com/ja-jp/power-platform/admin/wp-data-loss-prevention) |
+| **課金** | Microsoft Copilot Studio Message Capacity と Foundry モデル従量課金の **二重計上** が発生 | [Microsoft Copilot Studio のメッセージ要件と課金](https://learn.microsoft.com/en-us/microsoft-copilot-studio/requirements-messages) |
+| **Responsible AI** | Foundry モデル側の Content Filter / Guardrails は **Foundry 側責任**で別途設定する必要あり | [Microsoft Foundry における責任ある AI の概要](https://learn.microsoft.com/ja-jp/azure/ai-foundry/responsible-use-of-ai-overview) |
 | **オーケストレーション** | Topic / Action の選択ロジック (Generative orchestration) は Microsoft Copilot Studio 側で従来通り。Foundry 側は呼ばれた瞬間に LLM 推論するだけで、ルーティング判断はしない | — |
 
 ---
@@ -264,15 +263,15 @@ Generative orchestration が ON の場合、Prompt の **Description** をオー
 
 | トピック | URL |
 |---|---|
-| Bring your own model (本機能の本家ドキュメント) | <https://learn.microsoft.com/en-us/microsoft-copilot-studio/bring-your-own-model-prompts> |
-| Prompts overview (Prompt ツール全般) | <https://learn.microsoft.com/en-us/microsoft-copilot-studio/prompts-overview> |
-| Power Platform Release Plan: BYOM in prompt builder | <https://learn.microsoft.com/en-us/power-platform/release-plan/2025wave1/ai-builder/use-own-generative-ai-model-azure-ai-foundry-prompt-builder> |
+| Bring your own model (本機能の本家ドキュメント) | [Prompts で独自モデル (BYOM) を使う](https://learn.microsoft.com/ja-jp/microsoft-copilot-studio/bring-your-own-model-prompts) |
+| Prompts overview (Prompt ツール全般) | [Prompts の概要](https://learn.microsoft.com/ja-jp/microsoft-copilot-studio/prompts-overview) |
+| Power Platform Release Plan: BYOM in prompt builder | [Power Platform 2025 wave 1 release plan — BYOM in prompt builder](https://learn.microsoft.com/ja-jp/power-platform/release-plan/2025wave1/ai-builder/use-own-generative-ai-model-azure-ai-foundry-prompt-builder) |
 | Azure AI Foundry Model catalog | <https://ai.azure.com/explore/models> |
-| Featured models (Meta / DeepSeek 等) | <https://learn.microsoft.com/en-us/azure/ai-foundry/concepts/models-featured> |
-| Foundry: Fine-tuning | <https://learn.microsoft.com/en-us/azure/ai-foundry/how-to/fine-tune-managed-compute> |
+| Featured models (Meta / DeepSeek 等) | [Microsoft Foundry の Featured models](https://learn.microsoft.com/ja-jp/azure/ai-foundry/concepts/models-featured) |
+| Foundry: Fine-tuning | [Managed compute でモデルを Fine-tune する](https://learn.microsoft.com/ja-jp/azure/ai-foundry/how-to/fine-tune-managed-compute) |
 | Power Platform admin center | <https://admin.powerplatform.microsoft.com> |
-| Power Platform DLP 概要 | <https://learn.microsoft.com/en-us/power-platform/admin/wp-data-loss-prevention> |
-| Responsible AI for Azure AI Foundry | <https://learn.microsoft.com/en-us/azure/ai-foundry/responsible-use-of-ai-overview> |
+| Power Platform DLP 概要 | [Power Platform のデータ損失防止 (DLP) ポリシー](https://learn.microsoft.com/ja-jp/power-platform/admin/wp-data-loss-prevention) |
+| Responsible AI for Azure AI Foundry | [Microsoft Foundry における責任ある AI の概要](https://learn.microsoft.com/ja-jp/azure/ai-foundry/responsible-use-of-ai-overview) |
 
 ---
 
@@ -288,13 +287,10 @@ Generative orchestration が ON の場合、Prompt の **Description** をオー
 
 ---
 
-## 11. 関連シナリオ G/H/I・補助ドキュメント
+## 11. 関連シナリオ H・補助ドキュメント
 
 | ドキュメント | 何が補強されるか |
 |---|---|
-| [`../scenario-g-foundry-to-m365/README.md`](../scenario-g-foundry-to-m365/README.md) | (本シナリオ E は Microsoft Copilot Studio 側で完結のため直接の関係性は弱いが) **モデル品質の検証後にエージェント全体を Microsoft 365 Copilot / Teams へ公開** したい場合の上位パス |
 | [`../scenario-h-apim-ai-gateway/README.md`](../scenario-h-apim-ai-gateway/README.md) | Microsoft Copilot Studio が呼ぶ **Foundry モデル endpoint を APIM 経由化** → 複数モデルの A/B テスト / PTU フォールバック / token metric 取得 |
-| [`../scenario-i-evaluation-redteam/README.md`](../scenario-i-evaluation-redteam/README.md) | BYOM モデル + Prompt の品質を **Built-in evaluator (Relevance / Coherence / Groundedness)** で継続評価。モデル変更時の回帰検証に必須 |
 | [`../../docs/governance.md`](../../docs/governance.md) | Power Platform 環境 Maker + Foundry Reader の RBAC 設計、Microsoft Copilot Studio DLP の Foundry connector 分類 |
 | [`../../docs/cost-finops.md`](../../docs/cost-finops.md) | BYOM の **Copilot Credits + Foundry 従量課金** の二重課金 + Copilot Credits 推定ツールの活用 |
-| [`../../docs/evaluation-playbook.md`](../../docs/evaluation-playbook.md) | BYOM Prompt 向け evaluator セット (Relevance / Coherence / Fluency + Safety 一式) と CI ゲート組込 |

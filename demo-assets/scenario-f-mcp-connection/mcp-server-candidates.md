@@ -6,19 +6,19 @@ Microsoft Copilot Studio に MCP server を接続する際の代表的な候補�
 
 | MCP server | 提供元 | 主な用途 | 認証 | 備考 |
 |---|---|---|---|---|
-| Microsoft Learn Docs MCP | Microsoft 公式 | Microsoft Learn のドキュメント検索 / 取得 | OAuth 2.0 (Dynamic Discovery) | デモ向け推奨。公式 lab: <https://aka.ms/mcsmcp/lab/blog> |
+| Microsoft Learn Docs MCP | Microsoft 公式 | Microsoft Learn のドキュメント検索 / 取得 | OAuth 2.0 (Dynamic Discovery) | デモ向け推奨。公式 lab: [Microsoft Copilot Studio MCP hands-on lab (Microsoft blog)](https://aka.ms/mcsmcp/lab/blog) |
 | Azure AI Search MCP (コミュニティ) | OSS / Power Platform connector ギャラリー | Azure AI Search の index 検索 / 管理 | API key / OAuth 2.0 | 社内 Knowledge を index 化していれば最短 |
 | GitHub MCP | GitHub | リポジトリ / Issue / PR 検索 | OAuth 2.0 (Manual) | GitHub App 連携 |
 | 各社 DB MCP (Postgres / MySQL / Cosmos DB 等) | OSS / 各ベンダ | DB クエリ実行 | API key / mTLS | 機密データの場合は ReadOnly ロール推奨 |
 
 ## 2. 自作 MCP server (Microsoft Foundry / Azure 上にホスト)
 
-| ホスト先 | 工数目安 | 認証推奨 | 備考 |
-|---|---|---|---|
-| Microsoft Foundry Hosted agent コンテナ (シナリオ C) | 1〜3 人日 | Entra ID (OAuth 2.0 Manual) | 既存 Hosted agent のサイドカー的に同梱可能 |
-| Azure Container Apps | 0.5〜1 人日 | Entra ID | スケール 0 対応・最低コスト |
-| Azure Functions (HTTP trigger) | 0.5〜1 人日 | Function key / Entra ID | コールドスタート許容なら最速 |
-| Azure App Service / AKS | 1〜3 人日 | Entra ID | 既存ホスティングがある場合 |
+| ホスト先 | 認証推奨 | 備考 |
+|---|---|---|
+| Microsoft Foundry Hosted agent コンテナ (シナリオ C) | Entra ID (OAuth 2.0 Manual) | 既存 Hosted agent のサイドカー的に同梱可能 |
+| Azure Container Apps | Entra ID | スケール 0 対応・最低コスト |
+| Azure Functions (HTTP trigger) | Function key / Entra ID | コールドスタート許容なら最速 |
+| Azure App Service / AKS | Entra ID | 既存ホスティングがある場合 |
 
 ## 3. `IT-Helpdesk-Sample` 向けの最小デモ構成
 

@@ -2,7 +2,7 @@
 
 > ⚠️ **作業中・検証中のドラフトです (確定版ではありません)。本番採用前に公式ドキュメントで最終確認してください。**
 
-> **目的**: シナリオ A〜I で共通する **ガバナンス (Governance) 観点** を一箇所に集約し、デモ・PoC・本番計画のすべての段階で参照できる "1 ファイル チェックリスト" を提供する。
+> **目的**: シナリオ A〜F + H で共通する **ガバナンス (Governance) 観点** を一箇所に集約し、デモ・PoC・本番計画のすべての段階で参照できる "1 ファイル チェックリスト" を提供する。
 >
 > **対象読者**: アーキテクト / セキュリティ レビュアー / コンプライアンス担当 / プラットフォーム エンジニア。
 >
@@ -65,9 +65,7 @@
 | **D (CS → Foundry)** | Foundry User + Microsoft Copilot Studio Maker 権限 (Power Platform 環境) |
 | **E (BYOM)** | Power Platform 環境 Maker + Foundry **Reader** (Foundry endpoint への接続のみ) |
 | **F (MCP)** | MCP server 側で個別設計 (OAuth 推奨) + Microsoft Copilot Studio Maker |
-| **G (Foundry → M365)** | Foundry Owner + Microsoft 365 管理者 (`People in your organization` 公開時) |
 | **H (APIM AI Gateway)** | APIM Contributor + Cognitive Services User (APIM → Foundry 呼出時) |
-| **I (Evaluation)** | Foundry Owner (Red Teaming Agent 作成) |
 
 ### 2.3 CLI コマンド (GUID 指定)
 
@@ -102,7 +100,7 @@ az role assignment create `
 | 観点 | 内容 |
 |---|---|
 | 状態 | Entra Agent Identity 本体は **GA** / Entra Agent Registry は **将来統合予定** (Preview ですらない) |
-| 影響範囲 | シナリオ B (Workflow Publish) / C (Hosted) / G (Foundry → M365) すべてで **手動再割当が必須** |
+| 影響範囲 | シナリオ B (Workflow Publish) / C (Hosted) いずれも **手動再割当が必須** |
 | 再割当対象 | Foundry account、子 agent、OpenAPI tool、Storage、Vector Store、関連 Cognitive Services |
 
 ### 3.2 OBO (On-Behalf-Of) フロー
@@ -159,7 +157,6 @@ az role assignment create `
 | **D (CS + Foundry)** | Foundry 側 = A と同じ / CS 側 = Generative answers moderation | 同左 | DLP / Content filter は二重に評価される |
 | **E (BYOM)** | Foundry モデル endpoint 側で Content Filter 必須 | 同左 | CS 側 Prompt の jailbreak 攻撃対策で重要 |
 | **F (MCP)** | MCP server 側で別途 input validation | LLM 出力は CS / Foundry 側で filter | XPIA は **MCP resource 経由が最重要** |
-| **G (Foundry → M365)** | Agent Application の入力 | Activity Protocol 出力 | Teams 公開のため Hate / Protected Material 厳格化 |
 | **H (APIM)** | APIM の `send-request` で Content Safety 集中強制 | 同左 | 全 LLM 呼出に一元適用可能 (推奨) |
 
 ---
@@ -223,9 +220,7 @@ az role assignment create `
 | **C (Hosted agent)** | Hosted agent 自体 Preview | SLA 対象外 |
 | **D (CS → Foundry 接続機能)** | 接続機能 Preview | SLA 対象外 |
 | **F (MCP)** | MCP 機能 GA。**MCP Prompts のみ未対応** | GA。Prompts 未対応に注意 |
-| **G (Foundry → M365)** | **Early Access Preview** | SLA 対象外 |
 | **H (APIM AI Gateway)** | コア機能 GA。Foundry portal からの自動連携 / MCP server expose は Preview | GA 部分は商用利用可 |
-| **I (Evaluation)** | Agent evaluator / Red Teaming Agent / Continuous monitoring は Preview | Built-in (GA) は商用利用可 |
 
 ### 7.1 Preview 機能の運用ガイドライン
 
@@ -262,25 +257,12 @@ az role assignment create `
 - [ ] BYOM (E) / MCP (F) のキー管理を Key Vault または APIM に集約
 - [ ] Copilot Credits 課金の予算アラートを設定
 
-### 8.4 シナリオ G (Foundry → M365)
-
-- [ ] Agent Application の Entra Object ID への RBAC 再割当を完了
-- [ ] Microsoft 365 管理者承認フロー (`People in your organization` 公開時) の事前合意
-- [ ] Activity Protocol / Responses Protocol の選択を確定 (1 Agent Application に 1 つのみ)
-
-### 8.5 シナリオ H (APIM)
+### 8.4 シナリオ H (APIM)
 
 - [ ] APIM SKU (Standard v2 以上) と policy 限界を確認
 - [ ] `<llm-token-limit>` の counter-key 設計 (テナント単位 / ユーザー単位)
 - [ ] Semantic cache の vary-by 設計 (キャッシュ汚染防止)
 - [ ] `<llm-emit-token-metric>` の dimensions を FinOps 要件に合わせる
-
-### 8.6 シナリオ I (Evaluation)
-
-- [ ] Playground 評価のデフォルト ON / 課金を把握
-- [ ] Judge model を評価対象モデルと別に設定
-- [ ] Safety evaluator の Content Safety 課金を予算に組込
-- [ ] AI Red Teaming Agent の scan 結果を Issue tracker と連携
 
 ---
 
@@ -289,8 +271,5 @@ az role assignment create `
 | ドキュメント | 内容 |
 |---|---|
 | [`./cost-finops.md`](./cost-finops.md) | 横断コスト管理 (Foundry token / Copilot Credits / APIM token metric) |
-| [`./evaluation-playbook.md`](./evaluation-playbook.md) | Evaluator の推奨組合せ / Red Teaming / CI/CD ゲート |
-| [`../demo-assets/README.md`](../demo-assets/README.md) | シナリオ A〜F の比較表 + 共通 Responsible AI / DLP 観点 |
-| [`../demo-assets/scenario-g-foundry-to-m365/README.md`](../demo-assets/scenario-g-foundry-to-m365/README.md) | シナリオ G (Agent Application + Entra Agent Identity) |
+| [`../demo-assets/README.md`](../demo-assets/README.md) | シナリオ A〜F + H の比較表 + 共通 Responsible AI / DLP 観点 |
 | [`../demo-assets/scenario-h-apim-ai-gateway/README.md`](../demo-assets/scenario-h-apim-ai-gateway/README.md) | シナリオ H (APIM ポリシーによる集中ガバナンス) |
-| [`../demo-assets/scenario-i-evaluation-redteam/README.md`](../demo-assets/scenario-i-evaluation-redteam/README.md) | シナリオ I (Evaluation + Red Teaming) |

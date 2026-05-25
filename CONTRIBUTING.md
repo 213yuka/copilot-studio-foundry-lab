@@ -1,6 +1,6 @@
 # Contributing
 
-このリポジトリへの貢献を歓迎します。Microsoft Copilot Studio と Microsoft Foundry の連携パターン (シナリオ A〜F + 提案中の G/H/I) を、商談・社内デモ・PoC で再利用できる「動くリファレンス実装」として継続的に改善することを目的としています。
+このリポジトリへの貢献を歓迎します。Microsoft Copilot Studio と Microsoft Foundry の連携パターン (シナリオ A〜F + H) を、商談・社内デモ・PoC で再利用できる「動くリファレンス実装」として継続的に改善することを目的としています。
 
 ## 行動規範
 

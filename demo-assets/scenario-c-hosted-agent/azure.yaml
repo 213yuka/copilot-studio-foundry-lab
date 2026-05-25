@@ -1,5 +1,5 @@
 # Azure Developer CLI (azd) サービス定義
-# 公式: https://learn.microsoft.com/en-us/azure/ai-foundry/agents/quickstarts/quickstart-hosted-agent
+# MS Learn 該当箇所: Foundry Hosted agent のクイックスタート — https://learn.microsoft.com/en-us/azure/ai-foundry/agents/quickstarts/quickstart-hosted-agent
 #
 # 使い方:
 #   azd init    # 初回のみ

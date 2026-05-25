@@ -1,6 +1,6 @@
 # シナリオ F 用: Microsoft Copilot Studio MCP onboarding wizard 入力チェックリスト
 
-公式ドキュメント (<https://learn.microsoft.com/en-us/microsoft-copilot-studio/mcp-add-existing-server-to-agent>) に基づく、MCP server 接続時の段階別チェックリストです。
+MS Learn 該当箇所: [既存の MCP server をエージェントに追加する](https://learn.microsoft.com/ja-jp/microsoft-copilot-studio/mcp-add-existing-server-to-agent) に基づく、MCP server 接続時の段階別チェックリストです。
 
 ## A. 接続前 (MCP server 側)
 

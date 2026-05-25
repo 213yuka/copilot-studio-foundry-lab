@@ -2,7 +2,7 @@
 
 > ⚠️ **作業中・検証中のドラフトです (確定版ではありません)。本番採用前に公式ドキュメントで最終確認してください。**
 
-> **目的**: シナリオ A〜I で発生する **AI 関連コストを 1 ファイルで俯瞰** し、見積・予算アラート・最適化アクションをまとめる。
+> **目的**: シナリオ A〜F + H で発生する **AI 関連コストを 1 ファイルで俯瞰** し、見積・予算アラート・最適化アクションをまとめる。
 >
 > **対象読者**: アーキテクト / 営業エンジニア / FinOps 担当 / プロジェクト マネージャー。
 >
@@ -66,7 +66,7 @@
 | モデル | input ($/1M) | output ($/1M) | 用途 |
 |---|---|---|---|
 | `gpt-4.1-mini` | ~$0.40 | ~$1.60 | デフォルトの低コスト オプション。シナリオ A の推奨 |
-| `gpt-4.1` | ~$2.00 | ~$8.00 | 中堅。Judge model (シナリオ I) に推奨 |
+| `gpt-4.1` | ~$2.00 | ~$8.00 | 中堅。Judge model (評価用) に推奨 |
 | `gpt-5-mini` | ~$1.25 | ~$5.00 | **要事前登録** (`https://aka.ms/openai/gpt-5/2025-08-07`)。シナリオ A のサンプル実行で利用 |
 | `gpt-5` | ~$10.00 | ~$30.00 | 要事前登録 |
 | `gpt-4o` | ~$2.50 | ~$10.00 | マルチモーダル必要時 |
@@ -141,9 +141,7 @@
 | **D (CS + Foundry, 1,000 委譲/月)** | **$50〜80** | CS Credits 5,000 ≒ $50 + Foundry token (A と同等) |
 | **E (BYOM)** | **$30〜50** | CS Credits (Generative answer) + Foundry モデル token |
 | **F (MCP, 既製 server)** | **$20〜40** | CS Credits (Agent action) + MCP server ホスト (Container Apps ~$10/月) |
-| **G (Foundry → M365)** | **$30〜50** | Foundry token + Azure Bot Service (Standard チャネル無料) |
 | **H (APIM AI Gateway, Standard v2)** | **+$700/月** (固定) | APIM Standard v2 ~$700 + ポリシー実行リクエスト課金 |
-| **I (Evaluation, 月次 100 件評価)** | **+$10〜30/月** | Judge model (gpt-4.1) token + Content Safety (Safety evaluator) |
 
 > ⚠️ 上記は **PoC ベースの参考値**。本番では DAU・1 ユーザー質問数・モデル選択・キャッシュ率 (シナリオ H で 30〜70% 削減効果あり) によって 2〜10 倍の振れ幅があります。
 
@@ -159,7 +157,7 @@
 |---|---|---|
 | `Tenant` | テナント ID (header から取得) | テナント別月次按分 |
 | `Model` | デプロイ名 | モデル別予算管理 |
-| `Workload` | シナリオ A〜I の識別子 | シナリオ別レポート |
+| `Workload` | シナリオ A〜F + H の識別子 | シナリオ別レポート |
 | `Environment` | dev / staging / prod | 環境別コスト管理 |
 | `User` | (匿名化された) ユーザー ID | 異常利用検出 (任意) |
 
@@ -239,7 +237,6 @@ configure_azure_monitor(
 | **`store=false` 運用** | Responses API の履歴保持を停止 | リテンション ストレージ削減 |
 | **Vector Store クリーンアップ** | 古い vector store の自動削除スクリプト | $0.10/GB/日 × 不要分を削減 |
 | **PTU 検討** | 月次 token 消費が一定以上 (~$10K/月) なら PTU 切替検討 | PayGo の 1/2 〜 1/3 |
-| **Continuous evaluation サンプリング** | シナリオ I の本番監視サンプリング率を 10% → 1% に | 10x 削減 |
 | **DLP で外部 connector 制限** | Microsoft Copilot Studio の非業務 connector ブロック | 想定外利用の抑止 |
 
 ---
@@ -263,9 +260,7 @@ configure_azure_monitor(
 | **D (CS → Foundry)** | Copilot Studio Standalone + Foundry resource | CS Maker + Foundry agent 呼出 |
 | **E (BYOM)** | Copilot Studio Standalone (Generative answers 利用) + Foundry resource | BYOM 機能利用 |
 | **F (MCP)** | Copilot Studio Standalone + MCP server ホスト | MCP tool 接続 |
-| **G (Foundry → M365)** | Microsoft 365 Copilot (テナント) + Foundry resource | M365 Copilot 公開先 |
 | **H (APIM)** | 上記 + APIM Standard v2 以上 | 集中ゲートウェイ |
-| **I (Evaluation)** | 上記 + Application Insights | Continuous monitoring |
 
 ---
 
@@ -274,7 +269,6 @@ configure_azure_monitor(
 | ドキュメント | 内容 |
 |---|---|
 | [`./governance.md`](./governance.md) | DLP / RBAC / Content Safety / Preview terms (Preview ステータスの取扱い等) |
-| [`./evaluation-playbook.md`](./evaluation-playbook.md) | Evaluation 実施時の judge model / Content Safety 課金詳細 |
 | [`../demo-assets/scenario-h-apim-ai-gateway/README.md`](../demo-assets/scenario-h-apim-ai-gateway/README.md) | シナリオ H (`<llm-emit-token-metric>` の実装詳細) |
 | Copilot Credits 推定ツール | <https://microsoft.github.io/copilot-studio-estimator/> |
 | Foundry 価格表 | <https://azure.microsoft.com/pricing/details/ai-foundry/> |

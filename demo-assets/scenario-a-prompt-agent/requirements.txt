@@ -2,8 +2,4 @@ azure-ai-projects>=2.0.0,<3.0.0
 azure-identity>=1.17.0,<2.0.0
 openai>=1.82.0,<2.0.0
 pyyaml>=6.0,<7.0
-# テスト依存 (pytest)
-pytest>=8.0,<9.0
-pytest-timeout>=2.3,<3.0
-# 注意: Python 3.9 以降が必要 (typing.Annotated 等)
-
+# 注意: Python 3.9 以降が必要

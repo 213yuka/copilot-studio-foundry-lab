@@ -2,8 +2,7 @@
 
 > **位置付け**: 既存 Microsoft Copilot Studio エージェントを **そのまま温存**し、Microsoft Foundry agent を **司令塔 (Microsoft Copilot Studio) から呼ばれる外部エージェント**として接続するパターン
 > **状態**: ⚠️ **Public Preview** (接続機能側、SLA 対象外)
-> **想定工数**: 0.5 人日〜 (Microsoft Foundry 側 agent が既に存在する前提)
-> **公式ガイド (一次資料)**: <https://learn.microsoft.com/en-us/microsoft-copilot-studio/add-agent-foundry-agent>
+> **MS Learn 該当箇所 (ガイド (一次資料)**): [Microsoft Foundry agent を Copilot Studio のエージェントとして追加する](https://learn.microsoft.com/ja-jp/microsoft-copilot-studio/add-agent-foundry-agent)
 
 Microsoft Copilot Studio 側を完全に残したまま、特定 Topic (例: 「高度な調査」) を Microsoft Foundry agent (シナリオ A / B / C のいずれか) に **委譲** する構成。お客様の M365 / Teams / Power Platform 投資を維持しつつ、Microsoft Foundry の最新モデル / Deep Research / カスタム コードのメリットを活用できます。
 
@@ -62,7 +61,7 @@ Copilot Studio 側のオーケストレーター (Generative orchestration) が�
 
 ### 2.1 Copilot Studio 側
 
-公式: <https://learn.microsoft.com/en-us/microsoft-copilot-studio/requirements-licensing>
+MS Learn 該当箇所: [Microsoft Copilot Studio のライセンス要件](https://learn.microsoft.com/ja-jp/microsoft-copilot-studio/requirements-licensing)
 
 | 項目 | 値 |
 |---|---|
@@ -75,7 +74,7 @@ Copilot Studio 側のオーケストレーター (Generative orchestration) が�
 
 ### 2.2 Foundry 側
 
-公式: <https://learn.microsoft.com/en-us/microsoft-copilot-studio/add-agent-foundry-agent>
+MS Learn 該当箇所: [Microsoft Foundry agent を Copilot Studio のエージェントとして追加する](https://learn.microsoft.com/ja-jp/microsoft-copilot-studio/add-agent-foundry-agent)
 
 | 項目 | 値 |
 |---|---|
@@ -95,11 +94,11 @@ Copilot Studio 側のオーケストレーター (Generative orchestration) が�
 
 3 つの選択肢があります。デモ目的なら **シナリオ A (Prompt agent)** が最速です。
 
-| 接続先候補 | 手順 README | 工数 | 状態 |
-|---|---|---|---|
-| **Prompt agent** | [`..\scenario-a-prompt-agent\README.md`](../scenario-a-prompt-agent/README.md) | 0.5〜1 人日 | GA |
-| Workflow agent | [`..\scenario-b-workflow-agent\README.md`](../scenario-b-workflow-agent/README.md) | 1〜3 人日 | Preview |
-| Hosted agent | [`..\scenario-c-hosted-agent\README.md`](../scenario-c-hosted-agent/README.md) | 3〜10 人日 | Preview |
+| 接続先候補 | 手順 README | 状態 |
+|---|---|---|
+| **Prompt agent** | [`..\scenario-a-prompt-agent\README.md`](../scenario-a-prompt-agent/README.md) | GA |
+| Workflow agent | [`..\scenario-b-workflow-agent\README.md`](../scenario-b-workflow-agent/README.md) | Preview |
+| Hosted agent | [`..\scenario-c-hosted-agent\README.md`](../scenario-c-hosted-agent/README.md) | Preview |
 
 完了後、以下 2 つの値を控えておきます (Phase 3 で必要):
 
@@ -115,7 +114,7 @@ Copilot Studio 側のオーケストレーター (Generative orchestration) が�
 
 ## 4. Phase 2: Copilot Studio 側のオーケストレーション設計
 
-公式 (Generative orchestration): <https://learn.microsoft.com/en-us/microsoft-copilot-studio/advanced-generative-actions>
+MS Learn 該当箇所 (Generative orchestration): [生成オーケストレーションを使う](https://learn.microsoft.com/ja-jp/microsoft-copilot-studio/advanced-generative-actions)
 
 ### 4.1 Generative orchestration の動作
 
@@ -132,7 +131,7 @@ Copilot Studio の Generative orchestration がオンの場合、ユーザー入
 
 ### 4.2 Description の書き方 (= 呼ばれる/呼ばれないが決まる)
 
-公式 Best practices: <https://learn.microsoft.com/en-us/microsoft-copilot-studio/advanced-generative-actions#best-practices>
+MS Learn 該当箇所 (Best practices): [生成オーケストレーションを使う — ベスト プラクティス](https://learn.microsoft.com/ja-jp/microsoft-copilot-studio/advanced-generative-actions#best-practices)
 
 | ルール | 例 |
 |---|---|
@@ -166,7 +165,7 @@ Copilot Studio の Generative orchestration がオンの場合、ユーザー入
 
 ## 5. Phase 3: Copilot Studio に Foundry agent を接続
 
-公式手順 (verbatim): <https://learn.microsoft.com/en-us/microsoft-copilot-studio/add-agent-foundry-agent>
+MS Learn 該当箇所 (手順 (verbatim)): [Microsoft Foundry agent を Copilot Studio のエージェントとして追加する](https://learn.microsoft.com/ja-jp/microsoft-copilot-studio/add-agent-foundry-agent)
 
 公式の 8 ステップを順に実行します。
 
@@ -217,7 +216,7 @@ Copilot Studio の Generative orchestration がオンの場合、ユーザー入
 
 ### 6.2 明示的に Topic から呼出 (任意)
 
-公式: <https://learn.microsoft.com/en-us/microsoft-copilot-studio/authoring-add-other-agents>
+MS Learn 該当箇所: [他のエージェントを追加する](https://learn.microsoft.com/ja-jp/microsoft-copilot-studio/authoring-add-other-agents)
 
 Generative orchestration の自動ルーティングではなく、特定 Topic から **明示的に Foundry agent を呼ぶ** ことも可能 (公式引用):
 
@@ -241,8 +240,8 @@ Copilot Studio 側を **Publish** すれば、Foundry 接続もそのまま公�
 
 ## 7. 認証・データ フロー
 
-公式: <https://learn.microsoft.com/en-us/microsoft-copilot-studio/add-agent-foundry-agent>
-公式 (Foundry overview): <https://learn.microsoft.com/en-us/azure/ai-foundry/agents/overview>
+MS Learn 該当箇所: [Microsoft Foundry agent を Copilot Studio のエージェントとして追加する](https://learn.microsoft.com/ja-jp/microsoft-copilot-studio/add-agent-foundry-agent)
+MS Learn 該当箇所 (Foundry overview): [Microsoft Foundry Agent Service の概要](https://learn.microsoft.com/ja-jp/azure/ai-foundry/agents/overview)
 
 ### 7.1 認証フロー
 
@@ -270,7 +269,7 @@ Copilot Studio 側を **Publish** すれば、Foundry 接続もそのまま公�
 
 ## 8. 課金モデル
 
-公式: <https://learn.microsoft.com/en-us/microsoft-copilot-studio/requirements-messages-management>
+MS Learn 該当箇所: [Copilot Studio のメッセージ管理](https://learn.microsoft.com/ja-jp/microsoft-copilot-studio/requirements-messages-management)
 
 > 公式引用: 「These rates apply to all language models that Copilot Studio provides. They **exclude bring-your-own-model configurations, including Azure Foundry models, which are billed separately**.」
 
@@ -302,7 +301,6 @@ Copilot Studio 側を **Publish** すれば、Foundry 接続もそのまま公�
 | **Citations 欠落** | 公式 (`authoring-add-other-agents`) verbatim: _"Citations from connected agents may not be displayed in the parent agent's response."_ — Foundry 側の File Search 引用が Copilot Studio 側のチャネルで脱落することがある。プレーン テキストで根拠 URL を返す Instructions を併用すること |
 | **Use general knowledge 継承** | 公式 (`authoring-add-other-agents`) verbatim: _"The 'Use general knowledge' setting on the parent agent is inherited by connected agents."_ — 親側で「一般知識を使用」を OFF にすると、接続済み Foundry agent もブロックされる。Foundry 側で個別 ON にできない |
 | 将来の置き換え | Copilot Studio 完全置き換えする際は、シナリオ A / B / C に切り替え可能 (Copilot Studio Topic を削除して Foundry agent を直接公開) |
-| 逆方向公開 (Foundry → M365) | **Early Access Preview** で対応。詳細は [`reverse-publish-foundry-to-m365.md`](./reverse-publish-foundry-to-m365.md) (シナリオ G として独立して整理) |
 
 ---
 
@@ -330,7 +328,6 @@ Copilot Studio のみ    →    Copilot Studio が司令塔         Copilot Stud
 | `README.md` | 本ファイル |
 | `cs-connection-notes.md` | Copilot Studio 接続時に必要な Foundry 側情報を控えるテンプレ |
 | `topic-route-to-foundry.md` | Copilot Studio の Trigger Phrase / Description / **サブエージェント Instructions** 設計サンプル |
-| `reverse-publish-foundry-to-m365.md` | Foundry → M365 Copilot / Teams 逆方向公開の **初期検討メモ** (Early Access Preview)。独立シナリオとして整理した正式版は [`../scenario-g-foundry-to-m365/README.md`](../scenario-g-foundry-to-m365/README.md) を参照 |
 
 > ℹ️ Foundry agent 本体 (A / B / C) は `..\scenario-a-prompt-agent\` 等のものを流用してください。本フォルダは **接続レイヤ・運用設計**のみを扱います。
 
@@ -340,26 +337,23 @@ Copilot Studio のみ    →    Copilot Studio が司令塔         Copilot Stud
 
 | トピック | URL |
 |---|---|
-| **Connect to a Microsoft Foundry agent (一次資料)** | <https://learn.microsoft.com/en-us/microsoft-copilot-studio/add-agent-foundry-agent> |
-| 外部 agent 接続 全般 (Foundry / Fabric / SDK) | <https://learn.microsoft.com/en-us/microsoft-copilot-studio/authoring-add-other-agents> |
-| Generative orchestration / Best practices | <https://learn.microsoft.com/en-us/microsoft-copilot-studio/advanced-generative-actions> |
-| Copilot Studio ライセンス | <https://learn.microsoft.com/en-us/microsoft-copilot-studio/requirements-licensing> |
-| メッセージ課金 | <https://learn.microsoft.com/en-us/microsoft-copilot-studio/requirements-messages-management> |
-| Foundry Agent Service 概要 | <https://learn.microsoft.com/en-us/azure/ai-foundry/agents/overview> |
-| Foundry project endpoint 取得 | <https://learn.microsoft.com/en-us/azure/ai-foundry/agents/quickstart?pivots=ai-foundry-portal> |
-| Foundry RBAC | <https://learn.microsoft.com/en-us/azure/ai-foundry/concepts/rbac-foundry> |
-| Foundry agent FAQ | <https://learn.microsoft.com/en-us/azure/ai-foundry/agents/faq> |
+| **Connect to a Microsoft Foundry agent (一次資料)** | [Microsoft Foundry agent を Copilot Studio のエージェントとして追加する](https://learn.microsoft.com/ja-jp/microsoft-copilot-studio/add-agent-foundry-agent) |
+| 外部 agent 接続 全般 (Foundry / Fabric / SDK) | [他のエージェントを追加する](https://learn.microsoft.com/ja-jp/microsoft-copilot-studio/authoring-add-other-agents) |
+| Generative orchestration / Best practices | [生成オーケストレーションを使う](https://learn.microsoft.com/ja-jp/microsoft-copilot-studio/advanced-generative-actions) |
+| Copilot Studio ライセンス | [Microsoft Copilot Studio のライセンス要件](https://learn.microsoft.com/ja-jp/microsoft-copilot-studio/requirements-licensing) |
+| メッセージ課金 | [Copilot Studio のメッセージ管理](https://learn.microsoft.com/ja-jp/microsoft-copilot-studio/requirements-messages-management) |
+| Foundry Agent Service 概要 | [Microsoft Foundry Agent Service の概要](https://learn.microsoft.com/ja-jp/azure/ai-foundry/agents/overview) |
+| Foundry project endpoint 取得 | [Foundry Agent Service のクイックスタート (portal)](https://learn.microsoft.com/ja-jp/azure/ai-foundry/agents/quickstart?pivots=ai-foundry-portal) |
+| Foundry RBAC | [Microsoft Foundry の RBAC](https://learn.microsoft.com/ja-jp/azure/ai-foundry/concepts/rbac-foundry) |
+| Foundry agent FAQ | [Foundry Agent Service の FAQ](https://learn.microsoft.com/ja-jp/azure/ai-foundry/agents/faq) |
 | Preview 利用規約 | <https://azure.microsoft.com/support/legal/preview-supplemental-terms/> |
 
 ---
 
-## 13. 関連シナリオ G/H/I・補助ドキュメント
+## 13. 関連シナリオ H・補助ドキュメント
 
 | ドキュメント | 何が補強されるか |
 |---|---|
-| [`../scenario-g-foundry-to-m365/README.md`](../scenario-g-foundry-to-m365/README.md) | 本シナリオ D の **逆方向**。Microsoft Copilot Studio を経由せず Microsoft Foundry agent を直接 Microsoft 365 Copilot / Microsoft Teams へ公開 (Early Access Preview)。本フォルダの `reverse-publish-foundry-to-m365.md` の正式版 |
 | [`../scenario-h-apim-ai-gateway/README.md`](../scenario-h-apim-ai-gateway/README.md) | Microsoft Copilot Studio → Foundry agent の通信を **APIM 経由化** し、DLP の補強 + テナント単位 token quota + Content Safety 集中強制を実現 |
-| [`../scenario-i-evaluation-redteam/README.md`](../scenario-i-evaluation-redteam/README.md) | Foundry agent 側 (A〜C いずれか) を Built-in evaluator で品質ゲート化。Microsoft Copilot Studio 側は Generative answers moderation が担当する切り分けを `governance.md` で整理 |
 | [`../../docs/governance.md`](../../docs/governance.md) | Microsoft Copilot Studio DLP + Microsoft Foundry RBAC の二重設計、Entra Agent Identity OBO フロー |
 | [`../../docs/cost-finops.md`](../../docs/cost-finops.md) | Copilot Credits 5 / Agent action + Foundry token の **二重課金** の月額試算 + 削減アクション |
-| [`../../docs/evaluation-playbook.md`](../../docs/evaluation-playbook.md) | シナリオ D 経由で Foundry agent を評価する場合の data set 設計 |

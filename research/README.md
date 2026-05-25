@@ -25,6 +25,6 @@
 
 ## 報告 / 議論
 
-公式ドキュメントとレポートの差分、または新規シナリオ案 (現状の 9 シナリオ A〜I を超える提案) は、Issue を立ててから PR を送付してください。詳細は [`../CONTRIBUTING.md`](../CONTRIBUTING.md) を参照。
+公式ドキュメントとレポートの差分、または新規シナリオ案 (現状の 7 シナリオ A〜F + H を超える提案) は、Issue を立ててから PR を送付してください。詳細は [`../CONTRIBUTING.md`](../CONTRIBUTING.md) を参照。
 
-> ℹ️ かつて "新規シナリオ候補" として提案されていた **G (Foundry → M365 逆方向公開) / H (APIM AI Gateway) / I (Foundry Evaluation + AI Red Teaming)** は、`demo-assets/scenario-g-foundry-to-m365/`, `demo-assets/scenario-h-apim-ai-gateway/`, `demo-assets/scenario-i-evaluation-redteam/` として **正式に独立シナリオ化済み**です (+ 横断補助ドキュメント `../docs/governance.md` / `../docs/cost-finops.md` / `../docs/evaluation-playbook.md`)。
+> ℹ️ かつて "新規シナリオ候補" として提案されていた **H (APIM AI Gateway)** は、`demo-assets/scenario-h-apim-ai-gateway/` として **正式に独立シナリオ化済み**です (+ 横断補助ドキュメント `../docs/governance.md` / `../docs/cost-finops.md`)。

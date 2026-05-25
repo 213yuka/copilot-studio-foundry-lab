@@ -2,11 +2,10 @@
 
 > **位置付け**: Microsoft Copilot Studio エージェントに **MCP server を tool として接続**し、Microsoft Foundry agent や任意の外部システムを **標準プロトコル (MCP)** 経由で呼び出す連携パターン。
 > **状態**: ✅ **GA (一般提供開始済み)** (Microsoft Copilot Studio の MCP 接続機能)
-> **想定工数**: 0.5 人日 (既存 MCP server を繋ぐ場合) 〜 3 人日 (MCP server を自作する場合)
 > **公式ガイド (一次資料)**:
->  - <https://learn.microsoft.com/en-us/microsoft-copilot-studio/agent-extend-action-mcp>
->  - <https://learn.microsoft.com/en-us/microsoft-copilot-studio/mcp-add-existing-server-to-agent>
->  - <https://learn.microsoft.com/en-us/microsoft-copilot-studio/mcp-add-components-to-agent>
+>  - [MCP でアクションを拡張する](https://learn.microsoft.com/ja-jp/microsoft-copilot-studio/agent-extend-action-mcp)
+>  - [既存の MCP server をエージェントに追加する](https://learn.microsoft.com/ja-jp/microsoft-copilot-studio/mcp-add-existing-server-to-agent)
+>  - [MCP のコンポーネントをエージェントに追加する](https://learn.microsoft.com/ja-jp/microsoft-copilot-studio/mcp-add-components-to-agent)
 
 シナリオ D が **エージェント単位 (agent-to-agent)** の委譲、E が **モデル単位 (BYOM)** の差し替えだったのに対し、本シナリオ F は **ツール単位 (tool-level)** の汎用接続です。MCP は Anthropic 発のオープン プロトコルで、Microsoft Copilot Studio・Microsoft Foundry・任意の OSS / SaaS が同じ規格で相互接続できます。
 
@@ -58,7 +57,7 @@
 
 ### 2.1 Microsoft Copilot Studio 側
 
-公式: <https://learn.microsoft.com/en-us/microsoft-copilot-studio/agent-extend-action-mcp>
+MS Learn 該当箇所: [MCP でアクションを拡張する](https://learn.microsoft.com/ja-jp/microsoft-copilot-studio/agent-extend-action-mcp)
 
 | 項目 | 値 |
 |---|---|
@@ -83,7 +82,7 @@
 
 ### 2.3 認証要件 (公式 verbatim)
 
-公式: <https://learn.microsoft.com/en-us/microsoft-copilot-studio/mcp-add-existing-server-to-agent>
+MS Learn 該当箇所: [既存の MCP server をエージェントに追加する](https://learn.microsoft.com/ja-jp/microsoft-copilot-studio/mcp-add-existing-server-to-agent)
 
 | 認証タイプ | 用途 |
 |---|---|
@@ -108,7 +107,7 @@
 | Server URL | (Microsoft 公開のエンドポイントを利用) |
 | 認証 | OAuth 2.0 (Dynamic Discovery) または None (公開検索のみ) |
 | 提供 tool | Microsoft Learn 検索 / ドキュメント取得 |
-| 公式 Lab | <https://aka.ms/mcsmcp/lab/blog> |
+| 公式 Lab | [Microsoft Copilot Studio MCP hands-on lab (Microsoft blog)](https://aka.ms/mcsmcp/lab/blog) |
 
 ### 3.2 パターン B: Microsoft Foundry の Hosted agent を MCP server 化する
 
@@ -152,7 +151,7 @@ if __name__ == "__main__":
 
 ### 3.3 パターン C: 任意の MCP server を自作
 
-公式: <https://learn.microsoft.com/en-us/microsoft-copilot-studio/mcp-create-new-server>
+MS Learn 該当箇所: [新しい MCP server を作成する](https://learn.microsoft.com/ja-jp/microsoft-copilot-studio/mcp-create-new-server)
 
 - Python (FastMCP) / TypeScript (`@modelcontextprotocol/sdk`) / .NET / Go 等の MCP SDK を利用
 - Streamable HTTP transport 必須 (SSE は非サポート)
@@ -171,7 +170,7 @@ if __name__ == "__main__":
 
 ## 4. Phase 2: Microsoft Copilot Studio に MCP server を接続
 
-公式 (verbatim): <https://learn.microsoft.com/en-us/microsoft-copilot-studio/mcp-add-existing-server-to-agent>
+MS Learn 該当箇所 (verbatim): [既存の MCP server をエージェントに追加する](https://learn.microsoft.com/ja-jp/microsoft-copilot-studio/mcp-add-existing-server-to-agent)
 
 ### 4.1 MCP onboarding wizard で接続 (推奨)
 
@@ -196,7 +195,7 @@ if __name__ == "__main__":
 
 ### 4.2 既存のプリビルト MCP コネクタを使う
 
-公式: <https://learn.microsoft.com/en-us/microsoft-copilot-studio/mcp-add-components-to-agent>
+MS Learn 該当箇所: [MCP のコンポーネントをエージェントに追加する](https://learn.microsoft.com/ja-jp/microsoft-copilot-studio/mcp-add-components-to-agent)
 
 1. **Tools** タブ → **+ Add a tool**
 2. **Model Context Protocol** を選択 → 利用可能な MCP コネクタ一覧から選択
@@ -253,30 +252,30 @@ OpenAPI 仕様 YAML を持っている場合は、Power Apps でカスタム コ
 
 | 観点 | 内容 | 公式リファレンス |
 |---|---|---|
-| **Transport 制限** | Streamable HTTP のみ。SSE は **2025-08 以降サポート終了** | <https://learn.microsoft.com/en-us/microsoft-copilot-studio/mcp-add-existing-server-to-agent> |
-| **Generative orchestration 必須** | MCP tool は orchestration が選ぶ。Classic (Trigger phrase) のみのエージェントでは MCP tool が呼ばれない | <https://learn.microsoft.com/en-us/microsoft-copilot-studio/agent-extend-action-mcp> |
-| **Resource の前提条件** | Microsoft Copilot Studio agent が MCP resource を使うには、MCP server 側で resource を tool の output として公開する必要がある | <https://learn.microsoft.com/en-us/microsoft-copilot-studio/mcp-add-components-to-agent> |
-| **DLP** | MCP server への接続は Power Platform コネクタ経由。`Custom connector` 系の DLP ポリシーが適用される | <https://learn.microsoft.com/en-us/microsoft-copilot-studio/admin-data-loss-prevention> |
+| **Transport 制限** | Streamable HTTP のみ。SSE は **2025-08 以降サポート終了** | [既存の MCP server をエージェントに追加する](https://learn.microsoft.com/ja-jp/microsoft-copilot-studio/mcp-add-existing-server-to-agent) |
+| **Generative orchestration 必須** | MCP tool は orchestration が選ぶ。Classic (Trigger phrase) のみのエージェントでは MCP tool が呼ばれない | [MCP でアクションを拡張する](https://learn.microsoft.com/ja-jp/microsoft-copilot-studio/agent-extend-action-mcp) |
+| **Resource の前提条件** | Microsoft Copilot Studio agent が MCP resource を使うには、MCP server 側で resource を tool の output として公開する必要がある | [MCP のコンポーネントをエージェントに追加する](https://learn.microsoft.com/ja-jp/microsoft-copilot-studio/mcp-add-components-to-agent) |
+| **DLP** | MCP server への接続は Power Platform コネクタ経由。`Custom connector` 系の DLP ポリシーが適用される | [データ損失防止 (DLP) ポリシー (Power Platform)](https://learn.microsoft.com/ja-jp/microsoft-copilot-studio/admin-data-loss-prevention) |
 | **データ越境** | tool 呼出時のパラメータ (= ユーザー入力) が MCP server ホスト先に流れる。MCP server を Azure 外に置くなら明示同意・契約整備が必要 | — |
-| **MCP server 側の責任** | 公式注記 (verbatim): 「When you connect to a non-Microsoft product, including an external MCP server, you're responsible for the tools and resources you access from within Copilot Studio.」 | <https://learn.microsoft.com/en-us/microsoft-copilot-studio/agent-extend-action-mcp> |
-| **トラブルシューティング** | 公式に専用ページあり | <https://learn.microsoft.com/en-us/microsoft-copilot-studio/mcp-troubleshooting> |
+| **MCP server 側の責任** | 公式注記 (verbatim): 「When you connect to a non-Microsoft product, including an external MCP server, you're responsible for the tools and resources you access from within Copilot Studio.」 | [MCP でアクションを拡張する](https://learn.microsoft.com/ja-jp/microsoft-copilot-studio/agent-extend-action-mcp) |
+| **トラブルシューティング** | 公式に専用ページあり | [Copilot Studio で MCP のトラブルシューティングを行う](https://learn.microsoft.com/ja-jp/microsoft-copilot-studio/mcp-troubleshooting) |
 
 ---
 
 ## 8. クイック リファレンス: 公式ドキュメント
 
-| トピック | URL |
+| トピック | 記事 |
 |---|---|
-| Extend agent with MCP (本機能の本家ドキュメント) | <https://learn.microsoft.com/en-us/microsoft-copilot-studio/agent-extend-action-mcp> |
-| Add existing MCP server to an agent | <https://learn.microsoft.com/en-us/microsoft-copilot-studio/mcp-add-existing-server-to-agent> |
-| Add MCP server tools and resources to an agent | <https://learn.microsoft.com/en-us/microsoft-copilot-studio/mcp-add-components-to-agent> |
-| Create a new MCP server | <https://learn.microsoft.com/en-us/microsoft-copilot-studio/mcp-create-new-server> |
-| MCP troubleshooting | <https://learn.microsoft.com/en-us/microsoft-copilot-studio/mcp-troubleshooting> |
-| Microsoft Copilot Studio MCP Lab (公式 hands-on) | <https://aka.ms/mcsmcp/lab/blog> |
-| MCP 仕様 (Anthropic) | <https://modelcontextprotocol.io> |
-| MCP Streamable HTTP 仕様 | <https://modelcontextprotocol.io/specification/2025-03-26/basic/transports#streamable-http> |
-| MCP server リファレンス実装 (Microsoft samples) | <https://github.com/microsoft/CopilotStudioSamples/tree/main/extensibility/mcp/search-species-resources-typescript> |
-| Custom connector certification (テナント横断公開) | <https://learn.microsoft.com/en-us/connectors/custom-connectors/submit-certification> |
+| Extend agent with MCP (本機能の本家ドキュメント) | [MCP でアクションを拡張する](https://learn.microsoft.com/ja-jp/microsoft-copilot-studio/agent-extend-action-mcp) |
+| Add existing MCP server to an agent | [既存の MCP server をエージェントに追加する](https://learn.microsoft.com/ja-jp/microsoft-copilot-studio/mcp-add-existing-server-to-agent) |
+| Add MCP server tools and resources to an agent | [MCP のコンポーネントをエージェントに追加する](https://learn.microsoft.com/ja-jp/microsoft-copilot-studio/mcp-add-components-to-agent) |
+| Create a new MCP server | [新しい MCP server を作成する](https://learn.microsoft.com/ja-jp/microsoft-copilot-studio/mcp-create-new-server) |
+| MCP troubleshooting | [Copilot Studio で MCP のトラブルシューティングを行う](https://learn.microsoft.com/ja-jp/microsoft-copilot-studio/mcp-troubleshooting) |
+| Microsoft Copilot Studio MCP Lab (公式 hands-on) | [Microsoft Copilot Studio MCP hands-on lab (Microsoft blog)](https://aka.ms/mcsmcp/lab/blog) |
+| MCP 仕様 (Anthropic) | [Model Context Protocol — 仕様サイト](https://modelcontextprotocol.io) |
+| MCP Streamable HTTP 仕様 | [Streamable HTTP transport (MCP 2025-03-26 仕様)](https://modelcontextprotocol.io/specification/2025-03-26/basic/transports#streamable-http) |
+| MCP server リファレンス実装 (Microsoft samples) | [microsoft/CopilotStudioSamples — extensibility/mcp/search-species-resources-typescript (GitHub)](https://github.com/microsoft/CopilotStudioSamples/tree/main/extensibility/mcp/search-species-resources-typescript) |
+| Custom connector certification (テナント横断公開) | [Microsoft によるカスタム コネクタの認定](https://learn.microsoft.com/ja-jp/connectors/custom-connectors/submit-certification) |
 
 ---
 
@@ -293,13 +292,10 @@ OpenAPI 仕様 YAML を持っている場合は、Power Apps でカスタム コ
 
 ---
 
-## 10. 関連シナリオ G/H/I・補助ドキュメント
+## 10. 関連シナリオ H・補助ドキュメント
 
 | ドキュメント | 何が補強されるか |
 |---|---|
-| [`../scenario-g-foundry-to-m365/README.md`](../scenario-g-foundry-to-m365/README.md) | Microsoft Foundry agent (シナリオ A〜C) を MCP server として公開し、それを **Microsoft 365 Copilot / Teams から直接呼ぶ** ためのフロント側公開ルート |
 | [`../scenario-h-apim-ai-gateway/README.md`](../scenario-h-apim-ai-gateway/README.md) | 既存 MCP server を **APIM 経由で公開** (`expose-existing-mcp-server`) または **既存 REST API を MCP として export** (`export-rest-mcp-server`)。OAuth 認証 / Streamable HTTP の集中管理に最適 |
-| [`../scenario-i-evaluation-redteam/README.md`](../scenario-i-evaluation-redteam/README.md) | MCP server を呼び出す Foundry agent 全体を **ToolCallAccuracy + Agent 評価器**で評価。**Indirect attack (XPIA)** が MCP resource 経由で発生しやすいため Safety 評価器が必須 |
 | [`../../docs/governance.md`](../../docs/governance.md) | Microsoft Copilot Studio DLP の Business / Non-Business 分類 + MCP server を 3rd party に置く場合の連鎖ブロック対策 |
 | [`../../docs/cost-finops.md`](../../docs/cost-finops.md) | MCP server ホスト コスト (Container Apps / Functions) + Copilot Credits (Agent action 5) の月額試算 |
-| [`../../docs/evaluation-playbook.md`](../../docs/evaluation-playbook.md) | MCP tool 利用時の **ToolCallAccuracy / IntentResolution / IndirectAttack** の閾値設計 |

@@ -6,13 +6,12 @@
 >
 > **状態**: APIM 本体は **GA** / **AI Gateway policies (LLM token limit / semantic cache / llm-emit-token-metric / MCP expose / MCP export)** は **GA + Preview の混在** (機能ごとに差あり)。Microsoft Foundry portal からの **APIM 自動連携 (Connect API Management)** は **Public Preview**。
 >
-> **想定工数**: 0.5 人日 (既存 APIM がある場合) 〜 3 人日 (APIM + Foundry + MCP を新規構築する場合)
 >
 > **公式ガイド (一次資料)**:
-> - <https://learn.microsoft.com/en-us/azure/api-management/genai-gateway-capabilities> (AI Gateway 機能一覧)
-> - <https://learn.microsoft.com/en-us/azure/ai-foundry/configuration/enable-ai-api-management-gateway-portal> (Foundry portal からの APIM 連携)
-> - <https://learn.microsoft.com/en-us/azure/api-management/expose-existing-mcp-server> (既存 MCP server を APIM 経由で公開)
-> - <https://learn.microsoft.com/en-us/azure/api-management/export-rest-mcp-server> (REST API を MCP server としてエクスポート)
+> - [API Management の AI Gateway 機能](https://learn.microsoft.com/ja-jp/azure/api-management/genai-gateway-capabilities) (AI Gateway 機能一覧)
+> - [Foundry portal から API Management AI Gateway を有効化する](https://learn.microsoft.com/ja-jp/azure/ai-foundry/configuration/enable-ai-api-management-gateway-portal) (Foundry portal からの APIM 連携)
+> - [既存の MCP server を API Management 経由で公開する](https://learn.microsoft.com/ja-jp/azure/api-management/expose-existing-mcp-server) (既存 MCP server を APIM 経由で公開)
+> - [REST API を MCP server としてエクスポートする](https://learn.microsoft.com/ja-jp/azure/api-management/export-rest-mcp-server) (REST API を MCP server としてエクスポート)
 
 > ℹ️ 本シナリオは **既存 6 シナリオ (A〜F) の上位レイヤー**として配置します。シナリオ A〜F のいずれを採用していても、APIM AI Gateway を被せることで「トークン課金の月次予算超過」「Foundry endpoint の障害時フェイルオーバー」「MCP server の認証統一」を後付けで実現できます。
 
@@ -271,7 +270,6 @@
 | **D (CS → Foundry agent)** | Microsoft Copilot Studio → Foundry の通信を APIM 経由化 → DLP の補強 + テナント単位 token quota |
 | **E (BYOM)** | Microsoft Copilot Studio が呼ぶモデル endpoint を APIM 経由化 → 複数モデルのフェイルオーバー / A/B テスト |
 | **F (MCP)** | MCP server を APIM 上で公開 → OAuth 認証集約 + tools/resources の export ↔ 既存 REST API のラップ |
-| **G (Foundry → M365)** | Agent Application が呼び出す全 backend (Foundry endpoint / external API) を APIM 経由化 → エンタープライズ統制 |
 
 ---
 
@@ -317,7 +315,5 @@
 | [`../scenario-d-cs-plus-foundry/README.md`](../scenario-d-cs-plus-foundry/README.md) | シナリオ D (APIM 経由で CS ↔ Foundry を統制) |
 | [`../scenario-e-byom-foundry-model/README.md`](../scenario-e-byom-foundry-model/README.md) | シナリオ E (BYOM モデル endpoint を APIM 経由化) |
 | [`../scenario-f-mcp-connection/README.md`](../scenario-f-mcp-connection/README.md) | シナリオ F (MCP server を APIM 経由で公開) |
-| [`../scenario-g-foundry-to-m365/README.md`](../scenario-g-foundry-to-m365/README.md) | シナリオ G (Agent Application の外部呼出を APIM 経由化) |
-| [`../scenario-i-evaluation-redteam/README.md`](../scenario-i-evaluation-redteam/README.md) | シナリオ I (APIM 経由のトレース ↔ Evaluation データ収集) |
 | [`../../docs/governance.md`](../../docs/governance.md) | DLP / RBAC / Content Safety / Preview terms 横断ガバナンス |
 | [`../../docs/cost-finops.md`](../../docs/cost-finops.md) | Foundry token / Copilot Credits / APIM token metric の横断 FinOps |

@@ -1,8 +1,7 @@
 # シナリオ B: Copilot Studio → Foundry **Workflow agent (Preview)** 移行 完全手順書
 
-> **位置付け**: 9 シナリオの中で **Microsoft Copilot Studio との互換度が最も高い** (Topic / 分岐 / HITL / Power Fx を温存)
+> **位置付け**: 7 シナリオの中で **Microsoft Copilot Studio との互換度が最も高い** (Topic / 分岐 / HITL / Power Fx を温存)
 > **状態**: ⚠️ **Public Preview** (SLA 対象外、本番運用は非推奨)
-> **想定工数**: 1〜3 人日 (Topic 数による)
 
 Copilot Studio の Topic ダイアログ ツリーを **Workflow agent のビジュアル ビルダー / Workflow YAML** に変換する移行パターン。Power Fx の文法とノード構造を多くそのまま流用できますが、いくつかの **重要な互換差分** (`Topic.*` スコープ非対応、Choice 型非対応、Azure Functions tool 廃止) があります。
 
@@ -62,7 +61,7 @@ Copilot Studio の Topic ダイアログ ツリーを **Workflow agent のビジ
 
 ### 2.2 Foundry 側 (Phase 3〜5 用)
 
-公式 (Workflow 概念): <https://learn.microsoft.com/en-us/azure/ai-foundry/agents/concepts/workflow>
+MS Learn 該当箇所 (Workflow 概念): [Microsoft Foundry Workflow agent の概念](https://learn.microsoft.com/ja-jp/azure/ai-foundry/agents/concepts/workflow)
 
 | 項目 | 値 / 公式リンク |
 |---|---|
@@ -73,11 +72,11 @@ Copilot Studio の Topic ダイアログ ツリーを **Workflow agent のビジ
 | Workflow 専用の preview opt-in | **不要** (`New Foundry` トグルが ON ならビルダーが表示される) |
 | リージョン | Responses API 対応リージョン |
 
-公式 RBAC: <https://learn.microsoft.com/en-us/azure/ai-foundry/concepts/rbac-foundry>
+MS Learn 該当箇所 (RBAC): [Microsoft Foundry の RBAC](https://learn.microsoft.com/ja-jp/azure/ai-foundry/concepts/rbac-foundry)
 
 ### 2.3 重要な互換差分 (Phase 4 で必ず確認)
 
-公式 (Workflow concept): <https://learn.microsoft.com/en-us/azure/ai-foundry/agents/concepts/workflow>
+MS Learn 該当箇所 (Workflow concept): [Microsoft Foundry Workflow agent の概念](https://learn.microsoft.com/ja-jp/azure/ai-foundry/agents/concepts/workflow)
 
 | Copilot Studio 要素 | Foundry Workflow agent | 対応方針 |
 |---|---|---|
@@ -151,7 +150,7 @@ python create_prompt_agent.py
 
 ## 5. Phase 4: Workflow agent をビジュアル ビルダーで作成
 
-公式: <https://learn.microsoft.com/en-us/azure/ai-foundry/agents/concepts/workflow>
+MS Learn 該当箇所: [Microsoft Foundry Workflow agent の概念](https://learn.microsoft.com/ja-jp/azure/ai-foundry/agents/concepts/workflow)
 
 ### 5.1 Workflow を新規作成
 
@@ -235,7 +234,7 @@ python create_prompt_agent.py
 
 ### 5.4 変数スコープ
 
-公式: <https://learn.microsoft.com/en-us/azure/ai-foundry/agents/concepts/workflow>
+MS Learn 該当箇所: [Microsoft Foundry Workflow agent の概念](https://learn.microsoft.com/ja-jp/azure/ai-foundry/agents/concepts/workflow)
 
 | Prefix | 意味 |
 |---|---|
@@ -246,9 +245,9 @@ python create_prompt_agent.py
 
 ### 5.5 Tool 呼出 (OpenAPI / MCP / A2A)
 
-公式 (Tool catalog): <https://learn.microsoft.com/en-us/azure/ai-foundry/agents/concepts/tool-catalog>
-公式 (OpenAPI tool): <https://learn.microsoft.com/en-us/azure/ai-foundry/agents/how-to/tools/openapi>
-公式 (A2A tool): <https://learn.microsoft.com/en-us/azure/ai-foundry/agents/how-to/tools/agent-to-agent>
+MS Learn 該当箇所 (Tool catalog): [Microsoft Foundry Agent Service のツール カタログ](https://learn.microsoft.com/ja-jp/azure/ai-foundry/agents/concepts/tool-catalog)
+MS Learn 該当箇所 (OpenAPI tool): [OpenAPI で指定されたツールを使用する](https://learn.microsoft.com/ja-jp/azure/ai-foundry/agents/how-to/tools/openapi)
+MS Learn 該当箇所 (A2A tool): [Agent-to-Agent (A2A) ツールを使用する](https://learn.microsoft.com/ja-jp/azure/ai-foundry/agents/how-to/tools/agent-to-agent)
 
 **重要:** Workflow デザイナーには tool を直接ノードとして配置しません。Tool は **agent に attach** し、その agent を Invoke agent ノードで呼びます。
 
@@ -285,7 +284,7 @@ CreateTicket を呼ぶ場合:
 
 ## 6. Phase 5: 動作確認
 
-公式: <https://learn.microsoft.com/en-us/azure/ai-foundry/agents/concepts/workflow>
+MS Learn 該当箇所: [Microsoft Foundry Workflow agent の概念](https://learn.microsoft.com/ja-jp/azure/ai-foundry/agents/concepts/workflow)
 
 ### 6.1 ポータルから **Run Workflow**
 
@@ -301,7 +300,7 @@ CreateTicket を呼ぶ場合:
 
 ### 6.2 VS Code Remote Playground
 
-公式: <https://learn.microsoft.com/en-us/azure/ai-foundry/agents/how-to/vs-code-agents-workflow-low-code>
+MS Learn 該当箇所: [VS Code for Foundry で Workflow agent をローコードで作成する](https://learn.microsoft.com/ja-jp/azure/ai-foundry/agents/how-to/vs-code-agents-workflow-low-code)
 
 - VS Code に **Microsoft Foundry Toolkit** 拡張をインストール (Pre-release)
 - **My Resources** → project → **Declarative Agents** → version 選択
@@ -309,7 +308,7 @@ CreateTicket を呼ぶ場合:
 
 ### 6.3 トレース (AgentOps)
 
-公式: <https://learn.microsoft.com/en-us/azure/ai-foundry/observability/concepts/trace-agent-concept>
+MS Learn 該当箇所: [エージェント トレーシングの概念](https://learn.microsoft.com/ja-jp/azure/ai-foundry/observability/concepts/trace-agent-concept)
 
 > ⚠️ **Tracing は Prompt agent のみ GA。Workflow / Hosted / Custom agents は Preview** です。公式 verbatim: _"Tracing is generally available for prompt agents only. Workflow, hosted, and custom agents are in preview."_  
 > 本シナリオ B (Workflow agent) の Tracing は **Preview** であり、SLA 対象外・課金とサンプリングの挙動が将来変更される可能性があります。
@@ -436,30 +435,27 @@ az role assignment create --assignee-object-id $APP_OBJ_ID --assignee-principal-
 
 | トピック | URL |
 |---|---|
-| Workflow agent 概念 | <https://learn.microsoft.com/en-us/azure/ai-foundry/agents/concepts/workflow> |
-| Agent Service 概要 | <https://learn.microsoft.com/en-us/azure/ai-foundry/agents/overview> |
-| VS Code 低コード ワークフロー | <https://learn.microsoft.com/en-us/azure/ai-foundry/agents/how-to/vs-code-agents-workflow-low-code> |
-| 開発ライフサイクル | <https://learn.microsoft.com/en-us/azure/ai-foundry/agents/concepts/development-lifecycle> |
-| Tool catalog | <https://learn.microsoft.com/en-us/azure/ai-foundry/agents/concepts/tool-catalog> |
-| OpenAPI tool | <https://learn.microsoft.com/en-us/azure/ai-foundry/agents/how-to/tools/openapi> |
-| Agent-to-Agent (A2A) tool | <https://learn.microsoft.com/en-us/azure/ai-foundry/agents/how-to/tools/agent-to-agent> |
-| A2A authentication | <https://learn.microsoft.com/en-us/azure/ai-foundry/agents/concepts/agent-to-agent-authentication> |
-| Power Fx (formula reference) | <https://learn.microsoft.com/en-us/power-platform/power-fx/formula-reference-copilot-studio> |
-| Limits / Quotas / Regions | <https://learn.microsoft.com/en-us/azure/ai-foundry/agents/concepts/limits-quotas-regions> |
-| Migration table (classic → new) | <https://learn.microsoft.com/en-us/azure/ai-foundry/agents/how-to/migrate> |
-| Tracing (AgentOps) | <https://learn.microsoft.com/en-us/azure/ai-foundry/observability/concepts/trace-agent-concept> |
-| Agent Framework orchestrations | <https://learn.microsoft.com/en-us/agent-framework/user-guide/workflows/orchestrations/overview> |
+| Workflow agent 概念 | [Microsoft Foundry Workflow agent の概念](https://learn.microsoft.com/ja-jp/azure/ai-foundry/agents/concepts/workflow) |
+| Agent Service 概要 | [Microsoft Foundry Agent Service の概要](https://learn.microsoft.com/ja-jp/azure/ai-foundry/agents/overview) |
+| VS Code 低コード ワークフロー | [VS Code for Foundry で Workflow agent をローコードで作成する](https://learn.microsoft.com/ja-jp/azure/ai-foundry/agents/how-to/vs-code-agents-workflow-low-code) |
+| 開発ライフサイクル | [Foundry Agent Service の開発ライフサイクル](https://learn.microsoft.com/ja-jp/azure/ai-foundry/agents/concepts/development-lifecycle) |
+| Tool catalog | [Microsoft Foundry Agent Service のツール カタログ](https://learn.microsoft.com/ja-jp/azure/ai-foundry/agents/concepts/tool-catalog) |
+| OpenAPI tool | [Foundry Agent Service の OpenAPI ツール](https://learn.microsoft.com/ja-jp/azure/ai-foundry/agents/how-to/tools/openapi) |
+| Agent-to-Agent (A2A) tool | [Agent-to-Agent (A2A) ツールを使用する](https://learn.microsoft.com/ja-jp/azure/ai-foundry/agents/how-to/tools/agent-to-agent) |
+| A2A authentication | [Agent-to-Agent (A2A) の認証](https://learn.microsoft.com/ja-jp/azure/ai-foundry/agents/concepts/agent-to-agent-authentication) |
+| Power Fx (formula reference) | [Power Fx の数式リファレンス (Copilot Studio)](https://learn.microsoft.com/ja-jp/power-platform/power-fx/formula-reference-copilot-studio) |
+| Limits / Quotas / Regions | [Foundry Agent Service の制限・クォータ・リージョン](https://learn.microsoft.com/ja-jp/azure/ai-foundry/agents/concepts/limits-quotas-regions) |
+| Migration table (classic → new) | [Foundry Agent Service への移行ガイド](https://learn.microsoft.com/ja-jp/azure/ai-foundry/agents/how-to/migrate) |
+| Tracing (AgentOps) | [エージェント トレーシングの概念](https://learn.microsoft.com/ja-jp/azure/ai-foundry/observability/concepts/trace-agent-concept) |
+| Agent Framework orchestrations | [Microsoft Agent Framework workflows orchestrations の概要](https://learn.microsoft.com/ja-jp/agent-framework/user-guide/workflows/orchestrations/overview) |
 
 ---
 
-## 12. 関連シナリオ G/H/I・補助ドキュメント
+## 12. 関連シナリオ H・補助ドキュメント
 
 | ドキュメント | 何が補強されるか |
 |---|---|
 | [`../scenario-d-cs-plus-foundry/README.md`](../scenario-d-cs-plus-foundry/README.md) | Microsoft Copilot Studio を温存して Workflow agent を **Add an agent** で接続 (Preview) |
-| [`../scenario-g-foundry-to-m365/README.md`](../scenario-g-foundry-to-m365/README.md) | Workflow agent を **Agent Application として Microsoft 365 Copilot / Teams に直接公開** (Early Access Preview)。本書 §6.4 (Phase 6) の Publish の最終形に相当 |
 | [`../scenario-h-apim-ai-gateway/README.md`](../scenario-h-apim-ai-gateway/README.md) | Workflow agent 内の LLM 呼出を **APIM 経由化** し token 制御・semantic cache を一元適用。Workflow ノードの Model 設定で APIM endpoint を指定 |
-| [`../scenario-i-evaluation-redteam/README.md`](../scenario-i-evaluation-redteam/README.md) | **Agent 評価器 (TaskCompletion / IntentResolution / TaskNavigationEfficiency)** で Workflow の正しさを自動評価 + Red Teaming Agent でセーフティ ゲート |
 | [`../../docs/governance.md`](../../docs/governance.md) | Workflow Tracing Preview の RBAC / Entra Agent Identity / Publish 後の RBAC 再割当が必要なポイント |
 | [`../../docs/cost-finops.md`](../../docs/cost-finops.md) | Workflow agent の月額試算 + 段階的削減アクション (モデル選択 / Prompt 短縮) |
-| [`../../docs/evaluation-playbook.md`](../../docs/evaluation-playbook.md) | Workflow 向け evaluator セット (TaskCompletion / IntentResolution / TaskNavigationEfficiency + Safety 一式) |

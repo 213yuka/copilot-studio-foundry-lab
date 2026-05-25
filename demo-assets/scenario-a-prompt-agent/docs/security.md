@@ -1,7 +1,7 @@
 # シナリオ A セキュリティ (Content Filter / Prompt Shields / XPIA / PII)
 
-> 公式: <https://learn.microsoft.com/en-us/azure/ai-foundry/concepts/content-filtering>  
-> 関連: <https://learn.microsoft.com/en-us/azure/ai-services/content-safety/concepts/jailbreak-detection> (Prompt Shields の概念)
+> MS Learn 該当箇所: [Microsoft Foundry のコンテンツ フィルタリング](https://learn.microsoft.com/ja-jp/azure/ai-foundry/concepts/content-filtering)  
+> 関連: [Azure AI Content Safety の Prompt Shields の概念](https://learn.microsoft.com/ja-jp/azure/ai-services/content-safety/concepts/jailbreak-detection) (Prompt Shields の概念)
 
 本シナリオ (IT ヘルプデスク) は **Vector Store に取り込んだ社内 IT 規定 PDF** を File Search で参照します。ナレッジ ベースが外部から更新される運用 (例: SharePoint 連携) では、**第三者がドキュメントに埋め込んだプロンプト** が LLM の指示として解釈される **間接プロンプト インジェクション (XPIA: Cross-Prompt Injection Attack)** のリスクがあります。本ドキュメントは Microsoft Foundry の Content Filter (Guardrails + controls) を使った推奨設定をまとめます。
 
@@ -45,7 +45,7 @@ Content Filter 自体の作成は Portal が最短ですが、CI/CD で再現す
 
 ## 4. 動作確認 (テスト ケース)
 
-`tests/test_scenario_a.py` の `TestSecurityGuardrails` クラスで以下を回帰テストします:
+Foundry Playground で以下の入力を順に試し、フィルタが期待どおり Block する/拒否することを確認してください:
 
 | 入力 | 期待 |
 |---|---|
@@ -61,4 +61,4 @@ Content Filter 自体の作成は Portal が最短ですが、CI/CD で再現す
 
 ## 6. PII マスキング (任意)
 
-Content Filter の PII Detection は **検出 + Block** までで、マスキング (置換) は実施しません。出力ログに PII を残したくない場合は、レスポンス取得後に `re` ベースのマスキングを追加してください (例: メール アドレス → `***@***`)。実装例は `tests/conftest.py` の `mask_pii()` 関数を参照。
+Content Filter の PII Detection は **検出 + Block** までで、マスキング (置換) は実施しません。出力ログに PII を残したくない場合は、レスポンス取得後に `re` ベースのマスキングを追加してください (例: メール アドレス → `***@***`、電話番号 → `***-****-****`)。Application Insights / Foundry Tracing にトレースを送る場合も同様に、送信前にマスキングを掛けてください。
