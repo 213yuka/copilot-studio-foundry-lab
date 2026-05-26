@@ -507,6 +507,167 @@ MS Learn 該当箇所: [エージェントをテストする (en-US)](https://le
 
 --- -->
 
+### 6.4 評価機能 (Agent Evaluation) — 自動化された一括テスト
+
+§6.1〜§6.3 の **テスト ペイン** は 1 件ずつ手動で対話する「テスト チャット」用 UI で、同じ質問を繰り返し再現したり、複数質問に対するスコアを集計したりするには別の機能を使います。Microsoft Copilot Studio には独立した **エージェント評価 (Agent Evaluation)** 機能があり、テスト ケースを **テスト セット** にまとめて一括実行し、評価メソッド (graders) でスコアリングできます。
+
+**本手順書での扱い**: 本デモでは Phase 5 までで「動作する」ことの確認 (手動の Test pane 単発実行) を行ったうえで、**Agent Evaluation を 1 回実機実行**しています (10 件・全般的な品質 / 結果スコア **70%**)。実行記録・スクリーンショット・失敗ケースの所見は **§6.4.8 実機検証結果**を参照してください。本節 (§6.4.1〜§6.4.7) では、シナリオ A 以降の Microsoft Foundry 側評価 (シナリオ A README §6) と並べて比較できるよう、Microsoft Copilot Studio 側の評価機能の入口と公式リファレンスをまとめます。
+
+#### 6.4.1 公式リファレンス
+
+公式 (Microsoft Learn): [エージェント評価について - Microsoft Copilot Studio](https://learn.microsoft.com/ja-jp/microsoft-copilot-studio/analytics-agent-evaluation-intro)
+
+| 項目 | 公式 (Microsoft Learn) |
+|---|---|
+| 機能概要 | [エージェント評価について](https://learn.microsoft.com/ja-jp/microsoft-copilot-studio/analytics-agent-evaluation-intro) |
+| テスト セット作成 (単一応答) | [単一の応答テストセットを作成する](https://learn.microsoft.com/ja-jp/microsoft-copilot-studio/analytics-agent-evaluation-create) |
+| テスト セット作成 (会話型) | [会話型テストセットを作成する](https://learn.microsoft.com/ja-jp/microsoft-copilot-studio/analytics-agent-evaluation-multi-turn) |
+| 評価メソッド (graders) | [評価メソッドを選択する](https://learn.microsoft.com/ja-jp/microsoft-copilot-studio/analytics-agent-evaluation-overview) |
+| 評価実行と結果表示 | [評価を実行し結果を表示する](https://learn.microsoft.com/ja-jp/microsoft-copilot-studio/analytics-agent-evaluation-results) |
+| API による自動化 (CI/CD) | [Power Platform REST API で評価を自動化する](https://learn.microsoft.com/ja-jp/microsoft-copilot-studio/analytics-agent-evaluation-rest-api) |
+| テスト ケース編集 | [テストケースを編集する](https://learn.microsoft.com/ja-jp/microsoft-copilot-studio/analytics-agent-evaluation-edit-cases) |
+
+#### 6.4.2 機能の位置づけ — Test chat と Agent Evaluation の違い
+
+| 観点 | Test chat (§6.1〜6.3) | Agent Evaluation (本節) |
+|---|---|---|
+| 用途 | 1 件ずつ手動で対話、UI で動作確認 | 複数テスト ケースを一括実行・スコアリング |
+| 再現性 | 低 (毎回手動入力) | 高 (同じテスト セットを何度でも) |
+| スコアリング | なし (目視) | LLM 判定 / 類似度 / キーワード / 完全一致 / ツール利用 / カスタム |
+| 結果保存 | なし (会話ログをスナップショット手動保存のみ) | **89 日保持** (CSV エクスポート可) |
+| 入口 | 上部ツールバー右端の **テスト** ボタン | 左サイド メニュー / テスト ペイン右上 **評価** (`<エージェント名> を評価する`) ボタン |
+| 想定ユーザー | 開発中の Maker | リリース判定者 / QA / CI/CD |
+
+#### 6.4.3 評価メソッド (graders) 早見表
+
+| メソッド | テスト セット種別 | スコア | 設定が必要な項目 |
+|---|---|---|---|
+| **一般的な品質** | 単一/会話 | 100 点満点 | (なし。LLM が関連性 / グラウンディング / 完全性を判定) |
+| **意味の比較** | 単一 | 100 点満点 | 合格スコア / 期待される応答 |
+| **能力の利用** | 単一 | 合格/不合格 | 期待される能力 (ツール / トピック / ナレッジ) |
+| **キーワード マッチ** | 単一/会話 | 合格/不合格 | 期待されるキーワード or フレーズ |
+| **テキストの類似性** | 単一 | 100 点満点 | 合格スコア / 期待される応答 (※ GCC 環境では不可) |
+| **完全一致** | 単一 | 合格/不合格 | 期待される応答 |
+| **Custom** | 単一/会話 | 合格/不合格 (定義ラベル) | 名前 / 評価手順 / ラベル |
+
+#### 6.4.4 評価実行手順 (公式手順をベースにした最小フロー)
+
+1. エージェントの **評価** ページに遷移 (左サイド メニュー、または Test pane 右上の **評価** ボタン → ページが新規タブで開く)
+2. **\[新しい評価\]** → **単一の応答** を選択
+3. テスト セット作成方法を選ぶ:
+   - **手動作成** — UI で 1 件ずつ追加 (推奨: まずは 3〜5 件)
+   - **CSV インポート** — `Question, 予想される応答, テスト方法` の 3 列 CSV (最大 100 件 / 1 問 1,000 文字以内)
+   - **ナレッジ / トピックから AI 生成** — `it-policy.md` 等の知識ソースから自動生成 (本デモのナレッジ向け)
+   - **テーマから生成** — 本番運用後、Analytics の Themes から実ユーザー質問を取り込み
+4. **テスト方法**を 1 つ以上選択 (本デモ向け推奨: `一般的な品質` + `キーワード マッチ`)
+   - `キーワード マッチ`: 例えば「パスワード忘れた → 社外 PC」の応答に `8888` / `helpdesk@contoso.com` を含むかを判定
+5. 各テスト ケースに **期待される応答 / キーワード** を入力 (`一般的な品質` のみは任意)
+6. **ユーザー プロファイル** を選択 (本デモのようにナレッジ・コネクタとも認証なしなら「認証なし」で続行)
+7. **\[評価\]** を選択して即時実行 (or **\[保存\]** で後日実行)
+8. 実行結果を確認: 合計スコア、テスト ケース毎の合否、応答全文、トリガーされたトピック / 利用したナレッジ、活動マップ
+
+#### 6.4.5 本デモ用テスト セットの例 (CSV インポート向け)
+
+`IT-Helpdesk-Sample` 用の最小テスト セット (5 件、CSV テンプレ):
+
+```csv
+Question,予想される応答,テスト方法
+パスワード忘れた。社内 PC を使っています,セルフサービス リセット ポータルから再設定してください,キーワードマッチ
+パスワード忘れた。社外 PC を使っています,IT ヘルプデスク (内線 8888) にご連絡ください,キーワードマッチ
+MFA はどう設定する?,Microsoft Authenticator,キーワードマッチ
+社内 PC のアカウントは何回失敗するとロックされる?,5,完全一致
+PC が起動しない,(なし),一般的な品質
+```
+
+> 💡 `予想される応答` に長文を書く必要はありません。`キーワードマッチ` であれば短いキーワード文字列、`完全一致` であれば応答そのもの、`一般的な品質` のみは空欄でも可です。
+
+#### 6.4.6 制約と注意点
+
+- **テスト セット 1 つあたり最大 100 ケース** / **質問 1 件あたり 1,000 文字以内**
+- **結果は 89 日間のみ保持** (長期保管は CSV エクスポートで対応)
+- **テスト ケース AI 生成は Content Moderation 違反で 1 件でもブロックされると失敗** (= 厳しめのコンテンツ制御 / 機密ナレッジを使うエージェントは AI 生成より手動 / CSV インポート推奨)
+- **責任ある AI レビューや Content Safety フィルターの代替にはならない** (Evaluation は精度測定であり、ハーム検出は別レイヤー)
+- **GCC 環境では `テキストの類似性` メソッドとユーザー プロファイル追加が不可** (公式記載)
+- **テスト アカウントの権限**で知識ソース / コネクタにアクセスするため、実行アカウントが持つ機密データがテスト ケースに含まれる可能性あり (機密区分の事前確認必須)
+
+#### 6.4.7 シナリオ A〜F + H での扱い
+
+- **シナリオ A〜C (Microsoft Foundry 移行系)**: 移行先 Microsoft Foundry agent には **別途 Foundry portal の評価機能 (Evaluations)** があり、データセット / Evaluators / トレース連携が GA 済 ([Microsoft Foundry の評価機能 (ja-jp)](https://learn.microsoft.com/ja-jp/azure/ai-foundry/concepts/evaluation-approach-gen-ai))。移行前後で**同じテスト ケースを両側に流して結果を比較**するのが理想 (本手順書では Phase 5.5 = Microsoft Copilot Studio 側、シナリオ A README §6 = Microsoft Foundry 側)
+- **シナリオ D / E / F (Microsoft Copilot Studio 温存系)**: Microsoft Copilot Studio 側の Agent Evaluation を継続利用。Microsoft Foundry agent / モデル / MCP server を呼び出す部分は **会話型テスト セット** で end-to-end 検証する
+- **シナリオ H (APIM AI Gateway)**: APIM の token-limit や semantic-cache 適用前後で同じテスト セットを流し、応答品質に劣化が無いか確認する用途で有効
+
+#### 6.4.8 実機検証結果 (本デモでの実行記録)
+
+本リポジトリの IT-Helpdesk-Sample エージェントに対して、上記 §6.4.4 の手順で **Agent Evaluation を 1 回実行した結果を記録**します。シナリオ A 以降で Microsoft Foundry 側 (Evaluations) と比較する際の Microsoft Copilot Studio 側の **ベースライン スコア**として利用してください。
+
+**実行条件**:
+
+| 項目 | 値 |
+| --- | --- |
+| エージェント | IT-Helpdesk-Sample (本手順書 Phase 0〜5 で構築) |
+| データ型 | 単一応答 |
+| テスト セット生成方法 | クイック質問セット (エージェント説明から AI で 10 件自動生成) |
+| テスト方法 (grader) | 全般的な品質 (LLM 採点、合格/不合格) のみ |
+| ユーザー プロファイル | 未設定 (本エージェントはツール未使用のため不要) |
+| 実行日時 | 2026-05-26 09:15 (JST) |
+
+**手順実行ログ**:
+
+1. エージェント ヘッダー上部の **評価** タブを開く → 初期状態は空で、中央に「エージェントのパフォーマンスを評価する」と **テスト セットを作成する** ボタンが表示される
+
+   ![評価ページ 初期表示 (空)](./screenshots/copilot-studio-agent/27-evaluation-page-empty.png)
+
+2. **テスト セットを作成する** をクリック → 「**新しい評価**」フォームが開く。データ型 = 単一応答 / 会話 (プレビュー)、データ ソースは CSV ドラッグ&ドロップ / **クイック質問セット** / **完全な質問セット** / **テスト チャット会話を使用する** / **または、自分自身で質問を書きます** から選択
+
+   ![新しい評価作成フォーム](./screenshots/copilot-studio-agent/28-test-set-create-form.png)
+
+3. ローコード優先で **クイック質問セット** (エージェント説明から AI が 10 件自動生成) を選択 → IT ヘルプデスク向け 10 件 (パスワード リセット / MFA / アカウント ロック / IT 規定 / セキュリティ インシデント / メール / エスカレーション / PC 動作 / 社員アカウント作成 ほか) が自動投入される。右ペイン「テストセットを構成する」でテスト方法 = **全般的な品質** がデフォルトで 1 件追加済
+
+   ![クイック質問セット 10 件 + 右ペイン構成](./screenshots/copilot-studio-agent/29-test-set-generating.png)
+
+4. 右下の **評価** ボタンをクリック → テスト セットが保存され、評価一覧ページに戻ると **テスト セット** カードに登録済になる。「最近の結果」はまだ空
+
+   ![テストセット登録済 (結果はこれから)](./screenshots/copilot-studio-agent/30-evaluation-list.png)
+
+5. テスト セット カード上の **テスト セットの評価** (▶) ボタンをクリック → 「**プロファイルと接続の管理**」ダイアログが開く。本エージェントはツール (Connector) 接続が無いのでアカウント選択せずに **実行**
+
+   ![プロファイルと接続の管理ダイアログ](./screenshots/copilot-studio-agent/31-evaluation-profile-dialog.png)
+
+6. 評価 (Run) が開始され URL が `/evaluation/runsDetails/{runId}/{testSetId}` に遷移。「**評価の概要**」右ペインの **テスト ケース** カウンタ (例: `4/10`) と **実行時間** がインクリメントしていく
+
+   ![評価実行中 (進捗 6/10)](./screenshots/copilot-studio-agent/32-evaluation-progress.png)
+
+7. 全 10 件 (約 4 分 28 秒) 完了 → 右ペインに **スコア** が表示される。本実行は **70%** (10 件中 **成功 7 / 失敗 3**)
+
+   ![評価完了 — スコア 70%](./screenshots/copilot-studio-agent/33-evaluation-final-score.png)
+
+8. **失敗 (3)** フィルタ チップをクリックして失敗ケースだけを表示
+
+   ![失敗 3 件 (フィルタ後)](./screenshots/copilot-studio-agent/34-evaluation-failures.png)
+
+9. 失敗行をクリックすると右ペインに **テスト ケースの詳細** が開く。`全般的な品質` グレーダーの判定理由が 🟢 「関連性があるように見えます」/ 🔴 「完結していないようです」のように **チェック項目単位**で表示される
+
+   ![失敗詳細 — グレーダー判定理由](./screenshots/copilot-studio-agent/35-evaluation-failure-detail.png)
+
+**失敗 3 件と原因の所見** (本デモでの観察):
+
+| # | 質問 | エージェント応答の特徴 | グレーダー判定 | 推測される改善余地 |
+| --- | --- | --- | --- | --- |
+| 5 | 社内 IT 利用規定はどこで見られますか? | 内部ファイル名 `it-policy.md` を出力。掲載 URL は「社内ポータルをご確認ください」とだけ案内 | 関連性 ✅ / 完結性 ❌ | instructions に「ナレッジ ファイル名は出力しない」「実際の URL を明示する」を追記する |
+| 8 | 担当者と直接話したい | 「現在、このコパイロットでは担当者へのエスカレーションが構成されていません」と機能未実装を率直に回答 | 関連性 ✅ / 完結性 ❌ | エスカレーション フロー (人手引き継ぎ トピック) を実装するか、代替連絡手段を案内する |
+| 10 | 新しい社員のアカウント作成手順 | 詳細な手順を出力したが、回答中に複数箇所で `it-policy.md` が露出 | 関連性 ✅ / 完結性 ❌ | 同上 (ファイル名漏えい) — instructions の見直しで改善見込み |
+
+**この検証から得られる示唆**:
+
+- **大量質問の一括検証は手動 Test chat より圧倒的に高効率**: 10 件 × 約 27 秒/件 = 4 分 28 秒で品質の傾向を把握できた。手動なら 10 件のチャット セッションを順に開いて 1 件ずつ判断する必要があり、所要時間 + ヒューマン エラーで現実的でない
+- **AI 採点 (`全般的な品質`) は思ったより厳しい**: 「関連性 OK + 完結性 NG」の組合せで失敗判定が出るため、表面的な応答品質より一段深い改善材料が得られる
+- **本デモの 70% は移行判定の妥当な開始点**: シナリオ A〜C で Microsoft Foundry 移行後、Foundry portal の Evaluations で同じ 10 件 (またはエクスポートした CSV) を流し、**70% よりスコアが向上していれば移行のメリットが定量的に示せる**
+- **失敗原因の分類が次のアクションを明確化**: ナレッジ整形 (`#5, #10`)、未実装機能の追加 (`#8`) のように、instructions / トピック / ナレッジのどの層を改善すべきかが切り分けやすい
+
+> 💡 **シナリオ A〜C への引継ぎ**: 上記 10 件の質問は **シナリオ A README §6 (Microsoft Foundry のプレイグラウンド検証)** や、Foundry Evaluations で同じテスト セットを使う際の **共通質問プール**として再利用できます。CSV 形式でエクスポートしたい場合は「**テスト セット詳細**」ページ右上の **その他のオプション** → **エクスポート** を使ってください (Microsoft Learn 引用: [評価のテスト ケースを編集する (ja-jp)](https://learn.microsoft.com/ja-jp/microsoft-copilot-studio/analytics-agent-evaluation-edit-cases))。
+
+--- 
+
 ## 7. Phase 6 — 公開 (任意)
 
 MS Learn 該当箇所: [重要な概念 - エージェントの公開と展開 (en-US)](https://learn.microsoft.com/ja-jp/microsoft-copilot-studio/publication-fundamentals-publish-channels)
@@ -756,6 +917,7 @@ Flow / 環境変数 / カスタム コネクタも含めて移行したい場合
 | HTTP 要求ノード | [HTTP 要求を行う](https://learn.microsoft.com/ja-jp/microsoft-copilot-studio/authoring-http-node) |
 | Power Automate フロー アクション | [エージェント フローをツールとして作成する](https://learn.microsoft.com/ja-jp/microsoft-copilot-studio/advanced-flow-create) |
 | テスト ペイン | [エージェントをテストする](https://learn.microsoft.com/ja-jp/microsoft-copilot-studio/authoring-test-bot) |
+| エージェント評価 (Agent Evaluation) | [エージェント評価について](https://learn.microsoft.com/ja-jp/microsoft-copilot-studio/analytics-agent-evaluation-intro) |
 | 公開 / チャネル | [重要な概念 - エージェントの公開と展開](https://learn.microsoft.com/ja-jp/microsoft-copilot-studio/publication-fundamentals-publish-channels) |
 | ソリューションのエクスポート / インポート | [ソリューションを使ってエージェントをエクスポートおよびインポートする](https://learn.microsoft.com/ja-jp/microsoft-copilot-studio/authoring-export-import-bots) |
 | pac CLI インストール | [Microsoft Power Platform CLI](https://learn.microsoft.com/ja-jp/power-platform/developer/cli/introduction) |

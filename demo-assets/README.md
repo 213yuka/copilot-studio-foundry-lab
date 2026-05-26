@@ -14,7 +14,7 @@ Microsoft Copilot Studio ↔ Microsoft Foundry の **移行 / 連携 / ガバナ
 
 ## 📘 まず読むべきもの
 
-1. **[`00-create-cs-agent.md`](00-create-cs-agent.md)** — **共通の出発点**: Microsoft Copilot Studio で IT ヘルプデスク エージェントを作成し、pac CLI で YAML 抽出するまでの完全な手順書 (シナリオ A〜D 共通。E / F も同じエージェントを起点とする)。実 UI スクショ 26 枚付きで検証済
+1. **[`00-create-cs-agent.md`](00-create-cs-agent.md)** — **共通の出発点**: Microsoft Copilot Studio で IT ヘルプデスク エージェントを作成し、pac CLI で YAML 抽出、**Agent Evaluation で品質採点**するまでの完全な手順書 (シナリオ A〜D 共通。E / F も同じエージェントを起点とする)。実 UI スクショ 35 枚 + 評価実行記録付きで検証済
 2. 各シナリオの README — Microsoft Foundry 側の受け皿 (A〜F) / 横断ガバナンス (H) ごとの完全手順書
 3. シナリオ A〜F + H の概要・比較は本 README の「シナリオ概要」表 (11 列) を参照
 4. (本番化を見据える場合) [`../docs/`](../docs/) — Governance / FinOps の横断ドキュメント
@@ -95,7 +95,7 @@ demo-assets/
 | **F** | Microsoft Copilot Studio + MCP server (Microsoft Foundry 含む) | モデル / ツール単位 | ✅ GA | **最高** (Microsoft Copilot Studio そのまま) | あり (Copilot Studio の MCP 接続は GA) | MCP server ホスト コスト + Copilot Credits | MCP server 側で個別設計 (OAuth 推奨) + Maker 権限 | Copilot Studio の全チャネル | Streamable HTTP 必須 / MCP Prompts は未対応 / DLP 設定で連鎖ブロック可 | (未実施) |
 | **H** | Azure API Management を AI Gateway として被せる | 横断ガバナンス / FinOps | APIM コア ✅ GA / Foundry 統合 ⚠️ Preview | — (上位レイヤー) | あり (APIM GA 部分) | **+$700/月** (Standard v2) + リクエスト課金 | APIM Contributor + Cognitive Services User | A〜F すべての backend を統合 | Streamable HTTP 必須 (MCP) / Standard v2 以上推奨 | (未実施) |
 
-> 📝 **共通の出発点 (`00-create-cs-agent.md`) の検証状況**: Microsoft Copilot Studio で `IT-Helpdesk-Sample` を作成し、pac CLI で YAML 抽出するまでの完全な手順書として **Web UI で全工程を検証済 (実 UI スクショ 26 枚 [`screenshots/copilot-studio-agent/`](screenshots/copilot-studio-agent/) を添付)**。シナリオ A〜D / F はここを起点に進めます。
+> 📝 **共通の出発点 (`00-create-cs-agent.md`) の検証状況**: Microsoft Copilot Studio で `IT-Helpdesk-Sample` を作成し、pac CLI で YAML 抽出、**Agent Evaluation で品質採点** (10 件 / 全般的な品質 / スコア **70%**) まで **Web UI で全工程を検証済 (実 UI スクショ 35 枚 [`screenshots/copilot-studio-agent/`](screenshots/copilot-studio-agent/) を添付)**。シナリオ A〜D / F はここを起点に進めます。
 
 各シナリオの README には以下が完備されています:
 - 前提条件 (Microsoft Copilot Studio / Microsoft Foundry / Azure / Microsoft 365 各側のライセンス・RBAC・SDK バージョン)
@@ -212,7 +212,7 @@ Q4 (上位レイヤー / 本番化). A〜F で構築した後、本番ローン�
 
 ## スクリーンショット運用ルール
 
-- 配置先: [`screenshots/copilot-studio-agent/`](screenshots/copilot-studio-agent/) — `00-create-cs-agent.md` 検証時に取得した Microsoft Copilot Studio の実 UI スクショ (`01-home-screen.png` 〜 `26-channels-page.png` の 26 枚)
+- 配置先: [`screenshots/copilot-studio-agent/`](screenshots/copilot-studio-agent/) — `00-create-cs-agent.md` 検証時に取得した Microsoft Copilot Studio の実 UI スクショ (`01-home-screen.png` 〜 `35-evaluation-failure-detail.png` の 35 枚。01〜26 = エージェント作成 / 27〜35 = §6.4 評価機能)
 - ファイル名: `{連番}-{内容}.png` (例: `07-add-knowledge-modal.png`)。00 と同じ規則で追加してください
 - 解像度: 1300〜1600 px 横幅推奨
 - マスキング: テナント名 / ユーザー名 / サブスクリプション ID / 個人特定情報は必ずマスキング
